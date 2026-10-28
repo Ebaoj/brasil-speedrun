@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Brasil Speedrun 2026 — Cadê o Flávio?</title>
+<meta name="description" content="Brasil Speedrun 2026, Fase 5: Cadê o Flávio? Fuja pela ponte como Flávio ou persiga-o como Moraes. Sátira em pt-BR, grátis, no celular ou no PC." />
+<meta name="theme-color" content="#05060c" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%2300a651'/><path d='M50 14 90 50 50 86 10 50Z' fill='%23ffdf00'/><circle cx='50' cy='50' r='19' fill='%231b3a8a'/></svg>" />
+<style>
+  :root {
+    --fw: min(100vw, calc((100vh - 22px) * 16 / 9));
+    --fw: min(100vw, calc((100dvh - 22px) * 16 / 9));
+    --g: #00a651; --y: #ffdf00; --b: #1b3a8a; --ink: #f4f1e8; --faint: #9aa0b4; --red: #e53935;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: #05060c; color: var(--ink); overflow: hidden;
+    font-family: "Trebuchet MS", "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased; user-select: none; -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent; touch-action: none;
+  }
+  #stage { position: absolute; left: 0; right: 0; top: 0; bottom: 22px; display: flex; align-items: center; justify-content: center; }
+  #frame {
+    position: relative; width: var(--fw); aspect-ratio: 16 / 9; overflow: hidden;
+    font-size: max(8px, calc(var(--fw) / 60));
+    box-shadow: 0 0 80px rgba(0,0,0,.8); background: #08101f;
+  }
+  canvas#c { width: 100%; height: 100%; display: block; }
+  #foot {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 22px; line-height: 22px; z-index: 100;
+    text-align: center; font-size: 12px; letter-spacing: .04em; color: #d9d4c4; background: #000;
+    border-top: 1px solid rgba(255,223,0,.35); pointer-events: none;
+  }
+
+  /* ---- telas ---- */
+  .overlay {
+    position: absolute; inset: 0; z-index: 5; overflow: auto;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 1.2em 2em; gap: .7em;
+    background: radial-gradient(ellipse at 50% 40%, rgba(14,20,50,.94), rgba(3,4,10,.985));
+  }
+  .overlay.hidden { display: none; }
+  .logo { font-family: Impact, "Arial Black", sans-serif; font-size: 3.4em; letter-spacing: .04em; line-height: 1; color: var(--y);
+    text-shadow: 0 .08em 0 #0a6b34, 0 .16em .5em rgba(0,0,0,.7); }
+  .logo small { display: block; font-size: .42em; color: #fff; letter-spacing: .3em; text-shadow: none; margin-top: .3em; }
+  .tag { color: var(--faint); font-size: 1.05em; max-width: 52em; line-height: 1.4; }
+  .cards { display: flex; gap: 1.4em; justify-content: center; margin: .3em 0; }
+  button { font-family: inherit; color: var(--ink); cursor: pointer; border: 0; }
+  .side {
+    width: 17em; padding: .8em .8em .9em; border-radius: 1em;
+    background: linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.03));
+    border: .15em solid rgba(255,255,255,.2); transition: transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .side:hover, .side:focus-visible { transform: translateY(-.2em) scale(1.03); outline: none; }
+  #pick-flavio:hover, #pick-flavio:focus-visible { border-color: var(--y); box-shadow: 0 0 2em rgba(255,223,0,.35); }
+  #pick-moraes:hover, #pick-moraes:focus-visible { border-color: #8fb4ff; box-shadow: 0 0 2em rgba(120,160,255,.35); }
+  .side canvas { width: 6.2em; height: 7.4em; display: block; margin: 0 auto; }
+  .side b { display: block; font-size: 1.35em; margin-top: .2em; }
+  .side em { display: block; font-style: normal; color: var(--y); font-size: .9em; letter-spacing: .1em; text-transform: uppercase; }
+  .side span { display: block; font-size: .95em; color: #c9cde0; line-height: 1.35; margin-top: .35em; }
+  .side i { display: block; font-style: normal; font-size: .85em; color: var(--faint); margin-top: .4em; }
+  .keys { font-size: .95em; color: var(--faint); }
+  .btn {
+    font-size: 1.15em; font-weight: 700; padding: .6em 1.4em; border-radius: .7em;
+    background: linear-gradient(#ffe94d, #f2b800); color: #1a1a1a; box-shadow: 0 .2em 0 #8a6a00;
+  }
+  .btn:active { transform: translateY(.15em); box-shadow: 0 .05em 0 #8a6a00; }
+  .btn.alt { background: linear-gradient(#37c06f, #00924a); color: #fff; box-shadow: 0 .2em 0 #005a2c; }
+  .btn.ghost { background: rgba(255,255,255,.1); color: var(--ink); box-shadow: 0 .2em 0 rgba(0,0,0,.5); }
+
+  #result { flex-direction: row; gap: 2em; }
+  #result .left { flex: 0 0 auto; }
+  #result .left img { height: 22em; width: 22em; border-radius: .8em; box-shadow: 0 .5em 2em rgba(0,0,0,.7); display: block; background: #111; }
+  #result .right { flex: 0 1 34em; text-align: left; display: flex; flex-direction: column; gap: .55em; }
+  #r-title { font-family: Impact, "Arial Black", sans-serif; font-size: 2.6em; color: var(--y); line-height: 1; letter-spacing: .03em; }
+  #r-line { font-size: 1.2em; font-weight: 700; line-height: 1.3; }
+  #r-meme { color: #bcd2ff; font-style: italic; font-size: 1.02em; }
+  #r-score { font-size: 1.1em; color: #e8e6dc; }
+  #r-score b { color: var(--y); font-size: 1.35em; }
+  #r-new { color: #69f0ae; font-weight: 700; display: none; }
+  .row { display: flex; gap: .6em; flex-wrap: wrap; }
+  .fato {
+    background: rgba(255,255,255,.07); border-left: .3em solid var(--y); border-radius: .3em;
+    padding: .55em .8em; font-size: .95em; line-height: 1.4; color: #dcdcd0;
+  }
+  .fato b { color: var(--y); }
+  .fato a { color: #8fd0ff; word-break: break-all; }
+  #r-hint { font-size: .85em; color: var(--faint); min-height: 1.2em; }
+
+  /* ---- toque ---- */
+  #touch { position: absolute; inset: 0; display: none; z-index: 4; pointer-events: none; }
+  #touch.on { display: block; }
+  #joy-zone { position: absolute; inset: 0; pointer-events: auto; touch-action: none; }
+  #joy-base {
+    --joy: clamp(92px, min(24vw, 36vh), 160px);
+    position: absolute; left: 0; top: 0; width: var(--joy); height: var(--joy); transform: translate(-50%, -50%);
+    border-radius: 50%; border: 2px solid rgba(255,255,255,.25);
+    background: radial-gradient(circle, rgba(255,255,255,.07), rgba(255,255,255,.02) 60%, transparent 73%);
+    opacity: .4; transition: opacity .15s; pointer-events: none;
+  }
+  #joy-base.active { opacity: .95; }
+  #joy-knob {
+    position: absolute; left: 50%; top: 50%; width: 46%; height: 46%; transform: translate(-50%, -50%); border-radius: 50%;
+    border: 1px solid rgba(255,223,0,.7); background: radial-gradient(circle at 38% 34%, #ffe94d, #00a651 80%);
+    box-shadow: 0 3px 12px rgba(0,0,0,.5), inset 0 2px 6px rgba(255,255,255,.3);
+  }
+  #mute {
+    position: absolute; right: 1.2%; bottom: 2%; width: 2.8em; height: 2.8em; z-index: 8; border-radius: 50%;
+    font-size: 1em; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.3);
+  }
+
+  #rotate { position: fixed; inset: 0; z-index: 60; background: #05060c; display: none; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 24px; font-size: 18px; }
+  #rotate svg { width: 72px; height: 72px; animation: tilt 2.6s ease-in-out infinite; }
+  @keyframes tilt { 0%, 15% { transform: rotate(0); } 55%, 100% { transform: rotate(-90deg); } }
+  @media (orientation: portrait) and (pointer: coarse) and (max-width: 700px) { #rotate { display: flex; } }
+  .touch-only { display: none; }
+  @media (pointer: coarse) { .touch-only { display: inline; } .kb-only { display: none; } }
+  @media (max-height: 460px) { .overlay { gap: .4em; padding: .6em 1.4em; } }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="frame">
+    <canvas id="c" width="960" height="540"></canvas>
+
+    <div id="menu" class="overlay">
+      <div class="logo">BRASIL SPEEDRUN 2026<small>FASE 5 · CADÊ O FLÁVIO?</small></div>
+      <p class="tag">Meia-noite se aproxima na Ponte Tancredo Neves. Escolha seu lado:</p>
+      <div class="cards">
+        <button class="side" id="pick-flavio" type="button">
+          <canvas id="cv-flavio" width="124" height="148"></canvas>
+          <em>Fugitivo</em><b>Flávio</b>
+          <span>Corra pela ponte à noite, desvie da PF e das viaturas e alcance o jatinho.</span>
+          <i id="best-flavio">Recorde: 0</i>
+        </button>
+        <button class="side" id="pick-moraes" type="button">
+          <canvas id="cv-moraes" width="124" height="148"></canvas>
+          <em>Perseguidor</em><b>Alexandre de Moraes</b>
+          <span>Persiga o Flávio pela cidade. Use a canetada e ignore as pistas que se contradizem.</span>
+          <i id="best-moraes">Recorde: 0</i>
+        </button>
+      </div>
+      <p class="keys"><span class="kb-only">Setas ou WASD para mover · </span><span class="touch-only">Toque e arraste na tela (analógico virtual) · </span>R reinicia</p>
+    </div>
+
+    <div id="result" class="overlay hidden">
+      <div class="left"><img id="r-img" alt="Cartão de resultado" /></div>
+      <div class="right">
+        <div id="r-title">—</div>
+        <div id="r-line"></div>
+        <div id="r-meme"></div>
+        <div id="r-score"></div>
+        <div id="r-new">★ NOVO RECORDE!</div>
+        <div class="row">
+          <button class="btn alt" id="b-share" type="button">Compartilhar</button>
+          <button class="btn" id="b-again" type="button">Jogar de novo</button>
+          <button class="btn ghost" id="b-side" type="button">Trocar lado</button>
+        </div>
+        <div id="r-hint"></div>
+        <div class="fato"><b>📰 fato real</b> — Segundo reportagem do Nexo, Flávio Bolsonaro, investigado, fugiu para a Argentina sem entregar o passaporte à PF. No jogo, tudo é exagero; na vida real, a notícia é essa:
+          <a href="https://www.nexojornal.com.br/expresso/2026/10/27/flavio-bolsonaro-fugiu-argentina-pf-passaporte" target="_blank" rel="noopener noreferrer">nexojornal.com.br/expresso/2026/10/27/flavio-bolsonaro-fugiu-argentina-pf-passaporte</a></div>
+      </div>
+    </div>
+
+    <div id="touch"><div id="joy-zone"><div id="joy-base"><div id="joy-knob"></div></div></div></div>
+    <button id="mute" type="button" aria-label="Som">🔊</button>
+  </div>
+</div>
+<div id="foot">Sátira. Personagens exageram fatos reais.</div>
+<div id="rotate">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#ffdf00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
+  <div>Gire o celular</div><div style="font-size:13px;color:#9aa0b4">gire o celular para jogar na horizontal</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var W = 960, H = 540, TAU = Math.PI * 2;
+  var $ = function (id) { return document.getElementById(id); };
+  var cv = $("c"), ctx = cv.getContext("2d");
+  var rnd = function (a, b) { return a + Math.random() * (b - a); };
+  var rint = function (a, b) { return Math.floor(rnd(a, b + 1)); };
+  var pick = function (a) { return a[Math.floor(Math.random() * a.length)]; };
+  var clamp = function (v, a, b) { return v < a ? a : v > b ? b : v; };
+  var pad2 = function (n) { return (n < 10 ? "0" : "") + n; };
+
+  /* ================= estado público ================= */
+  var state = { screen: "menu", side: null, running: false, over: false, won: null, score: 0, timeLeft: 0,
+    hearts: 3, progress: 0, meme: "", title: "", best: { flavio: 0, moraes: 0 } };
+  try {
+    state.best.flavio = +localStorage.getItem("brs26_best_flavio") || 0;
+    state.best.moraes = +localStorage.getItem("brs26_best_moraes") || 0;
+  } catch (e) {}
+  function saveBest(side, v) { try { localStorage.setItem("brs26_best_" + side, String(v)); } catch (e) {} }
+
+  var MEMES = [
+    { t: "Adeus pátria e família", s: "trilha de despedida dramática" },
+    { t: "Cadê o Wally?", s: "procure o de gravata amarela" },
+    { t: "Fuga das Galinhas", s: "corre que o galinheiro tá vigiado" },
+    { t: "Esqueceram de Mim", s: "sozinho e cheio de armadilhas" }
+  ];
+
+  /* ================= áudio ================= */
+  var actx = null, muted = false;
+  function ac() {
+    if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } }
+    if (actx && actx.state === "suspended") { try { actx.resume(); } catch (e) {} }
+    return actx;
+  }
+  function tone(f, d, type, v, delay, f2) {
+    var a = ac(); if (!a || muted) return;
+    try {
+      var t0 = a.currentTime + (delay || 0), o = a.createOscillator(), g = a.createGain();
+      o.type = type || "square"; o.frequency.setValueAtTime(f, t0);
+      if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + d);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(v || 0.07, t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0 + d + 0.02);
+    } catch (e) {}
+  }
+  function noise(d, v, delay, lp) {
+    var a = ac(); if (!a || muted) return;
+    try {
+      var n = Math.floor(a.sampleRate * d), buf = a.createBuffer(1, n, a.sampleRate), data = buf.getChannelData(0);
+      for (var i = 0; i < n; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      var s = a.createBufferSource(), g = a.createGain(), fl = a.createBiquadFilter();
+      fl.type = "lowpass"; fl.frequency.value = lp || 1200; g.gain.value = v || 0.2; s.buffer = buf;
+      s.connect(fl); fl.connect(g); g.connect(a.destination); s.start(a.currentTime + (delay || 0));
+    } catch (e) {}
+  }
+  function sfx(k) {
+    switch (k) {
+      case "coin": tone(880, .08, "square", .05); tone(1320, .12, "square", .05, .07); break;
+      case "boost": tone(300, .25, "sawtooth", .06, 0, 900); break;
+      case "hit": noise(.25, .35, 0, 700); tone(150, .22, "sawtooth", .09, 0, 60); break;
+      case "stamp": noise(.18, .5, 0, 500); tone(90, .25, "square", .12, 0, 40); break;
+      case "pop": tone(520, .07, "sine", .08, 0, 760); break;
+      case "siren": tone(700, .16, "square", .03); tone(520, .16, "square", .03, .17); break;
+      case "pen": noise(.2, .2, 0, 3000); tone(1000, .3, "triangle", .06, .05, 300); break;
+      case "freeze": tone(1200, .4, "sine", .07, 0, 200); break;
+      case "tick": tone(660, .09, "square", .05); break;
+      case "go": tone(990, .3, "square", .07); break;
+      case "win": [523, 659, 784, 1046].forEach(function (f, i) { tone(f, .22, "square", .06, i * .13); }); break;
+      case "lose": [392, 349, 311, 233].forEach(function (f, i) { tone(f, .3, "sawtooth", .06, i * .2); }); break;
+      case "select": tone(660, .08, "square", .05); tone(990, .1, "square", .05, .08); break;
+    }
+  }
+  $("mute").addEventListener("click", function (e) { e.stopPropagation(); muted = !muted; $("mute").textContent = muted ? "🔇" : "🔊"; });
+  $("mute").addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+
+  /* ================= entrada ================= */
+  var keys = {};
+  var portraitMQ = window.matchMedia("(orientation: portrait) and (pointer: coarse) and (max-width: 700px)");
+  var coarseMQ = window.matchMedia("(pointer: coarse)");
+  window.addEventListener("keydown", function (e) {
+    keys[e.code] = true;
+    if (/^(Arrow|Space)/.test(e.code)) e.preventDefault();
+    if (e.code === "KeyR" && state.side && (state.screen === "play" || state.screen === "over")) start(state.side);
+  });
+  window.addEventListener("keyup", function (e) { keys[e.code] = false; });
+  window.addEventListener("blur", function () { keys = {}; });
+
+  var touchEl = $("touch"), joyZone = $("joy-zone"), joyBase = $("joy-base"), joyKnob = $("joy-knob");
+  var joy = { active: false, x: 0, y: 0 }, joyPointer = null, joyCX = 0, joyCY = 0, joyR = 60;
+  function placeBase(x, y) { joyCX = x; joyCY = y; joyR = (joyBase.offsetWidth || 120) * 0.4; joyBase.style.left = x + "px"; joyBase.style.top = y + "px"; }
+  function setKnob(x, y) { joyKnob.style.transform = "translate(calc(-50% + " + x + "px), calc(-50% + " + y + "px))"; }
+  function joyIdle() { var b = touchEl.getBoundingClientRect(); placeBase((b.width || 600) * 0.17, (b.height || 340) * 0.66); setKnob(0, 0); }
+  function joyReset() { joyPointer = null; joy.active = false; joy.x = 0; joy.y = 0; joyBase.classList.remove("active"); joyIdle(); }
+  function joyFrom(e) {
+    var b = touchEl.getBoundingClientRect(), px = e.clientX - b.left, py = e.clientY - b.top;
+    var ox = px - joyCX, oy = py - joyCY, d = Math.hypot(ox, oy);
+    if (d > joyR) { var k = (d - joyR) / d; placeBase(joyCX + ox * k, joyCY + oy * k); ox = px - joyCX; oy = py - joyCY; }
+    setKnob(ox, oy); joy.x = ox / joyR; joy.y = oy / joyR;
+  }
+  joyZone.addEventListener("pointerdown", function (e) {
+    e.preventDefault(); joyPointer = e.pointerId;
+    try { joyZone.setPointerCapture(e.pointerId); } catch (err) {}
+    var b = touchEl.getBoundingClientRect(); placeBase(e.clientX - b.left, e.clientY - b.top);
+    joy.active = true; joyBase.classList.add("active"); joyFrom(e);
+  });
+  joyZone.addEventListener("pointermove", function (e) { if (e.pointerId === joyPointer) joyFrom(e); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (t) {
+    joyZone.addEventListener(t, function (e) { if (e.pointerId === joyPointer) joyReset(); });
+  });
+  joyZone.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  window.addEventListener("resize", function () { if (!joy.active) joyIdle(); });
+
+  function readInput() {
+    var x = 0, y = 0;
+    if (keys.ArrowLeft || keys.KeyA) x -= 1;
+    if (keys.ArrowRight || keys.KeyD) x += 1;
+    if (keys.ArrowUp || keys.KeyW) y -= 1;
+    if (keys.ArrowDown || keys.KeyS) y += 1;
+    if (x && y) { x *= 0.7071; y *= 0.7071; }
+    if (joy.active) {
+      var m = Math.hypot(joy.x, joy.y);
+      if (m > 0.12) { var s = Math.min(1, (m - 0.12) / 0.6); x += joy.x / m * s; y += joy.y / m * s; }
+    }
+    var l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; }
+    return { x: x, y: y };
+  }
+  var injected = null;   // permite testes automatizados: __game.input = {x,y}
+
+  /* ================= desenho: helpers ================= */
+  function rr(c, x, y, w, h, r) {
+    c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+  }
+  function txt(c, s, x, y, size, col, align, stroke) {
+    c.font = "bold " + size + "px 'Trebuchet MS', 'Segoe UI', Arial, sans-serif";
+    c.textAlign = align || "left"; c.textBaseline = "middle";
+    if (stroke) { c.lineWidth = Math.max(3, size / 4); c.strokeStyle = stroke; c.lineJoin = "round"; c.strokeText(s, x, y); }
+    c.fillStyle = col || "#fff"; c.fillText(s, x, y);
+  }
+  function wrap(c, s, maxW) {
+    var words = s.split(" "), lines = [], cur = "";
+    for (var i = 0; i < words.length; i++) {
+      var t = cur ? cur + " " + words[i] : words[i];
+      if (c.measureText(t).width > maxW && cur) { lines.push(cur); cur = words[i]; } else cur = t;
+    }
+    if (cur) lines.push(cur); return lines;
+  }
+  function balloon(c, s, x, y, o) {   // (x,y) = ponta do rabinho
+    o = o || {}; var size = o.size || 14, maxW = o.maxW || 150;
+    c.font = "bold " + size + "px 'Trebuchet MS', Arial, sans-serif";
+    var lines = wrap(c, s, maxW), w = 0, i;
+    for (i = 0; i < lines.length; i++) w = Math.max(w, c.measureText(lines[i]).width);
+    w += 18; var h = lines.length * (size + 3) + 10;
+    var bx = clamp(x - w / 2, 4, (o.limitW || W) - w - 4), by = Math.max(4, y - 16 - h);
+    c.save();
+    c.globalAlpha = o.alpha == null ? 1 : o.alpha;
+    c.fillStyle = o.bg || "#fff"; c.strokeStyle = "#111"; c.lineWidth = 2.5;
+    rr(c, bx, by, w, h, 10); c.fill(); c.stroke();
+    var tx = clamp(x, bx + 14, bx + w - 14);
+    c.beginPath(); c.moveTo(tx - 7, by + h - 1); c.lineTo(x, y); c.lineTo(tx + 7, by + h - 1); c.closePath();
+    c.fill(); c.stroke();
+    c.fillStyle = o.bg || "#fff"; c.fillRect(tx - 6, by + h - 3, 12, 4);
+    c.fillStyle = o.col || "#111"; c.textAlign = "center"; c.textBaseline = "middle";
+    for (i = 0; i < lines.length; i++) c.fillText(lines[i], bx + w / 2, by + 5 + (size + 3) * (i + 0.5) + 1);
+    c.restore();
+  }
+
+  /* ================= personagens (só formas) ================= */
+  function legs(c, sw, col, shoe) {
+    c.fillStyle = col; c.fillRect(-8 + sw * 0.5, -17, 6, 17 - Math.max(0, -sw) * 0.5); c.fillRect(2 - sw * 0.5, -17, 6, 17 - Math.max(0, sw) * 0.5);
+    c.fillStyle = shoe || "#111"; c.fillRect(-9 + sw * 0.5, -3, 8, 3); c.fillRect(1 - sw * 0.5, -3, 8, 3);
+  }
+  function arms(c, sw, col, hand, y) {
+    y = y || -38; c.fillStyle = col; c.fillRect(-16, y + sw * 0.35, 5, 17); c.fillRect(11, y - sw * 0.35, 5, 17);
+    c.fillStyle = hand; c.beginPath(); c.arc(-13.5, y + 18 + sw * 0.35, 2.8, 0, TAU); c.arc(13.5, y + 18 - sw * 0.35, 2.8, 0, TAU); c.fill();
+  }
+  function face(c, skin, eyeY, o) {
+    o = o || {};
+    c.fillStyle = skin; c.beginPath(); c.arc(0, -51, 12.5, 0, TAU); c.fill();                  // crânio
+    c.beginPath(); c.ellipse(0, -45, o.jaw || 11, 8.5, 0, 0, TAU); c.fill();                     // mandíbula
+    c.beginPath(); c.arc(-12.5, -50, 3, 0, TAU); c.arc(12.5, -50, 3, 0, TAU); c.fill();         // orelhas
+    c.fillStyle = "#fff"; c.beginPath(); c.ellipse(-4.6, eyeY, 3, 3.3, 0, 0, TAU); c.ellipse(4.6, eyeY, 3, 3.3, 0, 0, TAU); c.fill();
+    c.fillStyle = "#1b1212"; c.beginPath(); c.arc(-4.2, eyeY + .4, 1.5, 0, TAU); c.arc(5, eyeY + .4, 1.5, 0, TAU); c.fill();
+  }
+  var CH = {
+    flavio: function (c, sw, t, o) {
+      legs(c, sw, "#1a2347"); arms(c, sw, "#1f2b5e", "#e8b48e");
+      c.fillStyle = "#1f2b5e"; rr(c, -11, -39, 22, 24, 4); c.fill();
+      c.fillStyle = "#fff"; c.beginPath(); c.moveTo(-5, -39); c.lineTo(5, -39); c.lineTo(0, -29); c.fill();
+      c.fillStyle = o.tie || "#ffd800"; c.beginPath(); c.moveTo(-2, -37); c.lineTo(2, -37); c.lineTo(3.5, -24); c.lineTo(0, -20); c.lineTo(-3.5, -24); c.fill();
+      face(c, "#e8b48e", -52, { jaw: 11.5 });
+      c.fillStyle = o.hair || "#2a1a12"; c.beginPath(); c.ellipse(0, -58.5, 13.5, 8, 0, Math.PI, 0); c.fill();
+      c.beginPath(); c.moveTo(-13, -58); c.quadraticCurveTo(-4, -66, 13, -57); c.lineTo(8, -56); c.quadraticCurveTo(-2, -61, -13, -53); c.fill();
+      c.fillRect(-13, -58, 3, 8); c.fillRect(10, -58, 3, 8);
+      c.strokeStyle = "#2a1a12"; c.lineWidth = 1.6; c.beginPath(); c.moveTo(-8, -56.5); c.lineTo(-2, -56); c.moveTo(2, -56); c.lineTo(8, -56.5); c.stroke();
+      c.strokeStyle = "#7a2a1e"; c.lineWidth = 1.6; c.beginPath(); c.arc(0, -45.5, 4, 0.2, Math.PI - 0.2); c.stroke();
+    },
+    moraes: function (c, sw, t) {
+      c.fillStyle = "#111"; c.fillRect(-7 + sw * .4, -4, 7, 4); c.fillRect(0 - sw * .4, -4, 7, 4);
+      c.fillStyle = "#0b0b10"; c.beginPath(); c.moveTo(-12, -40); c.lineTo(12, -40); c.lineTo(18, -3); c.lineTo(-18, -3); c.closePath(); c.fill();
+      c.fillStyle = "#16161e"; c.fillRect(-17, -38 + sw * .35, 6, 20); c.fillRect(11, -38 - sw * .35, 6, 20);
+      c.fillStyle = "#d9a27c"; c.beginPath(); c.arc(-14, -17 + sw * .35, 3, 0, TAU); c.arc(14, -17 - sw * .35, 3, 0, TAU); c.fill();
+      c.fillStyle = "#fff"; c.fillRect(-6, -41, 12, 5); c.fillRect(-4, -36, 3, 9); c.fillRect(1, -36, 3, 9);
+      face(c, "#d9a27c", -51, { jaw: 11 });
+      c.fillStyle = "rgba(255,255,255,.4)"; c.beginPath(); c.ellipse(-4, -59, 4, 2.2, -0.4, 0, TAU); c.fill();
+      c.fillStyle = "#15100d";   // sobrancelhas grossas e severas
+      c.save(); c.translate(-5, -56.5); c.rotate(0.22); c.fillRect(-5.5, -2, 11, 4); c.restore();
+      c.save(); c.translate(5, -56.5); c.rotate(-0.22); c.fillRect(-5.5, -2, 11, 4); c.restore();
+      c.strokeStyle = "rgba(90,50,40,.5)"; c.lineWidth = 1; c.beginPath(); c.arc(-4.6, -48.5, 3, 0.3, 2.8); c.arc(4.6, -48.5, 3, 0.3, 2.8); c.stroke();
+      c.strokeStyle = "#5a2a20"; c.lineWidth = 1.8; c.beginPath(); c.moveTo(-3.5, -44.5); c.lineTo(3.5, -44.5); c.stroke();
+    },
+    nikolas: function (c, sw, t) {
+      legs(c, sw, "#2c3e6b", "#eee"); arms(c, sw, "#3d5a80", "#f0c09a");
+      c.fillStyle = "#3d5a80"; rr(c, -11, -39, 22, 24, 4); c.fill();
+      c.fillStyle = "#a8d0f0"; c.fillRect(-4, -39, 8, 22);
+      face(c, "#f0c09a", -52, { jaw: 10 });
+      c.fillStyle = "rgba(255,130,120,.45)"; c.beginPath(); c.arc(-7.5, -46.5, 2.6, 0, TAU); c.arc(7.5, -46.5, 2.6, 0, TAU); c.fill();
+      c.fillStyle = "#4a2f1f";   // cabelão volumoso
+      c.beginPath(); c.arc(-8, -60, 7.5, 0, TAU); c.arc(0, -63, 8.5, 0, TAU); c.arc(8, -60, 7.5, 0, TAU); c.arc(-11, -54, 4.5, 0, TAU); c.arc(11, -54, 4.5, 0, TAU); c.fill();
+      c.fillStyle = "rgba(74,47,31,.45)"; c.beginPath(); c.ellipse(0, -41.5, 8.5, 4.2, 0, 0.1, Math.PI - 0.1); c.fill();
+      c.fillStyle = "#fff"; c.beginPath(); c.moveTo(-5, -46.5); c.quadraticCurveTo(0, -39.5, 5, -46.5); c.closePath(); c.fill();
+      c.strokeStyle = "#4a2f1f"; c.lineWidth = 1.6; c.beginPath(); c.moveTo(-8, -56.5); c.lineTo(-2, -57); c.moveTo(2, -57); c.lineTo(8, -56.5); c.stroke();
+    },
+    agent: function (c, sw, t, o) {
+      legs(c, sw, "#0e1220"); arms(c, sw, "#101a33", o.skin || "#c98e68");
+      c.fillStyle = "#101a33"; rr(c, -12, -39, 24, 24, 4); c.fill();
+      c.fillStyle = "#ffd800"; c.font = "bold 8px Arial"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("PF", 0, -27);
+      c.fillStyle = "#222c4f"; c.fillRect(-12, -22, 24, 3);
+      face(c, o.skin || "#c98e68", -50, { jaw: 11 });
+      c.fillStyle = "#0a0a0a"; c.fillRect(-9, -54, 18, 5.5); c.fillRect(-9.5, -55, 19, 1.8);
+      c.fillStyle = "rgba(255,255,255,.35)"; c.fillRect(-7, -53.5, 4, 1.5); c.fillRect(2.5, -53.5, 4, 1.5);
+      c.fillStyle = "#0b0b0b"; c.beginPath(); c.ellipse(0, -60, 13, 6.5, 0, Math.PI, 0); c.fill(); c.fillRect(-13, -61, 26, 3.5); c.fillRect(-9, -57, 18, 2);
+      c.fillStyle = "#ffd800"; c.beginPath(); c.arc(0, -63, 2.4, 0, TAU); c.fill();
+      c.strokeStyle = "#3a1e18"; c.lineWidth = 1.6; c.beginPath(); c.moveTo(-3, -44); c.lineTo(3, -44); c.stroke();
+    },
+    npc: function (c, sw, t, o) {
+      legs(c, sw, o.pants || "#33384f"); arms(c, sw, o.shirt || "#c33", o.skin || "#e0ac84");
+      c.fillStyle = o.shirt || "#c33"; rr(c, -10, -38, 20, 23, 5); c.fill();
+      face(c, o.skin || "#e0ac84", -51, { jaw: 10 });
+      c.fillStyle = o.hair || "#222"; c.beginPath(); c.ellipse(0, -58, 12.5, 7, 0, Math.PI, 0); c.fill(); c.fillRect(-12.5, -58, 3, 6); c.fillRect(9.5, -58, 3, 6);
+      c.strokeStyle = "#5a2a20"; c.lineWidth = 1.5; c.beginPath(); c.arc(0, -46, 3, 0.3, Math.PI - 0.3); c.stroke();
+    }
+  };
+  function drawChar(c, kind, x, y, s, o) {
+    o = o || {}; var t = o.t || 0, mv = o.moving ? 1 : 0;
+    c.save(); c.translate(x, y); c.scale(s * (o.flip ? -1 : 1), s);
+    c.fillStyle = "rgba(0,0,0,.33)"; c.beginPath(); c.ellipse(0, 0, 15, 5, 0, 0, TAU); c.fill();
+    var sw = Math.sin(t * 14) * 5 * mv, bob = Math.abs(Math.sin(t * 14)) * 2 * mv;
+    c.translate(0, -bob); CH[kind](c, sw, t, o);
+    if (o.frozen) {
+      c.fillStyle = "rgba(140,200,255,.5)"; rr(c, -17, -68, 34, 70, 8); c.fill();
+      c.strokeStyle = "rgba(255,255,255,.8)"; c.lineWidth = 1.5; c.stroke();
+    }
+    c.restore();
+  }
+
+  function drawCar(c, x, y, dir, t, o) {   // (x,y)=centro no chão; dir -1 = indo para a esquerda
+    o = o || {};
+    c.save(); c.translate(x, y); c.scale(dir < 0 ? -1 : 1, 1);
+    c.fillStyle = "rgba(0,0,0,.4)"; c.beginPath(); c.ellipse(0, 3, 54, 9, 0, 0, TAU); c.fill();
+    if (!o.parked) {
+      var g = c.createLinearGradient(48, 0, 150, 0); g.addColorStop(0, "rgba(255,240,170,.38)"); g.addColorStop(1, "rgba(255,240,170,0)");
+      c.fillStyle = g; c.beginPath(); c.moveTo(46, -16); c.lineTo(150, -34); c.lineTo(150, 12); c.lineTo(46, -8); c.fill();
+    }
+    c.fillStyle = "#e9edf5"; rr(c, -48, -26, 96, 20, 6); c.fill();
+    c.fillStyle = "#e9edf5"; c.beginPath(); c.moveTo(-26, -26); c.lineTo(-17, -41); c.lineTo(20, -41); c.lineTo(32, -26); c.closePath(); c.fill();
+    c.fillStyle = "#1b2a52"; c.beginPath(); c.moveTo(-21, -28); c.lineTo(-14, -39); c.lineTo(-2, -39); c.lineTo(-2, -28); c.fill();
+    c.beginPath(); c.moveTo(2, -28); c.lineTo(2, -39); c.lineTo(18, -39); c.lineTo(27, -28); c.fill();
+    c.fillStyle = "#1b3a8a"; c.fillRect(-48, -17, 96, 5);
+    c.fillStyle = "#ffd800"; c.fillRect(-48, -12, 96, 1.5);
+    c.save(); if (dir < 0) c.scale(-1, 1); c.fillStyle = "#111"; c.font = "bold 8px Arial"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("POLÍCIA FEDERAL", 0, -21.5); c.restore();
+    c.fillStyle = "#ffe9a0"; c.fillRect(43, -24, 5, 5);
+    c.fillStyle = "#c22"; c.fillRect(-48, -23, 3, 4);
+    c.fillStyle = "#111"; c.beginPath(); c.arc(-28, -5, 8, 0, TAU); c.arc(28, -5, 8, 0, TAU); c.fill();
+    c.fillStyle = "#777"; c.beginPath(); c.arc(-28, -5, 3.5, 0, TAU); c.arc(28, -5, 3.5, 0, TAU); c.fill();
+    var on = Math.floor(t * 6) % 2 === 0;
+    c.fillStyle = on ? "#ff2a2a" : "#7a1515"; c.fillRect(-12, -46, 12, 5);
+    c.fillStyle = on ? "#1a3a7a" : "#3a7aff"; c.fillRect(0, -46, 12, 5);
+    c.restore();
+    c.save(); c.globalCompositeOperation = "lighter";
+    var gl = c.createRadialGradient(x, y - 44, 2, x, y - 44, 60);
+    gl.addColorStop(0, on ? "rgba(255,40,40,.55)" : "rgba(60,110,255,.55)"); gl.addColorStop(1, "rgba(0,0,0,0)");
+    c.fillStyle = gl; c.fillRect(x - 60, y - 104, 120, 120); c.restore();
+  }
+
+  function drawJet(c, x, y) {
+    c.save(); c.translate(x, y);
+    c.fillStyle = "rgba(0,0,0,.4)"; c.beginPath(); c.ellipse(0, 4, 120, 12, 0, 0, TAU); c.fill();
+    c.fillStyle = "#f4f6fa"; c.beginPath(); c.ellipse(0, -48, 118, 24, 0, 0, TAU); c.fill();
+    c.beginPath(); c.moveTo(-80, -58); c.lineTo(-120, -112); c.lineTo(-96, -112); c.lineTo(-50, -62); c.closePath(); c.fill();
+    c.fillStyle = "#cfd6e4"; c.beginPath(); c.moveTo(-10, -40); c.lineTo(30, -40); c.lineTo(-30, -14); c.lineTo(-52, -14); c.closePath(); c.fill();
+    c.fillStyle = "#cfd6e4"; c.beginPath(); c.ellipse(-92, -74, 22, 8, 0, 0, TAU); c.fill();
+    c.fillStyle = "#1b3a8a"; c.fillRect(-100, -50, 218, 4);
+    c.fillStyle = "#00a651"; c.fillRect(-100, -45, 218, 3);
+    c.fillStyle = "#2a3a63";
+    for (var i = 0; i < 6; i++) { rr(c, -48 + i * 20, -62, 11, 9, 3); c.fill(); }
+    c.beginPath(); c.moveTo(82, -62); c.quadraticCurveTo(108, -62, 112, -50); c.lineTo(82, -50); c.fill();
+    c.fillStyle = "#555"; c.beginPath(); c.arc(-40, -3, 6, 0, TAU); c.arc(60, -3, 6, 0, TAU); c.fill();
+    c.fillStyle = "#222"; c.fillRect(-42, -26, 4, 20); c.fillRect(58, -26, 4, 20);
+    c.restore();
+  }
+
+  function drawHeart(c, x, y, s, col) {
+    c.fillStyle = col; c.beginPath(); c.moveTo(x, y + s * .35);
+    c.bezierCurveTo(x - s, y - s * .3, x - s * .5, y - s, x, y - s * .4);
+    c.bezierCurveTo(x + s * .5, y - s, x + s, y - s * .3, x, y + s * .35); c.fill();
+  }
+  function drawFlag(c, x, y, w, h, kind) {
+    c.save(); c.translate(x, y);
+    if (kind === "br") {
+      c.fillStyle = "#009c3b"; c.fillRect(0, 0, w, h);
+      c.fillStyle = "#ffdf00"; c.beginPath(); c.moveTo(w / 2, h * .1); c.lineTo(w * .9, h / 2); c.lineTo(w / 2, h * .9); c.lineTo(w * .1, h / 2); c.fill();
+      c.fillStyle = "#002776"; c.beginPath(); c.arc(w / 2, h / 2, h * .26, 0, TAU); c.fill();
+    } else {
+      c.fillStyle = "#74acdf"; c.fillRect(0, 0, w, h); c.fillStyle = "#fff"; c.fillRect(0, h / 3, w, h / 3);
+      c.fillStyle = "#f6b40e"; c.beginPath(); c.arc(w / 2, h / 2, h * .12, 0, TAU); c.fill();
+    }
+    c.strokeStyle = "rgba(0,0,0,.5)"; c.strokeRect(0, 0, w, h); c.restore();
+  }
+
+  /* ================= mundo ================= */
+  var g = null;
+  var parts = [];
+  function burst(x, y, col, n, sp) {
+    for (var i = 0; i < n; i++) { var a = rnd(0, TAU), v = rnd(30, sp || 140);
+      parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 30, life: rnd(.4, .9), max: .9, col: col, r: rnd(2, 4.5) }); }
+  }
+  function updParts(dt) {
+    for (var i = parts.length - 1; i >= 0; i--) { var p = parts[i]; p.life -= dt; if (p.life <= 0) { parts.splice(i, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 180 * dt; }
+  }
+  function drawParts(c) {
+    for (var i = 0; i < parts.length; i++) { var p = parts[i]; c.globalAlpha = clamp(p.life / .5, 0, 1); c.fillStyle = p.col; c.beginPath(); c.arc(p.x, p.y, p.r, 0, TAU); c.fill(); }
+    c.globalAlpha = 1;
+  }
+  function toast(s, col, t) { g.toasts.push({ s: s, col: col || "#fff", t: t || 2.2 }); if (g.toasts.length > 3) g.toasts.shift(); }
+
+  /* ============================ MODO FLÁVIO ============================ */
+  var FL = { L: 7200, top: 262, bot: 484, border: 0.55, limit: 36, pxPerM: 13 };
+
+  function startFlavio() {
+    parts = [];
+    g = { mode: "flavio", t: 0, cd: 2.6, anim: 0, px: 90, py: 372, hearts: 3, inv: 0, boost: 0, slow: 0, coins: 0, passports: 0,
+      shake: 0, obs: [], items: [], toasts: [], stamp: null, nik: null, finish: null, quip: null, crossed: false, bonus: 0, why: "", stars: [], city: [], flash: 0 };
+    var i, L = FL.L;
+    for (i = 0; i < 90; i++) g.stars.push({ x: rnd(0, W), y: rnd(0, 170), r: rnd(.5, 1.6), p: rnd(0, 6) });
+    var cx = 0;
+    while (cx < 2400) { var bw = rint(34, 80), bh = rint(30, 120); g.city.push({ x: cx, w: bw, h: bh, lit: Math.random() }); cx += bw + rint(0, 14); }
+    g.cityW = cx;
+    // bloqueios da PF
+    [0.3, 0.55, 0.8].forEach(function (f, k) {
+      var x = f * L, gap = 112, gy = rnd(FL.top + 70, FL.bot - 60);
+      g.obs.push({ t: "wall", x: x, y: (FL.top - 14 + gy - gap / 2) / 2, hw: 11, hh: (gy - gap / 2 - (FL.top - 14)) / 2 });
+      g.obs.push({ t: "wall", x: x, y: (gy + gap / 2 + FL.bot + 20) / 2, hw: 11, hh: (FL.bot + 20 - (gy + gap / 2)) / 2 });
+      g.obs.push({ t: "agent", x: x + 40, y: gy - gap / 2 - 16 + (k % 2) * (gap + 32), y0: gy - gap / 2 - 16 + (k % 2) * (gap + 32), amp: 0, sp: 0, ph: 0, r: 14, skin: pick(["#c98e68", "#8d5a3b", "#e0ac84"]) });
+      g.obs.push({ t: "carp", x: x + 110, y: pick([FL.top + 22, FL.bot - 14]), hw: 46, hh: 14 });
+    });
+    var x = 760;
+    while (x < L - 650) {
+      var near = false; [0.3, 0.55, 0.8].forEach(function (f) { if (Math.abs(x - f * L) < 420) near = true; });
+      if (near) { x += 120; continue; }
+      var kind = pick(["agents", "agents", "car", "car", "mix", "line"]), diff = x / L;
+      if (kind === "agents") {
+        var n = rint(1, 2), ys = [rnd(FL.top + 20, 330), rnd(380, FL.bot - 10)];
+        for (i = 0; i < n; i++) { var yy = ys[i]; g.obs.push({ t: "agent", x: x + i * 40, y: yy, y0: yy, amp: rnd(25, 60), sp: rnd(1.2, 2.2) + diff, ph: rnd(0, 6), r: 14, skin: pick(["#c98e68", "#8d5a3b", "#e0ac84"]) }); }
+      } else if (kind === "car") {
+        g.obs.push({ t: "car", trig: x - 800, x: 0, y: rnd(FL.top + 30, FL.bot - 14), hw: 46, hh: 14, vx: -rnd(150, 210) - diff * 70, on: false, sirenDone: false });
+      } else if (kind === "mix") {
+        var y1 = rnd(FL.top + 20, FL.bot - 20); g.obs.push({ t: "agent", x: x, y: y1, y0: y1, amp: 40, sp: 1.8, ph: rnd(0, 6), r: 14, chase: true, skin: "#c98e68" });
+        g.obs.push({ t: "car", trig: x - 650, x: 0, y: clamp(y1 + pick([-90, 90]), FL.top + 30, FL.bot - 14), hw: 46, hh: 14, vx: -rnd(190, 240), on: false });
+      } else {
+        for (i = 0; i < 3; i++) { var yl = FL.top + 30 + i * 80 + rnd(-8, 8); g.obs.push({ t: "agent", x: x + i * 55, y: yl, y0: yl, amp: 28, sp: 2 + i * .3, ph: i * 2, r: 14, skin: pick(["#c98e68", "#8d5a3b", "#e0ac84"]) }); }
+      }
+      // itens no caminho
+      var iy = rnd(FL.top + 20, FL.bot - 14), r = Math.random();
+      for (i = 0; i < 5; i++) g.items.push({ t: r < .12 ? (i === 2 ? "cafe" : "coin") : "coin", x: x + 210 + i * 36, y: iy + Math.sin(i / 4 * Math.PI) * -26, got: false });
+      x += rint(340, 470);
+    }
+    g.items.push({ t: "pass", x: 0.17 * L, y: 380, got: false });
+    g.items.push({ t: "pass", x: 0.66 * L, y: 330, got: false });
+    g.items.push({ t: "cafe", x: 0.42 * L, y: 420, got: false });
+    g.items.push({ t: "cafe", x: 0.9 * L - 300, y: 340, got: false });
+  }
+
+  function hitObs(o, px, py, r) {
+    if (o.t === "agent") return Math.hypot(px - o.x, py - o.y) < r + o.r;
+    var cx = clamp(px, o.x - o.hw, o.x + o.hw), cy = clamp(py, o.y - o.hh, o.y + o.hh);
+    return Math.hypot(px - cx, py - cy) < r;
+  }
+
+  function updFlavio(dt) {
+    g.anim += dt; updParts(dt);
+    for (var ti = g.toasts.length - 1; ti >= 0; ti--) { g.toasts[ti].t -= dt; if (g.toasts[ti].t <= 0) g.toasts.splice(ti, 1); }
+    if (g.shake > 0) g.shake -= dt; if (g.flash > 0) g.flash -= dt;
+    if (g.stamp) { g.stamp.t += dt; if (g.stamp.t > 3) g.stamp = null; }
+    if (g.nik) { g.nik.t += dt; if (g.nik.t > 5.6) g.nik = null; else if (!g.nik.p2 && g.nik.t > 2.3) { g.nik.p2 = true; sfx("pop"); } }
+    if (g.quip) { g.quip.t -= dt; if (g.quip.t <= 0) g.quip = null; }
+    if (g.cd > 0) {
+      var prev = Math.ceil(g.cd); g.cd -= dt; if (Math.ceil(g.cd) !== prev && g.cd > 0) sfx("tick"); if (g.cd <= 0) sfx("go");
+      return;
+    }
+    if (g.finish) {
+      g.finish.t += dt; g.finish.jx += (60 + g.finish.t * 700) * dt * (g.finish.t > .8 ? 1 : 0);
+      if (g.finish.t > 2.1) endGame(true, "jato");
+      return;
+    }
+    g.t += dt; state.timeLeft = Math.max(0, FL.limit - g.t);
+    var inp = injected || readInput();
+    var prog = g.px / FL.L, base = 205 + 75 * prog;
+    var v = base * (g.boost > 0 ? 1.45 : 1) * (g.slow > 0 ? 0.55 : 1) + inp.x * 90;
+    g.px += Math.max(70, v) * dt; g.py = clamp(g.py + inp.y * 250 * dt, FL.top + 6, FL.bot - 2);
+    g.moving = true;
+    if (g.inv > 0) g.inv -= dt; if (g.boost > 0) g.boost -= dt; if (g.slow > 0) g.slow -= dt;
+    var i, o;
+    for (i = 0; i < g.obs.length; i++) {
+      o = g.obs[i];
+      if (o.t === "agent") {
+        if (o.chase && o.x - g.px < 420 && o.x - g.px > -50) o.y0 += clamp(g.py - o.y0, -1, 1) * 55 * dt;
+        o.y = clamp(o.y0 + Math.sin(g.t * o.sp + o.ph) * o.amp, FL.top + 4, FL.bot);
+      } else if (o.t === "car") {
+        if (!o.on && g.px > o.trig) { o.on = true; o.x = g.px + 1000; }
+        if (o.on) { o.x += o.vx * dt; if (!o.sirenDone && o.x - g.px < 900) { o.sirenDone = true; sfx("siren"); } }
+      }
+    }
+    if (g.inv <= 0) {
+      for (i = 0; i < g.obs.length; i++) {
+        o = g.obs[i]; if (o.t === "car" && !o.on) continue;
+        if (hitObs(o, g.px, g.py, 11)) { hurtFlavio(o); break; }
+      }
+    }
+    for (i = 0; i < g.items.length; i++) {
+      var it = g.items[i]; if (it.got || Math.abs(it.x - g.px) > 40) continue;
+      if (Math.hypot(it.x - g.px, it.y - (g.py - 20)) < 30) { it.got = true; pickFlavio(it); }
+    }
+    if (!g.nik && !g.nikDone && g.px > 0.33 * FL.L) { g.nik = { t: 0 }; g.nikDone = true; sfx("pop"); }
+    if (!g.crossed && g.px > FL.border * FL.L) { g.crossed = true; toast("FRONTEIRA! Bem-vindo a Puerto Iguazú", "#8fd0ff", 2.6); sfx("win"); }
+    state.progress = clamp(g.px / FL.L, 0, 1);
+    state.hearts = g.hearts;
+    state.score = fScore();
+    if (g.px >= FL.L - 30) { g.finish = { t: 0, jx: 0 }; state.timeLeft = Math.max(0, FL.limit - g.t); sfx("win"); toast("Jatinho alcançado!", "#69f0ae", 3); return; }
+    if (g.t >= FL.limit) endGame(false, "tempo");
+  }
+  function fScore() { return Math.floor(g.px / 10) + g.coins * 100 + g.bonus; }
+  function hurtFlavio(o) {
+    g.hearts--; g.inv = 1.7; g.slow = .9; g.shake = .35; sfx("hit"); burst(g.px, g.py - 24, "#ff5252", 14);
+    state.hearts = g.hearts;
+    g.quip = { s: pick(["Ai!", "Calma, é só um passeio!", "Eu só tava indo ali!", "Me confundiram!"]), t: 1.3 };
+    if (o.t === "wall") g.px = o.x - o.hw - 16; else if (o.t === "agent") g.px -= 18;
+    if (g.hearts <= 0) endGame(false, "pf");
+  }
+  function pickFlavio(it) {
+    if (it.t === "coin") { g.coins++; sfx("coin"); burst(it.x, it.y, "#ffd800", 5, 80); }
+    else if (it.t === "cafe") { g.boost = 2.6; sfx("boost"); toast("Cafezinho! Velocidade extra", "#ffcc80", 1.8); burst(it.x, it.y, "#ffcc80", 10); }
+    else {
+      g.passports++; g.stamp = { t: 0, again: g.passports > 1 }; g.bonus += 50; sfx("pop");
+      g.quip = { s: g.passports > 1 ? "De novo?!" : "Passaporte! Agora vai!", t: 1.6 };
+      setTimeout(function () { if (g && g.stamp) { sfx("stamp"); if (g) g.shake = .3; } }, 800);
+    }
+  }
+
+  function drawFlavioWorld(c) {
+    var cam = g.px - 300, t = g.anim, L = FL.L, i, x, k;
+    var sx = 0, sy = 0; if (g.shake > 0) { sx = rnd(-4, 4); sy = rnd(-4, 4); }
+    c.save(); c.translate(sx, sy);
+    // céu
+    var sk = c.createLinearGradient(0, 0, 0, 250); sk.addColorStop(0, "#050918"); sk.addColorStop(.7, "#18235a"); sk.addColorStop(1, "#33407a");
+    c.fillStyle = sk; c.fillRect(-10, -10, W + 20, 260);
+    for (i = 0; i < g.stars.length; i++) { var s = g.stars[i]; c.globalAlpha = .45 + .45 * Math.sin(t * 2 + s.p); c.fillStyle = "#fff"; c.fillRect(s.x - cam * 0.01, s.y, s.r, s.r); }
+    c.globalAlpha = 1;
+    c.fillStyle = "#f6f1d0"; c.beginPath(); c.arc(790, 72, 28, 0, TAU); c.fill();
+    c.fillStyle = "#18235a"; c.beginPath(); c.arc(802, 66, 25, 0, TAU); c.fill();
+    var mg = c.createRadialGradient(790, 72, 20, 790, 72, 130); mg.addColorStop(0, "rgba(240,235,200,.2)"); mg.addColorStop(1, "rgba(0,0,0,0)");
+    c.fillStyle = mg; c.fillRect(640, 0, 300, 220);
+    // cidade ao fundo (parallax) + névoa das cataratas
+    var par = cam * 0.15, cw = g.cityW;
+    for (k = -1; k < 3; k++) for (i = 0; i < g.city.length; i++) {
+      var b = g.city[i], bx = b.x + k * cw - (par % cw);
+      if (bx > W || bx + b.w < 0) continue;
+      c.fillStyle = "#0b1030"; c.fillRect(bx, 200 - b.h, b.w, b.h + 10);
+      c.fillStyle = "rgba(255,226,120,.75)";
+      for (var wy = 200 - b.h + 6; wy < 196; wy += 12) for (var wx = bx + 5; wx < bx + b.w - 6; wx += 10) if (((wx * 7 + wy * 13) | 0) % 5 < 2) c.fillRect(wx, wy, 3, 4);
+    }
+    var mist = c.createLinearGradient(0, 150, 0, 235); mist.addColorStop(0, "rgba(160,190,240,0)"); mist.addColorStop(1, "rgba(160,190,240,.28)");
+    c.fillStyle = mist; c.fillRect(0, 150, W, 90);
+    // rio
+    var rv = c.createLinearGradient(0, 200, 0, 250); rv.addColorStop(0, "#0e1a40"); rv.addColorStop(1, "#08102a"); c.fillStyle = rv; c.fillRect(0, 200, W, 56);
+    c.strokeStyle = "rgba(180,200,255,.18)"; c.lineWidth = 1;
+    for (i = 0; i < 14; i++) { var rx = ((i * 97 - cam * 0.3) % 1000 + 1000) % 1000 - 20; c.beginPath(); c.moveTo(rx, 210 + (i % 4) * 11); c.lineTo(rx + 30, 210 + (i % 4) * 11); c.stroke(); }
+    // gantry da fronteira
+    var bxw = FL.border * L - cam;
+    // guarda-corpo traseiro
+    c.fillStyle = "#6b7391"; c.fillRect(0, 248, W, 5);
+    c.fillStyle = "#454c68"; for (x = -((cam % 60) + 60); x < W + 60; x += 60) c.fillRect(x, 238, 4, 20);
+    c.fillStyle = "#8a92b0"; c.fillRect(0, 236, W, 3);
+    // postes de luz
+    c.save(); c.globalCompositeOperation = "lighter";
+    for (x = -(((cam % 400) + 400) % 400); x < W + 200; x += 400) {
+      var lg = c.createRadialGradient(x, 262, 4, x, 262, 190); lg.addColorStop(0, "rgba(255,230,150,.34)"); lg.addColorStop(1, "rgba(0,0,0,0)");
+      c.fillStyle = lg; c.fillRect(x - 190, 120, 380, 380);
+    }
+    c.restore();
+    c.fillStyle = "#2a2f48"; for (x = -(((cam % 400) + 400) % 400); x < W + 200; x += 400) { c.fillRect(x - 3, 150, 6, 100); c.fillRect(x - 3, 150, 26, 5); c.fillStyle = "#ffe9a0"; c.fillRect(x + 14, 154, 12, 4); c.fillStyle = "#2a2f48"; }
+    // pista
+    var dk = c.createLinearGradient(0, 253, 0, 500); dk.addColorStop(0, "#2d303c"); dk.addColorStop(1, "#23262f"); c.fillStyle = dk; c.fillRect(0, 253, W, 247);
+    c.fillStyle = "#3b3f4e"; c.fillRect(0, 253, W, 8);
+    c.fillStyle = "#cfd3e2"; c.fillRect(0, 266, W, 2); c.fillRect(0, 488, W, 2);
+    c.fillStyle = "#e7c92d";
+    for (x = -(((cam % 80) + 80) % 80); x < W; x += 80) c.fillRect(x, 375, 44, 4);
+    // marca da fronteira
+    if (bxw > -200 && bxw < W + 200) {
+      c.fillStyle = "rgba(255,255,255,.75)"; c.fillRect(bxw - 4, 256, 8, 240);
+      c.fillStyle = "#1b3a8a"; c.fillRect(bxw - 140, 96, 280, 44); c.strokeStyle = "#ffdf00"; c.lineWidth = 3; c.strokeRect(bxw - 140, 96, 280, 44);
+      txt(c, "FRONTEIRA", bxw, 112, 18, "#fff", "center"); txt(c, "BRASIL  ⟷  ARGENTINA", bxw, 130, 12, "#ffdf00", "center");
+      c.fillStyle = "#555"; c.fillRect(bxw - 150, 96, 6, 150); c.fillRect(bxw + 144, 96, 6, 150);
+      drawFlag(c, bxw - 142, 62, 52, 34, "br"); drawFlag(c, bxw + 90, 62, 52, 34, "ar");
+    }
+    // sprites ordenados por y
+    var list = [], q = [];
+    var o, it;
+    for (i = 0; i < g.obs.length; i++) { o = g.obs[i]; var ox = o.x - cam; if (o.t === "car" && !o.on) continue; if (ox < -140 || ox > W + 140) continue; list.push({ y: o.y, o: o }); }
+    list.push({ y: g.py, pl: true });
+    if (g.px > L - 900) list.push({ y: 340, jet: true });
+    list.sort(function (a, b) { return a.y - b.y; });
+    // itens (sob os sprites)
+    for (i = 0; i < g.items.length; i++) {
+      it = g.items[i]; if (it.got) continue; var ix = it.x - cam; if (ix < -40 || ix > W + 40) continue;
+      var bob = Math.sin(t * 4 + it.x) * 3, iy = it.y - 20 + bob;
+      c.fillStyle = "rgba(0,0,0,.3)"; c.beginPath(); c.ellipse(ix, it.y + 4, 9, 3, 0, 0, TAU); c.fill();
+      if (it.t === "coin") {
+        c.fillStyle = "#ffd800"; c.beginPath(); c.arc(ix, iy, 9, 0, TAU); c.fill(); c.strokeStyle = "#b58900"; c.lineWidth = 2; c.stroke();
+        txt(c, "R$", ix, iy + 1, 9, "#7a5c00", "center");
+      } else if (it.t === "cafe") {
+        c.fillStyle = "#fff"; rr(c, ix - 8, iy - 8, 15, 15, 3); c.fill(); c.strokeStyle = "#fff"; c.lineWidth = 2; c.beginPath(); c.arc(ix + 8, iy, 4, -1.4, 1.4); c.stroke();
+        c.fillStyle = "#5a3418"; c.fillRect(ix - 6, iy - 6, 11, 4);
+        c.strokeStyle = "rgba(255,255,255,.6)"; c.beginPath(); c.moveTo(ix - 2, iy - 11); c.quadraticCurveTo(ix + 2, iy - 15, ix - 1, iy - 19); c.stroke();
+      } else {
+        var pg = c.createRadialGradient(ix, iy, 4, ix, iy, 30); pg.addColorStop(0, "rgba(255,223,0,.6)"); pg.addColorStop(1, "rgba(255,223,0,0)"); c.fillStyle = pg; c.fillRect(ix - 30, iy - 30, 60, 60);
+        c.fillStyle = "#1b3a8a"; rr(c, ix - 11, iy - 14, 22, 28, 3); c.fill(); c.strokeStyle = "#ffdf00"; c.lineWidth = 1.5; c.stroke();
+        c.fillStyle = "#ffdf00"; c.beginPath(); c.arc(ix, iy - 3, 5, 0, TAU); c.fill();
+        txt(c, "PASSAPORTE", ix, iy + 9, 5.5, "#ffdf00", "center");
+        txt(c, "?", ix, iy - 3, 8, "#1b3a8a", "center");
+      }
+    }
+    for (i = 0; i < list.length; i++) {
+      var e = list[i];
+      if (e.pl) {
+        var blink = g.inv > 0 && Math.floor(g.anim * 14) % 2 === 0;
+        if (g.finish) { if (g.finish.t < .6) drawChar(c, "flavio", g.px - cam + g.finish.t * 120, g.py, 1.0, { t: g.anim, moving: true }); }
+        else if (!blink) {
+          if (g.boost > 0) { c.globalAlpha = .3; drawChar(c, "flavio", 300 - 26, g.py, 1, { t: g.anim - .05, moving: true }); c.globalAlpha = .2; drawChar(c, "flavio", 300 - 50, g.py, 1, { t: g.anim - .1, moving: true }); c.globalAlpha = 1; }
+          drawChar(c, "flavio", 300, g.py, 1.0, { t: g.anim, moving: g.cd <= 0 });
+        }
+        if (g.quip && !g.finish) balloon(c, g.quip.s, 300, g.py - 76, { size: 13, maxW: 130 });
+      } else if (e.jet) {
+        var jx = L + 130 - cam + (g.finish ? g.finish.jx : 0), jy = 346 - (g.finish ? Math.max(0, g.finish.jx - 200) * 0.12 : 0);
+        drawJet(c, jx, jy);
+        if (!g.finish) {
+          c.fillStyle = "#cdd2e0"; c.beginPath(); c.moveTo(jx - 66, 346); c.lineTo(jx - 44, 346); c.lineTo(jx - 44, 322); c.lineTo(jx - 52, 322); c.fill();
+          txt(c, "JATINHO →", jx - 60, 300, 14, "#ffdf00", "center", "#000");
+        }
+      } else {
+        o = e.o; var px = o.x - cam;
+        if (o.t === "agent") {
+          var vy = Math.cos(g.t * o.sp + o.ph) * o.amp * o.sp;
+          drawChar(c, "agent", px, o.y, 1.0, { t: g.anim + o.ph, moving: o.amp > 0, skin: o.skin, flip: true });
+        } else if (o.t === "car") drawCar(c, px, o.y, -1, g.anim);
+        else if (o.t === "carp") { drawCar(c, px, o.y, -1, g.anim, { parked: true }); }
+        else if (o.t === "wall") {
+          var y0 = o.y - o.hh, h = o.hh * 2;
+          c.fillStyle = "rgba(0,0,0,.35)"; c.fillRect(px - o.hw + 4, y0 + 8, o.hw * 2, h);
+          c.fillStyle = "#e8e8ee"; c.fillRect(px - o.hw, y0 - 6, o.hw * 2, h + 6);
+          c.fillStyle = "#e53935"; for (var yy = y0 - 6; yy < y0 + h; yy += 22) c.fillRect(px - o.hw, yy + 11, o.hw * 2, 11);
+          c.fillStyle = "#222"; c.fillRect(px - o.hw, y0 - 8, o.hw * 2, 3);
+        }
+      }
+    }
+    drawParts(c);
+    // Nikolas no pedalinho (rio)
+    if (g.nik) {
+      var nk = g.nik, slide = clamp(nk.t / .5, 0, 1), nx = W - 110 + (1 - slide) * 200, ny = 236 + Math.sin(t * 2) * 2;
+      c.fillStyle = "#e7e7ee"; c.beginPath(); c.moveTo(nx - 56, ny - 4); c.lineTo(nx + 56, ny - 4); c.lineTo(nx + 40, ny + 12); c.lineTo(nx - 40, ny + 12); c.closePath(); c.fill();
+      c.fillStyle = "#ff7043"; c.fillRect(nx - 50, ny - 2, 100, 4);
+      c.fillStyle = "#e7e7ee"; c.beginPath(); c.arc(nx + 52, ny - 14, 12, 0, TAU); c.fill(); c.fillStyle = "#222"; c.beginPath(); c.arc(nx + 56, ny - 17, 2, 0, TAU); c.fill();
+      c.fillStyle = "#ff9800"; c.beginPath(); c.moveTo(nx + 62, ny - 14); c.lineTo(nx + 74, ny - 11); c.lineTo(nx + 62, ny - 8); c.fill();
+      drawChar(c, "nikolas", nx - 8, ny, 1.15, { t: t, moving: false });
+      balloon(c, nk.t < 2.3 ? "foi a pé!" : "...supostamente!", nx - 8, ny - 82, { size: 15, maxW: 150, alpha: slide });
+    }
+    // guarda-corpo da frente + água
+    c.fillStyle = "#4b5270"; c.fillRect(0, 494, W, 6);
+    c.fillStyle = "#8a92b0"; c.fillRect(0, 500, W, 3);
+    c.fillStyle = "#07102a"; c.fillRect(0, 503, W, 40);
+    c.strokeStyle = "rgba(160,190,255,.15)"; for (i = 0; i < 10; i++) { var wx2 = ((i * 130 - cam * .8) % 1200 + 1200) % 1200 - 100; c.beginPath(); c.moveTo(wx2, 512 + (i % 3) * 8); c.lineTo(wx2 + 50, 512 + (i % 3) * 8); c.stroke(); }
+    c.restore();
+    // vinheta
+    var vg = c.createRadialGradient(W / 2, H / 2, 260, W / 2, H / 2, 640); vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,10,.5)");
+    c.fillStyle = vg; c.fillRect(0, 0, W, H);
+    if (g.flash > 0) { c.fillStyle = "rgba(255,40,40," + g.flash + ")"; c.fillRect(0, 0, W, H); }
+    // selo do passaporte
+    if (g.stamp) {
+      var st = g.stamp.t, a = st > 2.4 ? 1 - (st - 2.4) / .6 : 1;
+      c.save(); c.globalAlpha = a; c.translate(W / 2, 285);
+      var pop = clamp(st / .3, 0, 1); c.scale(.6 + .4 * pop, .6 + .4 * pop);
+      c.fillStyle = "#1b3a8a"; rr(c, -90, -120, 180, 240, 10); c.fill(); c.strokeStyle = "#ffdf00"; c.lineWidth = 4; c.stroke();
+      c.fillStyle = "#ffdf00"; c.beginPath(); c.arc(0, -40, 34, 0, TAU); c.fill(); c.fillStyle = "#1b3a8a"; c.beginPath(); c.arc(0, -40, 26, 0, TAU); c.fill();
+      c.fillStyle = "#ffdf00"; c.beginPath(); c.moveTo(0, -62); c.lineTo(20, -40); c.lineTo(0, -18); c.lineTo(-20, -40); c.fill();
+      txt(c, "REPÚBLICA", 0, 22, 15, "#ffdf00", "center"); txt(c, "FEDERATIVA DO BRASIL", 0, 40, 11, "#ffdf00", "center"); txt(c, "PASSAPORTE", 0, 88, 20, "#ffdf00", "center");
+      if (st > .8) {
+        var sp2 = clamp((st - .8) / .22, 0, 1), sc = 3 - 2 * sp2;
+        c.save(); c.translate(0, 8); c.rotate(-0.25); c.scale(sc, sc); c.globalAlpha = a * (.3 + .7 * sp2);
+        c.strokeStyle = "#e53935"; c.lineWidth = 6; c.strokeRect(-130, -36, 260, 72); c.lineWidth = 2; c.strokeRect(-122, -29, 244, 58);
+        txt(c, g.stamp.again ? "CANCELADO DE NOVO" : "CANCELADO", 0, 2, g.stamp.again ? 28 : 44, "#e53935", "center");
+        c.restore();
+      }
+      c.restore();
+    }
+  }
+
+  /* ============================ MODO MORAES ============================ */
+  var MP = { C: 5, R: 4, S: 76, bw: 240, bh: 180, limit: 60 };
+  MP.W = MP.S + MP.C * (MP.bw + MP.S); MP.H = MP.S + MP.R * (MP.bh + MP.S);
+  var DIRS = ["LESTE", "SUDESTE", "SUL", "SUDOESTE", "OESTE", "NOROESTE", "NORTE", "NORDESTE"];
+  var SIGNS = ["Padaria do Zé", "Churrascaria", "Cartório", "Casa do Primo", "Pastelaria", "Lan House", "Farmácia", "Banca de Jornal", "Barbearia", "Mercadinho", "Posto Ipiranga?", "Hotel Fronteira"];
+  var ROOFS = ["#c96a4a", "#6a8fc9", "#c9b04a", "#8a6ac9", "#4aa88f", "#c9576f", "#9aa4b8", "#d28b3a"];
+
+  function randStreetPoint() {
+    if (Math.random() < .5) return { x: MP.S / 2 + rint(0, MP.C) * (MP.bw + MP.S), y: rnd(60, MP.H - 60) };
+    return { x: rnd(60, MP.W - 60), y: MP.S / 2 + rint(0, MP.R) * (MP.bh + MP.S) };
+  }
+  function startMoraes() {
+    parts = [];
+    g = { mode: "moraes", t: 0, cd: 2.6, anim: 0, toasts: [], rects: [], parks: [], npcs: [], decoys: [], pickups: [], hints: [], nextHint: 3, hintN: 0,
+      m: { x: MP.S / 2, y: MP.H - MP.S / 2, moving: false, face: 1 },
+      f: { x: MP.W - MP.S / 2, y: MP.S / 2, frozen: 0, dir: { x: -1, y: 0 }, steer: 0, pause: 0, nextPause: rnd(5, 8), face: -1, moving: true },
+      freezes: 0, decoyHits: 0, near: 0, shake: 0, pen: null, quipF: null, quipM: null, pickT: 4, closest: 9999, bonus: 0 };
+    var i, j;
+    for (j = 0; j < MP.R; j++) for (i = 0; i < MP.C; i++) {
+      var x = MP.S + i * (MP.bw + MP.S), y = MP.S + j * (MP.bh + MP.S);
+      if ((i === 2 && j === 1) || (i === 3 && j === 2) || (i === 1 && j === 3)) g.parks.push({ x: x, y: y, w: MP.bw, h: MP.bh });
+      else g.rects.push({ x: x + 4, y: y + 4, w: MP.bw - 8, h: MP.bh - 8, col: pick(ROOFS), sign: pick(SIGNS) });
+    }
+    for (i = 0; i < 22; i++) { var sp = randStreetPoint(); g.npcs.push(newWalker(sp.x, sp.y, "npc")); }
+    for (i = 0; i < 4; i++) { var sd = randStreetPoint(); g.decoys.push(newWalker(sd.x, sd.y, "decoy")); }
+    for (i = 0; i < 3; i++) spawnPickup();
+  }
+  function newWalker(x, y, kind) {
+    return { x: x, y: y, kind: kind, dir: pick([[1, 0], [-1, 0], [0, 1], [0, -1]]), t: rnd(1, 3), sp: kind === "decoy" ? 55 : rnd(30, 55), face: 1,
+      shirt: pick(["#c33", "#3a7", "#37c", "#c73", "#a5a", "#eee", "#fd3"]), hair: pick(["#222", "#5a3", "#a62", "#ddd", "#111"]), skin: pick(["#e0ac84", "#c98e68", "#8d5a3b", "#f0c09a"]), balloon: null };
+  }
+  function spawnPickup() {
+    var p, tries = 0;
+    do { p = { x: MP.S / 2 + rint(0, MP.C) * (MP.bw + MP.S), y: MP.S / 2 + rint(0, MP.R) * (MP.bh + MP.S) }; tries++; }
+    while (tries < 20 && (Math.hypot(p.x - g.m.x, p.y - g.m.y) < 200 || g.pickups.some(function (q) { return q.x === p.x && q.y === p.y; })));
+    g.pickups.push(p);
+  }
+  function moveCircle(o, dx, dy, r) {
+    var i, rc;
+    o.x = clamp(o.x + dx, r, MP.W - r);
+    for (i = 0; i < g.rects.length; i++) { rc = g.rects[i];
+      if (o.x + r > rc.x && o.x - r < rc.x + rc.w && o.y + r * .5 > rc.y && o.y - r * .5 < rc.y + rc.h) { o.x = dx > 0 ? rc.x - r : rc.x + rc.w + r; } }
+    o.y = clamp(o.y + dy, r, MP.H - r);
+    for (i = 0; i < g.rects.length; i++) { rc = g.rects[i];
+      if (o.x + r > rc.x && o.x - r < rc.x + rc.w && o.y + r * .5 > rc.y && o.y - r * .5 < rc.y + rc.h) { o.y = dy > 0 ? rc.y - r * .5 : rc.y + rc.h + r * .5; } }
+  }
+  function ray(x, y, dx, dy, maxD) {
+    for (var d = 8; d <= maxD; d += 8) {
+      var px = x + dx * d, py = y + dy * d;
+      if (px < 10 || py < 10 || px > MP.W - 10 || py > MP.H - 10) return d - 8;
+      for (var i = 0; i < g.rects.length; i++) { var r = g.rects[i]; if (px > r.x - 10 && px < r.x + r.w + 10 && py > r.y - 8 && py < r.y + r.h + 10) return d - 8; }
+    }
+    return maxD;
+  }
+  function steerFlavio() {
+    var f = g.f, m = g.m, best = -1e9, bd = f.dir, cur = Math.atan2(f.dir.y, f.dir.x);
+    for (var k = 0; k < 16; k++) {
+      var a = k / 16 * TAU, dx = Math.cos(a), dy = Math.sin(a), clear = ray(f.x, f.y, dx, dy, 150);
+      var px = f.x + dx * clear, py = f.y + dy * clear;
+      var s = Math.hypot(px - m.x, py - m.y) + clear * 0.9 - (clear < 50 ? 200 : 0);
+      var ad = Math.abs(((a - cur + Math.PI * 3) % TAU) - Math.PI); s -= ad * 18;
+      s -= Math.max(0, 140 - Math.min(px, MP.W - px, py, MP.H - py)) * 1.2;
+      s += rnd(-25, 25);
+      if (s > best) { best = s; bd = { x: dx, y: dy }; }
+    }
+    f.dir = bd;
+  }
+  function dirName(ang) { var i = Math.round(((ang % TAU) + TAU) % TAU / (Math.PI / 4)) % 8; return DIRS[i]; }
+
+  function spawnHints() {
+    var m = g.m, f = g.f, ang = Math.atan2(f.y - m.y, f.x - m.x), i;
+    var ns = g.npcs.slice().sort(function (a, b) { return Math.hypot(a.x - m.x, a.y - m.y) - Math.hypot(b.x - m.x, b.y - m.y); });
+    var a = ns[0], b = ns[1], c3 = ns[2];
+    [a, b, c3].forEach(function (n) { if (n && Math.hypot(n.x - m.x, n.y - m.y) > 380) { var an = rnd(0, TAU); n.x = clamp(m.x + Math.cos(an) * 330, 30, MP.W - 30); n.y = clamp(m.y + Math.sin(an) * 250, 30, MP.H - 30); } });
+    var truthDir = dirName(ang), lieDir = DIRS[(DIRS.indexOf(truthDir) + pick([3, 4, 5])) % 8];
+    var T = ["Vi ele indo pro {D}!", "Foi pro {D}, juro!", "Tá lá pro {D}, doutor!"], Lh = ["Nada! Foi pro {D}!", "Mentira, ele foi pro {D}!", "Eu vi: {D}!"];
+    var first = Math.random() < .5;
+    a.balloon = { s: (first ? pick(T) : pick(Lh)).replace("{D}", first ? truthDir : lieDir), t: 5 };
+    if (b) b.balloon = { s: (first ? pick(Lh) : pick(T)).replace("{D}", first ? lieDir : truthDir), t: 5 };
+    if (c3 && Math.random() < .55) c3.balloon = { s: pick(["Cadê o Wally?", "Foi a pé, supostamente!", "Tava de gravata amarela!", "Esse aí não é o primo?", "Eu não vi nada, mas confio!", "Pergunta pro vizinho!"]), t: 4.5 };
+    sfx("pop");
+  }
+
+  function updMoraes(dt) {
+    g.anim += dt; updParts(dt);
+    for (var ti = g.toasts.length - 1; ti >= 0; ti--) { g.toasts[ti].t -= dt; if (g.toasts[ti].t <= 0) g.toasts.splice(ti, 1); }
+    if (g.shake > 0) g.shake -= dt;
+    if (g.pen) { g.pen.t += dt; if (g.pen.t > 1.2) g.pen = null; }
+    if (g.quipF) { g.quipF.t -= dt; if (g.quipF.t <= 0) g.quipF = null; }
+    if (g.quipM) { g.quipM.t -= dt; if (g.quipM.t <= 0) g.quipM = null; }
+    var i, n;
+    // NPCs sempre andam (cenário vivo)
+    var all = g.npcs.concat(g.decoys);
+    for (i = 0; i < all.length; i++) {
+      n = all[i]; n.t -= dt; if (n.balloon) { n.balloon.t -= dt; if (n.balloon.t <= 0) n.balloon = null; }
+      var ox = n.x, oy = n.y; moveCircle(n, n.dir[0] * n.sp * dt, n.dir[1] * n.sp * dt, 9);
+      if (n.dir[0]) n.face = n.dir[0] > 0 ? 1 : -1;
+      if (n.t <= 0 || Math.hypot(n.x - ox, n.y - oy) < n.sp * dt * .3) { n.dir = pick([[1, 0], [-1, 0], [0, 1], [0, -1]]); n.t = rnd(1.5, 4); }
+    }
+    if (g.cd > 0) { var prev = Math.ceil(g.cd); g.cd -= dt; if (Math.ceil(g.cd) !== prev && g.cd > 0) sfx("tick"); if (g.cd <= 0) sfx("go"); return; }
+    g.t += dt; state.timeLeft = Math.max(0, MP.limit - g.t);
+    var inp = injected || readInput(), m = g.m, f = g.f;
+    m.moving = (inp.x !== 0 || inp.y !== 0);
+    if (inp.x) m.face = inp.x > 0 ? 1 : -1;
+    moveCircle(m, inp.x * 190 * dt, inp.y * 190 * dt, 11);
+    // Flávio
+    if (f.frozen > 0) { f.frozen -= dt; f.moving = false; }
+    else {
+      f.nextPause -= dt;
+      if (f.pause > 0) { f.pause -= dt; f.moving = false; }
+      else {
+        if (f.nextPause <= 0 && Math.hypot(f.x - m.x, f.y - m.y) > 260) { f.pause = .9; f.nextPause = rnd(5, 8); g.quipF = { s: pick(["Peraí, vou postar!", "Será que é por aqui?", "Meu Pix caiu?"]), t: 1.2 }; }
+        else {
+          f.steer -= dt; if (f.steer <= 0) { steerFlavio(); f.steer = .18; }
+          var sp = 150 * (Math.hypot(f.x - m.x, f.y - m.y) < 120 ? 1.04 : 1);
+          var fx = f.x, fy = f.y; moveCircle(f, f.dir.x * sp * dt, f.dir.y * sp * dt, 11); f.moving = true;
+          if (f.dir.x) f.face = f.dir.x > 0 ? 1 : -1;
+          if (Math.hypot(f.x - fx, f.y - fy) < sp * dt * .35) f.steer = 0;
+        }
+      }
+    }
+    // pistas
+    g.nextHint -= dt; if (g.nextHint <= 0) { spawnHints(); g.nextHint = 6.5; }
+    // canetadas
+    for (i = g.pickups.length - 1; i >= 0; i--) {
+      var p = g.pickups[i]; if (Math.hypot(p.x - m.x, p.y - m.y) < 28) {
+        g.pickups.splice(i, 1); g.freezes++; f.frozen = 3; f.pause = 0; g.pen = { t: 0 }; g.shake = .25; sfx("pen"); setTimeout(sfx, 200, "freeze");
+        burst(p.x, p.y, "#3a6bff", 18); burst(f.x, f.y - 30, "#aee1ff", 14);
+        g.quipM = { s: "Decisão monocrática!", t: 1.6 }; g.quipF = { s: "Ué, travou!", t: 2 }; toast("CANETADA! Flávio congelado por 3s", "#9ec3ff", 2.4);
+        setTimeout(function () { if (g && g.mode === "moraes" && g.pickups.length < 3) spawnPickup(); }, 9000);
+      }
+    }
+    // decoys
+    for (i = 0; i < g.decoys.length; i++) {
+      n = g.decoys[i]; if (Math.hypot(n.x - m.x, n.y - m.y) < 26) {
+        g.t += 4; g.decoyHits++; g.bonus -= 150; g.shake = .2; sfx("hit"); n.balloon = { s: pick(["Sou só um primo!", "Gravata laranja, uai!", "Não sou ele, não!"]), t: 2.2 };
+        toast("Esse é um primo! -4s", "#ffab91", 2.2); var sp3 = randStreetPoint(); n.x = sp3.x; n.y = sp3.y;
+      }
+    }
+    var d = Math.hypot(f.x - m.x, f.y - m.y); g.closest = Math.min(g.closest, d);
+    if (d < 400) g.near += (400 - d) * dt * .5;
+    state.score = Math.max(0, Math.floor(g.near) + g.freezes * 100 + g.bonus);
+    state.progress = clamp(1 - d / 1800, 0, 1);
+    if (d < 26) { endGame(true, "pegou"); return; }
+    state.timeLeft = Math.max(0, MP.limit - g.t);
+    if (g.t >= MP.limit) endGame(false, "tempo");
+  }
+
+  function drawMoraesWorld(c) {
+    var m = g.m, f = g.f, i, t = g.anim;
+    var camx = clamp(m.x - W / 2, 0, MP.W - W), camy = clamp(m.y - H / 2, 0, MP.H - H);
+    g.cam = { x: camx, y: camy };
+    c.save();
+    if (g.shake > 0) c.translate(rnd(-3, 3), rnd(-3, 3));
+    c.translate(-camx, -camy);
+    c.fillStyle = "#4a4e5a"; c.fillRect(camx, camy, W, H);
+    // marcação das ruas
+    c.fillStyle = "rgba(255,255,255,.35)";
+    var k, s;
+    for (k = 0; k <= MP.C; k++) { var vx = MP.S / 2 + k * (MP.bw + MP.S); for (s = 0; s < MP.H; s += 40) c.fillRect(vx - 1.5, s, 3, 20); }
+    for (k = 0; k <= MP.R; k++) { var hy = MP.S / 2 + k * (MP.bh + MP.S); for (s = 0; s < MP.W; s += 40) c.fillRect(s, hy - 1.5, 20, 3); }
+    // calçadas
+    var j;
+    c.fillStyle = "#b9b5a6";
+    for (j = 0; j < MP.R; j++) for (i = 0; i < MP.C; i++) c.fillRect(MP.S + i * (MP.bw + MP.S) - 3, MP.S + j * (MP.bh + MP.S) - 3, MP.bw + 6, MP.bh + 6);
+    // parques
+    for (i = 0; i < g.parks.length; i++) {
+      var pk = g.parks[i]; c.fillStyle = "#4f9a52"; c.fillRect(pk.x, pk.y, pk.w, pk.h);
+      c.fillStyle = "#d8cfa6"; c.fillRect(pk.x + pk.w / 2 - 8, pk.y, 16, pk.h); c.fillRect(pk.x, pk.y + pk.h / 2 - 8, pk.w, 16);
+      c.fillStyle = "#6fb4e0"; c.beginPath(); c.arc(pk.x + pk.w / 2, pk.y + pk.h / 2, 22, 0, TAU); c.fill(); c.fillStyle = "#cfeaff"; c.beginPath(); c.arc(pk.x + pk.w / 2, pk.y + pk.h / 2, 10, 0, TAU); c.fill();
+      for (j = 0; j < 8; j++) { var tx = pk.x + 25 + (j % 4) * 62 + (j > 3 ? 20 : 0), ty = pk.y + 30 + (j > 3 ? 105 : 0); c.fillStyle = "rgba(0,0,0,.25)"; c.beginPath(); c.ellipse(tx, ty + 14, 14, 5, 0, 0, TAU); c.fill(); c.fillStyle = "#2f7a3a"; c.beginPath(); c.arc(tx, ty, 14, 0, TAU); c.fill(); c.fillStyle = "#3a9a47"; c.beginPath(); c.arc(tx - 3, ty - 3, 9, 0, TAU); c.fill(); }
+    }
+    // prédios (telhado + parede frontal)
+    for (i = 0; i < g.rects.length; i++) {
+      var r = g.rects[i];
+      if (r.x + r.w < camx || r.x > camx + W || r.y + r.h < camy || r.y > camy + H) continue;
+      c.fillStyle = "rgba(0,0,0,.28)"; c.fillRect(r.x + 8, r.y + 10, r.w, r.h);
+      c.fillStyle = r.col; c.fillRect(r.x, r.y, r.w, r.h - 24);
+      c.fillStyle = "rgba(255,255,255,.14)"; c.fillRect(r.x + 10, r.y + 10, r.w - 20, r.h - 44);
+      c.fillStyle = "rgba(0,0,0,.18)"; c.fillRect(r.x + r.w * .6, r.y + 18, 36, 26); c.fillRect(r.x + 24, r.y + 40, 30, 20);
+      c.fillStyle = "rgba(0,0,0,.35)"; c.fillRect(r.x, r.y + r.h - 24, r.w, 24);
+      c.fillStyle = r.col; c.fillRect(r.x, r.y + r.h - 24, r.w, 5);
+      c.fillStyle = "#ffe9a0"; for (j = 0; j < 6; j++) c.fillRect(r.x + 16 + j * 38, r.y + r.h - 16, 14, 9);
+      txt(c, r.sign, r.x + r.w / 2, r.y + 84, 15, "rgba(255,255,255,.9)", "center", "rgba(0,0,0,.35)");
+    }
+    // canetadas
+    for (i = 0; i < g.pickups.length; i++) {
+      var pu = g.pickups[i], by = Math.sin(t * 4 + i) * 3;
+      var pg = c.createRadialGradient(pu.x, pu.y, 3, pu.x, pu.y, 38); pg.addColorStop(0, "rgba(120,170,255,.8)"); pg.addColorStop(1, "rgba(120,170,255,0)"); c.fillStyle = pg; c.fillRect(pu.x - 38, pu.y - 38, 76, 76);
+      c.save(); c.translate(pu.x, pu.y + by); c.rotate(-0.8 + Math.sin(t * 3) * .1);
+      c.fillStyle = "#101018"; rr(c, -4, -20, 8, 30, 3); c.fill(); c.fillStyle = "#ffd800"; c.fillRect(-4, -12, 8, 3);
+      c.fillStyle = "#c0c0c8"; c.beginPath(); c.moveTo(-3.5, 10); c.lineTo(3.5, 10); c.lineTo(0, 20); c.fill(); c.restore();
+      txt(c, "CANETADA", pu.x, pu.y + 32, 10, "#cfe0ff", "center", "#000");
+    }
+    // sprites por y
+    var spr = [], n;
+    for (i = 0; i < g.npcs.length; i++) spr.push({ y: g.npcs[i].y, n: g.npcs[i] });
+    for (i = 0; i < g.decoys.length; i++) spr.push({ y: g.decoys[i].y, n: g.decoys[i] });
+    spr.push({ y: f.y, f: true }); spr.push({ y: m.y, m: true });
+    spr.sort(function (a, b) { return a.y - b.y; });
+    for (i = 0; i < spr.length; i++) {
+      var e = spr[i];
+      if (e.f) {
+        drawChar(c, "flavio", f.x, f.y + 6, 1.05, { t: t, moving: f.moving, flip: f.face < 0, frozen: f.frozen > 0 });
+        c.fillStyle = "#e53935"; c.beginPath(); c.moveTo(f.x - 7, f.y - 82); c.lineTo(f.x + 7, f.y - 82); c.lineTo(f.x, f.y - 72); c.fill();   // marca discreta do alvo
+        if (f.frozen > 0) { c.strokeStyle = "#9ec3ff"; c.lineWidth = 4; c.beginPath(); c.arc(f.x, f.y - 30, 34, -Math.PI / 2, -Math.PI / 2 + TAU * (f.frozen / 3)); c.stroke(); }
+      } else if (e.m) drawChar(c, "moraes", m.x, m.y + 6, 1.05, { t: t, moving: m.moving, flip: m.face < 0 });
+      else {
+        n = e.n;
+        if (n.kind === "decoy") drawChar(c, "flavio", n.x, n.y + 6, 1.0, { t: t + n.x, moving: true, flip: n.face < 0, tie: "#ff7a1a", hair: "#6b4a2a" });
+        else drawChar(c, "npc", n.x, n.y + 6, 0.95, { t: t + n.x, moving: true, flip: n.face < 0, shirt: n.shirt, hair: n.hair, skin: n.skin });
+      }
+    }
+    drawParts(c);
+    // balões (por cima de tudo)
+    var all = g.npcs.concat(g.decoys);
+    for (i = 0; i < all.length; i++) { n = all[i]; if (n.balloon) { var scx = n.x - camx, scy = n.y - camy - 70; if (scx > -20 && scx < W + 20 && scy > -20 && scy < H + 90) balloon(c, n.balloon.s, n.x, n.y - 70, { size: 13, maxW: 140, limitW: MP.W, alpha: clamp(n.balloon.t * 2, 0, 1) }); } }
+    if (g.quipF) balloon(c, g.quipF.s, f.x, f.y - 90, { size: 13, maxW: 130, limitW: MP.W });
+    if (g.quipM) balloon(c, g.quipM.s, m.x, m.y - 80, { size: 13, maxW: 140, limitW: MP.W, bg: "#dfe8ff" });
+    c.restore();
+    if (g.pen) {   // animação da canetada
+      var pt = g.pen.t, a = 1 - pt / 1.2;
+      c.save(); c.globalAlpha = Math.max(0, a); c.translate(W / 2, 200); c.rotate(-0.12); var sc = 1 + Math.max(0, .3 - pt) * 3; c.scale(sc, sc);
+      c.fillStyle = "#101a4a"; rr(c, -190, -34, 380, 68, 10); c.fill(); c.strokeStyle = "#8fb4ff"; c.lineWidth = 3; c.stroke();
+      txt(c, "DECISÃO MONOCRÁTICA", 0, 0, 28, "#fff", "center"); c.restore();
+    }
+    var vg = c.createRadialGradient(W / 2, H / 2, 280, W / 2, H / 2, 650); vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,20,.4)");
+    c.fillStyle = vg; c.fillRect(0, 0, W, H);
+  }
+
+  /* ================= HUD ================= */
+  function panel(c, x, y, w, h) { c.fillStyle = "rgba(4,8,24,.62)"; rr(c, x, y, w, h, 10); c.fill(); c.strokeStyle = "rgba(255,255,255,.14)"; c.lineWidth = 1; c.stroke(); }
+  function drawHUD(c) {
+    var s = state, i;
+    panel(c, 10, 8, 190, 56);
+    txt(c, "PONTOS", 20, 22, 11, "#9aa0b4"); txt(c, String(s.score), 20, 44, 24, "#ffdf00");
+    txt(c, "RECORDE " + Math.max(s.best[s.side] || 0, 0), 110, 22, 10, "#9aa0b4");
+    if (g.mode === "flavio") {
+      var frac = clamp(g.t / FL.limit, 0, 1), mm = Math.min(59, Math.floor(50 + 10 * frac)), clock = g.t >= FL.limit ? "23h00" : "22h" + pad2(mm);
+      panel(c, W / 2 - 90, 8, 180, 56);
+      txt(c, "NOITE · FRONTEIRA FECHA 23h", W / 2, 20, 9, "#9aa0b4", "center");
+      txt(c, clock, W / 2, 44, 30, frac > .8 ? "#ff6b6b" : "#fff", "center");
+      panel(c, W - 210, 8, 200, 56);
+      for (i = 0; i < 3; i++) drawHeart(c, W - 190 + i * 30, 26, 11, i < g.hearts ? "#ff3b4a" : "rgba(255,255,255,.18)");
+      var mleft = Math.max(0, Math.round((FL.L - g.px) / FL.pxPerM));
+      txt(c, "Faltam " + mleft + " m", W - 20, 22, 12, "#cfd3e2", "right");
+      if (g.boost > 0) txt(c, "TURBO!", W - 20, 46, 14, "#ffcc80", "right");
+      // barra de progresso
+      var bx = 230, bw = W - 460, by = 80;
+      c.fillStyle = "rgba(0,0,0,.45)"; rr(c, bx, by, bw, 8, 4); c.fill();
+      c.fillStyle = "#ffdf00"; rr(c, bx, by, Math.max(8, bw * clamp(g.px / FL.L, 0, 1)), 8, 4); c.fill();
+      c.fillStyle = "#fff"; c.fillRect(bx + bw * FL.border - 1, by - 3, 2, 14);
+      txt(c, "BR", bx - 14, by + 4, 10, "#9ec97a", "center"); txt(c, "AR", bx + bw + 14, by + 4, 10, "#8fd0ff", "center");
+      txt(c, "fronteira", bx + bw * FL.border, by + 19, 9, "#cfd3e2", "center");
+    } else {
+      var tl = Math.max(0, MP.limit - g.t), d = Math.hypot(g.f.x - g.m.x, g.f.y - g.m.y);
+      panel(c, W / 2 - 80, 8, 160, 56);
+      txt(c, "TEMPO", W / 2, 20, 9, "#9aa0b4", "center"); txt(c, Math.floor(tl / 60) + ":" + pad2(Math.floor(tl % 60)), W / 2, 44, 30, tl < 12 ? "#ff6b6b" : "#fff", "center");
+      panel(c, W - 220, 8, 210, 56);
+      var temp = d < 260 ? "QUENTE!" : d < 560 ? "MORNO" : "FRIO", tc = d < 260 ? "#ff7043" : d < 560 ? "#ffd54f" : "#80d8ff";
+      txt(c, "TERMÔMETRO", W - 205, 22, 9, "#9aa0b4"); txt(c, temp, W - 205, 44, 20, tc);
+      c.fillStyle = "rgba(255,255,255,.12)"; rr(c, W - 110, 34, 90, 10, 5); c.fill(); c.fillStyle = tc; rr(c, W - 110, 34, Math.max(6, 90 * clamp(1 - d / 1100, 0, 1)), 10, 5); c.fill();
+      txt(c, "Canetadas: " + g.freezes, W - 20, 22, 11, "#cfe0ff", "right");
+      txt(c, "Gravata amarela = Flávio", W / 2, 80, 11, "#fff", "center", "rgba(0,0,0,.7)");
+    }
+    // meme da corrida
+    txt(c, "meme: “" + state.meme + "”", 14, H - 14, 12, "rgba(255,255,255,.75)", "left", "rgba(0,0,0,.6)");
+    for (i = 0; i < g.toasts.length; i++) { var to = g.toasts[i]; c.globalAlpha = clamp(to.t * 2, 0, 1); txt(c, to.s, W / 2, 118 + i * 26, 17, to.col, "center", "rgba(0,0,0,.75)"); }
+    c.globalAlpha = 1;
+    if (g.cd > 0) {
+      var n = Math.ceil(g.cd - 0.0001), label = n > 1 ? String(n - 1) : "JÁ!"; if (g.cd > 2) label = "";
+      c.fillStyle = "rgba(0,0,0,.35)"; c.fillRect(0, 0, W, H);
+      txt(c, g.mode === "flavio" ? "Fuja pela ponte até o jatinho!" : "Ache o Flávio e pegue ele!", W / 2, 150, 26, "#fff", "center", "#000");
+      txt(c, "“" + state.meme + "”", W / 2, 188, 20, "#ffdf00", "center", "#000");
+      txt(c, g.cd > 1.1 ? String(Math.ceil(g.cd - 1)) : "VAI!", W / 2, 290, 120, "#fff", "center", "#000");
+    }
+  }
+
+  /* ================= fim de jogo / compartilhar ================= */
+  function endGame(won, why) {
+    if (state.over) return;
+    state.over = true; state.won = won; state.running = false; state.screen = "over"; g.why = why;
+    var side = state.side, sc;
+    if (side === "flavio") {
+      if (won) state.bonus = 0;
+      if (won) { g.bonus += 1000 + Math.floor((FL.limit - g.t) * 20) + g.hearts * 150; }
+      sc = fScore(); state.score = sc;
+    } else {
+      if (won) g.bonus += 1000 + Math.floor(Math.max(0, MP.limit - g.t) * 40);
+      sc = Math.max(0, Math.floor(g.near) + g.freezes * 100 + g.bonus); state.score = sc;
+    }
+    var title, line;
+    if (side === "flavio") {
+      if (won) { title = sc >= 4500 ? "Fujão Ouro" : sc >= 3500 ? "Fujão Prata" : "Fujão Bronze"; line = "Embarcou no jatinho! (só no joguinho, claro)"; }
+      else {
+        var target = g.px < FL.border * FL.L ? FL.border * FL.L : FL.L, mt = Math.max(1, Math.round((target - g.px) / FL.pxPerM));
+        title = "Quase-Fujão";
+        line = (why === "pf" ? "A PF te alcançou! " : "Deu 23h e a ponte fechou! ") + "Faltaram " + mt + " metros " + (target === FL.L ? "pro jatinho" : "pra fronteira") + "!";
+      }
+    } else {
+      if (won) { var left = MP.limit - g.t; title = "Wally Encontrado"; line = "Achou o Flávio com " + Math.round(left) + "s de sobra! " + (left > 35 ? "Nível Ouro." : left > 18 ? "Nível Prata." : "Nível Bronze (por pouco)."); state.tier = left > 35 ? "Ouro" : left > 18 ? "Prata" : "Bronze"; }
+      else { title = "Wally Segue Sumido"; line = "O tempo acabou! Faltaram " + Math.max(1, Math.round(g.closest / 10)) + " metros pra alcançar o Flávio!"; }
+    }
+    state.title = title; state.line = line;
+    var prevBest = state.best[side] || 0, isNew = sc > prevBest;
+    if (isNew) { state.best[side] = sc; saveBest(side, sc); }
+    state.newBest = isNew;
+    sfx(won ? "win" : "lose");
+    buildCard();
+    $("r-title").textContent = title.toUpperCase();
+    $("r-line").textContent = line;
+    $("r-meme").textContent = "Meme da corrida: “" + state.meme + "” — " + (MEMES.filter(function (m) { return m.t === state.meme; })[0] || { s: "" }).s;
+    $("r-score").innerHTML = "<b>" + sc + "</b> pontos · recorde " + state.best[side];
+    $("r-new").style.display = isNew ? "block" : "none";
+    $("r-hint").textContent = "";
+    $("r-img").src = state.cardURL;
+    $("touch").classList.remove("on");
+    setTimeout(function () { if (state.screen === "over") { $("result").classList.remove("hidden"); $("b-again").focus && $("b-again").focus({ preventScroll: true }); } }, 1100);
+    refreshBest();
+  }
+
+  function buildCard() {
+    var c = document.createElement("canvas"); c.width = 1080; c.height = 1080; var x = c.getContext("2d"), i;
+    var gr = x.createLinearGradient(0, 0, 0, 1080);
+    if (state.side === "flavio") { gr.addColorStop(0, "#050918"); gr.addColorStop(1, "#1d2a6b"); } else { gr.addColorStop(0, "#0d1330"); gr.addColorStop(1, "#3a3a6b"); }
+    x.fillStyle = gr; x.fillRect(0, 0, 1080, 1080);
+    for (i = 0; i < 70; i++) { x.fillStyle = "rgba(255,255,255," + rnd(.2, .8) + ")"; x.fillRect(rnd(0, 1080), rnd(0, 560), rnd(1, 3), rnd(1, 3)); }
+    x.fillStyle = "#00a651"; x.fillRect(0, 0, 1080, 16); x.fillStyle = "#ffdf00"; x.fillRect(0, 16, 1080, 10);
+    x.fillStyle = "#00a651"; x.fillRect(0, 1054, 1080, 26);
+    txt(x, "BRASIL SPEEDRUN 2026", 540, 88, 62, "#ffdf00", "center", "#0a3a1c");
+    txt(x, "FASE 5 · CADÊ O FLÁVIO? · " + (state.side === "flavio" ? "modo Fugitivo" : "modo Perseguidor"), 540, 140, 28, "#cfd6f0", "center");
+    // chão
+    x.fillStyle = "rgba(255,255,255,.08)"; x.fillRect(0, 700, 1080, 6);
+    drawChar(x, state.side === "flavio" ? "flavio" : "moraes", 330, 700, 6.4, { t: 0.3, moving: false });
+    balloon(x, "“" + state.meme + "”", 440, 330, { size: 34, maxW: 330 });
+    if (state.side === "flavio" && !state.won) { drawCar(x, 800, 690, -1, 0.1, {}); }
+    else if (state.won) { x.fillStyle = "#ffdf00"; x.font = "bold 90px Arial"; x.textAlign = "center"; x.fillText("★", 800, 560); }
+    else { drawChar(x, "flavio", 800, 700, 4.2, { t: .2, moving: true, flip: true }); }
+    txt(x, state.title.toUpperCase(), 540, 800, state.title.length > 14 ? 100 : 124, "#ffdf00", "center", "#000");
+    txt(x, state.score + " pontos" + (state.newBest ? "  ★ novo recorde" : ""), 540, 888, 54, "#fff", "center");
+    x.font = "bold 32px 'Trebuchet MS', Arial"; var ls = wrap(x, state.line, 900);
+    for (i = 0; i < Math.min(2, ls.length); i++) txt(x, ls[i], 540, 944 + i * 40, 32, "#cfd6f0", "center");
+    txt(x, "Sátira. Personagens exageram fatos reais.", 540, 1030, 26, "#f4f1e8", "center");
+    state.cardURL = c.toDataURL("image/png");
+    var b64 = state.cardURL.split(",")[1], bin = atob(b64), arr = new Uint8Array(bin.length);
+    for (i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    state.cardBlob = new Blob([arr], { type: "image/png" });
+  }
+  function shareResult() {
+    var caption = "Brasil Speedrun 2026 — " + state.title + "! " + state.score + " pontos. “" + state.meme + "” Sátira. Consegue fazer melhor?";
+    var url = (/^https?:/.test(location.protocol) ? location.href.split("#")[0] : "");
+    var file = null;
+    try { file = new File([state.cardBlob], "brasil-speedrun-2026.png", { type: "image/png" }); } catch (e) {}
+    if (file && navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+      navigator.share({ files: [file], title: "Brasil Speedrun 2026", text: caption + (url ? " " + url : "") }).catch(function () {});
+      return;
+    }
+    var a = document.createElement("a"); a.href = state.cardURL; a.download = "brasil-speedrun-2026.png"; document.body.appendChild(a); a.click(); a.remove();
+    $("r-hint").textContent = "Imagem baixada! Abrindo o WhatsApp para você anexar…";
+    try { window.open("https://wa.me/?text=" + encodeURIComponent(caption + (url ? " " + url : "")), "_blank", "noopener"); } catch (e) {}
+  }
+  $("b-share").addEventListener("click", function () { shareResult(); });
+  $("b-again").addEventListener("click", function () { start(state.side); });
+  $("b-side").addEventListener("click", function () { toMenu(); });
+
+  /* ================= fluxo ================= */
+  function refreshBest() { $("best-flavio").textContent = "Recorde: " + state.best.flavio; $("best-moraes").textContent = "Recorde: " + state.best.moraes; }
+  function toMenu() {
+    state.screen = "menu"; state.running = false; state.over = false; g = null; parts = [];
+    $("menu").classList.remove("hidden"); $("result").classList.add("hidden"); $("touch").classList.remove("on"); refreshBest(); joyReset();
+  }
+  function normSide(s) {
+    s = String(s || "").toLowerCase();
+    if (/mor|persegu|ale/.test(s)) return "moraes";
+    return "flavio";
+  }
+  function start(side) {
+    side = normSide(side);
+    ac(); sfx("select"); injected = null;
+    state.side = side; state.over = false; state.won = null; state.score = 0; state.hearts = 3; state.progress = 0; state.newBest = false;
+    state.meme = pick(MEMES).t; state.running = true; state.screen = "play"; state.title = ""; state.line = ""; state.tier = null;
+    state.timeLeft = side === "flavio" ? FL.limit : MP.limit;
+    $("menu").classList.add("hidden"); $("result").classList.add("hidden");
+    if (coarseMQ.matches) $("touch").classList.add("on");
+    joyReset();
+    if (side === "flavio") startFlavio(); else startMoraes();
+    return state;
+  }
+  $("pick-flavio").addEventListener("click", function () { start("flavio"); });
+  $("pick-moraes").addEventListener("click", function () { start("moraes"); });
+
+  /* ================= loop ================= */
+  function update(dt) {
+    if (state.screen !== "play" || !g) { if (g) g.anim += dt; return; }
+    if (g.mode === "flavio") updFlavio(dt); else updMoraes(dt);
+  }
+  var menuT = 0;
+  function render() {
+    if (!g || state.screen === "menu") {
+      menuT += 0.016;
+      var gr = ctx.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, "#050918"); gr.addColorStop(1, "#1d2a6b"); ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+      return;
+    }
+    ctx.clearRect(0, 0, W, H);
+    if (g.mode === "flavio") drawFlavioWorld(ctx); else drawMoraesWorld(ctx);
+    drawHUD(ctx);
+    if (state.over) {
+      ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.fillRect(0, 0, W, H);
+      if (!state.won) { ctx.save(); ctx.translate(W / 2, 260); ctx.rotate(-0.1); ctx.strokeStyle = "#e53935"; ctx.lineWidth = 8; ctx.strokeRect(-190, -50, 380, 100);
+        txt(ctx, state.side === "flavio" ? (g.why === "pf" ? "PEGO!" : "23h00!") : "SUMIU!", 0, 0, 72, "#e53935", "center"); ctx.restore(); }
+      else txt(ctx, state.side === "flavio" ? "EMBARCOU!" : "ACHEI!", W / 2, 260, 84, "#69f0ae", "center", "#000");
+    }
+  }
+  var last = performance.now();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (portraitMQ.matches) return;
+    update(dt); render();
+  }
+  requestAnimationFrame(frame);
+
+  // ícones dos cartões do menu
+  function menuIcons() {
+    ["flavio", "moraes"].forEach(function (k) {
+      var c2 = $("cv-" + k), x = c2.getContext("2d"); x.clearRect(0, 0, 124, 148);
+      drawChar(x, k, 62, 138, 1.9, { t: 0.2, moving: false });
+    });
+  }
+  menuIcons(); refreshBest();
+
+  /* ================= API de teste ================= */
+  window.__game = {
+    state: state,
+    start: start,
+    get world() { return g; },
+    set input(v) { injected = v; },
+    step: function (sec) { var n = Math.round(sec / 0.016); for (var i = 0; i < n; i++) update(0.016); render(); },
+    end: endGame
+  };
+})();
+</script>
+</body>
+</html>
