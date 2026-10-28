@@ -3,14 +3,16 @@
     "file": "audio/boulos_cachorro_quente_300_reais.mp3",
     "id": "boulos_cachorro_quente_300_reais",
     "character": "Guilherme Boulos",
-    "charKey": "outro",
+    "charKey": "boulos",
     "transcript": "gerido por você, o cachorro quente custa uns 300 reais,",
     "duration": 3.73,
     "source_url": "https://www.youtube.com/watch?v=cpAk3T4bl7g&t=38s",
     "suggested_use": "Fase 6 Governar é pior / taunt",
     "tags": {
-      "side": "any",
-      "phase": [],
+      "side": "esquerda",
+      "phase": [
+        6
+      ],
       "events": [
         "idle"
       ]
@@ -20,17 +22,18 @@
     "file": "audio/boulos_e_triste.mp3",
     "id": "boulos_e_triste",
     "character": "Guilherme Boulos",
-    "charKey": "outro",
+    "charKey": "boulos",
     "transcript": "É triste, é triste a gente ver esse nível de desrespeito.",
     "duration": 3.97,
     "source_url": "https://www.youtube.com/watch?v=RvLVRpMuwzk&t=66s",
     "suggested_use": "Hit / Fase 1 Debate",
     "tags": {
-      "side": "any",
+      "side": "esquerda",
       "phase": [
         1
       ],
       "events": [
+        "hit",
         "idle"
       ]
     }
@@ -39,17 +42,18 @@
     "file": "audio/boulos_ficcao_pura.mp3",
     "id": "boulos_ficcao_pura",
     "character": "Guilherme Boulos",
-    "charKey": "outro",
+    "charKey": "boulos",
     "transcript": "de tão ficcional que é ficção pura, não vai convencer.",
     "duration": 5.11,
     "source_url": "https://www.youtube.com/watch?v=cpAk3T4bl7g&t=21s",
     "suggested_use": "Fase 2 Grupo da família (fake news) / hit",
     "tags": {
-      "side": "any",
+      "side": "esquerda",
       "phase": [
         2
       ],
       "events": [
+        "hit",
         "idle"
       ]
     }
@@ -58,14 +62,16 @@
     "file": "audio/boulos_fingir_que_ta_tudo_bem.mp3",
     "id": "boulos_fingir_que_ta_tudo_bem",
     "character": "Guilherme Boulos",
-    "charKey": "outro",
+    "charKey": "boulos",
     "transcript": "não dá pra gente fingir que tá tudo bem.",
     "duration": 3.65,
     "source_url": "https://www.youtube.com/watch?v=-1Q7fbojuMc&t=15s",
     "suggested_use": "Fase 6 Governar é pior",
     "tags": {
-      "side": "any",
-      "phase": [],
+      "side": "esquerda",
+      "phase": [
+        6
+      ],
       "events": [
         "idle"
       ]
@@ -75,13 +81,13 @@
     "file": "audio/boulos_serie_da_netflix.mp3",
     "id": "boulos_serie_da_netflix",
     "character": "Guilherme Boulos",
-    "charKey": "outro",
+    "charKey": "boulos",
     "transcript": "A propaganda dele na televisão poderia ser uma série da Netflix,",
     "duration": 4.73,
     "source_url": "https://www.youtube.com/watch?v=cpAk3T4bl7g&t=17s",
     "suggested_use": "Fase 1 Debate: taunt",
     "tags": {
-      "side": "any",
+      "side": "esquerda",
       "phase": [
         1
       ],
@@ -154,13 +160,13 @@
     "file": "audio/dilma_dobramos_a_meta.mp3",
     "id": "dilma_dobramos_a_meta",
     "character": "Dilma Rousseff",
-    "charKey": "outro",
+    "charKey": "dilma",
     "transcript": "Quando a gente atingir a meta, nós dobramos a meta.",
     "duration": 4.73,
     "source_url": "https://www.youtube.com/watch?v=KLSaymMstRI&t=12s",
     "suggested_use": "Meme clássico: combo / power-up",
     "tags": {
-      "side": "any",
+      "side": "esquerda",
       "phase": [],
       "events": [
         "combo",
@@ -173,15 +179,18 @@
     "file": "audio/dilma_estocar_vento.mp3",
     "id": "dilma_estocar_vento",
     "character": "Dilma Rousseff",
-    "charKey": "outro",
+    "charKey": "dilma",
     "transcript": "O vento podia ser isso também, mas você não conseguiu ainda tecnologia para estocar vento.",
     "duration": 5.73,
     "source_url": "https://www.youtube.com/watch?v=GVTn3dn5bqU&t=24s",
     "suggested_use": "Meme clássico: power-up / Fase 6 Governar é pior",
     "tags": {
-      "side": "any",
-      "phase": [],
+      "side": "esquerda",
+      "phase": [
+        6
+      ],
       "events": [
+        "combo",
         "idle",
         "powerup"
       ]
@@ -191,15 +200,18 @@
     "file": "audio/dilma_meta_aberta.mp3",
     "id": "dilma_meta_aberta",
     "character": "Dilma Rousseff",
-    "charKey": "outro",
+    "charKey": "dilma",
     "transcript": "E nós não vamos colocar uma meta, nós vamos deixar uma meta aberta.",
     "duration": 5.55,
     "source_url": "https://www.youtube.com/watch?v=KLSaymMstRI&t=7s",
     "suggested_use": "Meme clássico: Fase 6 Governar é pior",
     "tags": {
-      "side": "any",
-      "phase": [],
+      "side": "esquerda",
+      "phase": [
+        6
+      ],
       "events": [
+        "combo",
         "idle"
       ]
     }
@@ -208,15 +220,16 @@
     "file": "audio/dilma_saudando_a_mandioca.mp3",
     "id": "dilma_saudando_a_mandioca",
     "character": "Dilma Rousseff",
-    "charKey": "outro",
+    "charKey": "dilma",
     "transcript": "Então aqui hoje eu estou saudando a mandioca.",
     "duration": 5.05,
     "source_url": "https://www.youtube.com/watch?v=VoC8hMKb174&t=24s",
     "suggested_use": "Meme clássico: power-up (mandioca)",
     "tags": {
-      "side": "any",
+      "side": "esquerda",
       "phase": [],
       "events": [
+        "combo",
         "idle",
         "powerup"
       ]
@@ -299,7 +312,8 @@
         4
       ],
       "events": [
-        "idle"
+        "idle",
+        "victory"
       ]
     }
   },
@@ -486,13 +500,13 @@
     "file": "audio/haddad_aposto_dinheiro.mp3",
     "id": "haddad_aposto_dinheiro",
     "character": "Fernando Haddad",
-    "charKey": "outro",
+    "charKey": "haddad",
     "transcript": "aposto dinheiro com quem quiser.",
     "duration": 1.93,
     "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=440s",
     "suggested_use": "Fase 3 Apuração: aposta",
     "tags": {
-      "side": "any",
+      "side": "esquerda",
       "phase": [
         3
       ],
@@ -505,13 +519,13 @@
     "file": "audio/haddad_banco_bet_bilionario.mp3",
     "id": "haddad_banco_bet_bilionario",
     "character": "Fernando Haddad",
-    "charKey": "outro",
+    "charKey": "haddad",
     "transcript": "Banco, bet, bilionário, eu vou taxar mesmo, porque os caras não pagam imposto.",
     "duration": 3.83,
     "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=372s",
     "suggested_use": "Combo / power-up Taxad",
     "tags": {
-      "side": "any",
+      "side": "esquerda",
       "phase": [],
       "events": [
         "combo",
@@ -524,13 +538,13 @@
     "file": "audio/haddad_esquece_isso_ai.mp3",
     "id": "haddad_esquece_isso_ai",
     "character": "Fernando Haddad",
-    "charKey": "outro",
+    "charKey": "haddad",
     "transcript": "Esquece, isso aí, esquece.",
     "duration": 2.39,
     "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=427s",
     "suggested_use": "Taunt / game over",
     "tags": {
-      "side": "any",
+      "side": "esquerda",
       "phase": [],
       "events": [
         "gameover",
@@ -542,14 +556,16 @@
     "file": "audio/haddad_nao_gosto_de_imposto.mp3",
     "id": "haddad_nao_gosto_de_imposto",
     "character": "Fernando Haddad",
-    "charKey": "outro",
+    "charKey": "haddad",
     "transcript": "Eu não gosto de imposto, não gosto de imposto.",
     "duration": 2.65,
     "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=263s",
     "suggested_use": "Meme Taxad: power-up / Fase 6",
     "tags": {
-      "side": "any",
-      "phase": [],
+      "side": "esquerda",
+      "phase": [
+        6
+      ],
       "events": [
         "idle",
         "powerup"
@@ -560,14 +576,16 @@
     "file": "audio/haddad_se_vira_consciencia.mp3",
     "id": "haddad_se_vira_consciencia",
     "character": "Fernando Haddad",
-    "charKey": "outro",
+    "charKey": "haddad",
     "transcript": "Se vira, é com sua consciência.",
     "duration": 2.27,
     "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=36s",
     "suggested_use": "Fase 6 Governar é pior / pause",
     "tags": {
-      "side": "any",
-      "phase": [],
+      "side": "esquerda",
+      "phase": [
+        6
+      ],
       "events": [
         "idle",
         "pause"
@@ -578,13 +596,13 @@
     "file": "audio/jair_acabou_porra.mp3",
     "id": "jair_acabou_porra",
     "character": "Jair Bolsonaro",
-    "charKey": "outro",
+    "charKey": "jair",
     "transcript": "Acabou! Porra!",
     "duration": 1.55,
     "source_url": "https://www.youtube.com/watch?v=iYuVxdgj3JI&t=0s",
     "suggested_use": "Game over / fim de fase (palavrão)",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [],
       "events": [
         "gameover",
@@ -596,17 +614,18 @@
     "file": "audio/jair_carrinho_vazio.mp3",
     "id": "jair_carrinho_vazio",
     "character": "Jair Bolsonaro",
-    "charKey": "outro",
+    "charKey": "jair",
     "transcript": "No passado ia com o carrinho vazio.",
     "duration": 2.71,
     "source_url": "https://www.youtube.com/watch?v=iU-nlyEsmLA&t=231s",
     "suggested_use": "Fase 1 Debate: hit",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [
         1
       ],
       "events": [
+        "hit",
         "idle"
       ]
     }
@@ -615,13 +634,13 @@
     "file": "audio/jair_iuuu_ta_ok_valeu.mp3",
     "id": "jair_iuuu_ta_ok_valeu",
     "character": "Jair Bolsonaro",
-    "charKey": "outro",
+    "charKey": "jair",
     "transcript": "Iuuu! Tá ok? Valeu!",
     "duration": 2.27,
     "source_url": "https://www.youtube.com/watch?v=-9OqeMqlIFI&t=13s",
     "suggested_use": "Power-up / pause",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [],
       "events": [
         "idle",
@@ -634,15 +653,16 @@
     "file": "audio/jair_ja_falei_que_sou_imorrivel.mp3",
     "id": "jair_ja_falei_que_sou_imorrivel",
     "character": "Jair Bolsonaro",
-    "charKey": "outro",
+    "charKey": "jair",
     "transcript": "Já falei que sou imorrível.",
     "duration": 3.77,
     "source_url": "https://www.youtube.com/watch?v=yWk3KzxJnck&t=9s",
     "suggested_use": "Power-up (vida extra) / meme clássico",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [],
       "events": [
+        "combo",
         "idle",
         "powerup"
       ]
@@ -652,16 +672,17 @@
     "file": "audio/jair_obrigado_pela_missao.mp3",
     "id": "jair_obrigado_pela_missao",
     "character": "Jair Bolsonaro",
-    "charKey": "outro",
+    "charKey": "jair",
     "transcript": "Obrigado pela missão.",
     "duration": 2.17,
     "source_url": "https://www.youtube.com/watch?v=QQCpHB7t15w&t=9s",
     "suggested_use": "Victory / fim de fase",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [],
       "events": [
-        "idle"
+        "idle",
+        "victory"
       ]
     }
   },
@@ -669,13 +690,13 @@
     "file": "audio/jair_promessas_estamos_cheios.mp3",
     "id": "jair_promessas_estamos_cheios",
     "character": "Jair Bolsonaro",
-    "charKey": "outro",
+    "charKey": "jair",
     "transcript": "Então, promessas, estamos cheios",
     "duration": 1.91,
     "source_url": "https://www.youtube.com/watch?v=iU-nlyEsmLA&t=233s",
     "suggested_use": "Fase 1 Debate: taunt",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [
         1
       ],
@@ -688,13 +709,13 @@
     "file": "audio/jair_segunda_vida.mp3",
     "id": "jair_segunda_vida",
     "character": "Jair Bolsonaro",
-    "charKey": "outro",
+    "charKey": "jair",
     "transcript": "Obrigado, meu deus, pela minha segunda vida.",
     "duration": 5.11,
     "source_url": "https://www.youtube.com/watch?v=QQCpHB7t15w&t=2s",
     "suggested_use": "Continue / vida extra",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [],
       "events": [
         "idle",
@@ -706,13 +727,13 @@
     "file": "audio/jair_tambem_sou_incomivel.mp3",
     "id": "jair_tambem_sou_incomivel",
     "character": "Jair Bolsonaro",
-    "charKey": "outro",
+    "charKey": "jair",
     "transcript": "E também sou incomível.",
     "duration": 2.65,
     "source_url": "https://www.youtube.com/watch?v=yWk3KzxJnck&t=22s",
     "suggested_use": "Combo / meme clássico",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [],
       "events": [
         "combo",
@@ -724,17 +745,18 @@
     "file": "audio/janja_tinha_abrido.mp3",
     "id": "janja_tinha_abrido",
     "character": "Janja",
-    "charKey": "outro",
+    "charKey": "janja",
     "transcript": "tinha abrido aquele caminho,",
     "duration": 3.75,
     "source_url": "https://www.youtube.com/watch?v=_PDm67HFvbg&t=87s",
     "suggested_use": "Meme 'abrido': hit / Fase 2 Grupo da família",
     "tags": {
-      "side": "any",
+      "side": "esquerda",
       "phase": [
         2
       ],
       "events": [
+        "hit",
         "idle"
       ]
     }
@@ -793,7 +815,8 @@
         4
       ],
       "events": [
-        "idle"
+        "idle",
+        "victory"
       ]
     }
   },
@@ -1147,7 +1170,8 @@
       "side": "direita",
       "phase": [],
       "events": [
-        "idle"
+        "idle",
+        "victory"
       ]
     }
   },
@@ -1232,13 +1256,13 @@
     "file": "audio/renan_nao_houve_fraude.mp3",
     "id": "renan_nao_houve_fraude",
     "character": "Renan Santos",
-    "charKey": "outro",
+    "charKey": "renan",
     "transcript": "Não houve fraude. Infelizmente, ou felizmente, para quem quiser.",
     "duration": 4.19,
     "source_url": "https://www.youtube.com/watch?v=0eL0avz9dGM&t=80s",
     "suggested_use": "Fase 3 Apuração: resultado confirmado",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [
         3
       ],
@@ -1251,15 +1275,16 @@
     "file": "audio/renan_nao_saia_as_ruas.mp3",
     "id": "renan_nao_saia_as_ruas",
     "character": "Renan Santos",
-    "charKey": "outro",
+    "charKey": "renan",
     "transcript": "Não saia as ruas. Presta muita atenção. Não saia as ruas.",
     "duration": 4.47,
     "source_url": "https://www.youtube.com/watch?v=0eL0avz9dGM&t=0s",
     "suggested_use": "Fase 3 Apuração / Fase 5 Cadê o Flávio: aviso ao jogador; pause",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [
-        3
+        3,
+        5
       ],
       "events": [
         "cameo",
@@ -1272,15 +1297,18 @@
     "file": "audio/renan_pare_de_correr_risco.mp3",
     "id": "renan_pare_de_correr_risco",
     "character": "Renan Santos",
-    "charKey": "outro",
+    "charKey": "renan",
     "transcript": "Pare de correr risco por malandro, malandro.",
     "duration": 4.35,
     "source_url": "https://www.youtube.com/watch?v=0eL0avz9dGM&t=98s",
     "suggested_use": "Fase 5 Cadê o Flávio; hit",
     "tags": {
-      "side": "any",
-      "phase": [],
+      "side": "direita",
+      "phase": [
+        5
+      ],
       "events": [
+        "hit",
         "idle"
       ]
     }
@@ -1289,13 +1317,13 @@
     "file": "audio/renan_qualquer_chororo.mp3",
     "id": "renan_qualquer_chororo",
     "character": "Renan Santos",
-    "charKey": "outro",
+    "charKey": "renan",
     "transcript": "Qualquer chororô agora apenas vai soar tosco.",
     "duration": 3.69,
     "source_url": "https://www.youtube.com/watch?v=0eL0avz9dGM&t=92s",
     "suggested_use": "Taunt / game over do adversário",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [],
       "events": [
         "gameover",
@@ -1307,13 +1335,13 @@
     "file": "audio/tarcisio_acorda_cedo_dorme_tarde.mp3",
     "id": "tarcisio_acorda_cedo_dorme_tarde",
     "character": "Tarcísio de Freitas",
-    "charKey": "outro",
+    "charKey": "tarcisio",
     "transcript": "um cara que acorda muito cedo, dorme muito tarde,",
     "duration": 3.19,
     "source_url": "https://www.youtube.com/watch?v=NQ8PAztq2Hc&t=112s",
     "suggested_use": "Fase 4 Comemoração / power-up",
     "tags": {
-      "side": "any",
+      "side": "direita",
       "phase": [
         4
       ],

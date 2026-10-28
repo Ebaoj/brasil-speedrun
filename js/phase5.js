@@ -1475,16 +1475,18 @@ function drawSlots(c) {
   txt(c, fl ? "LIGAR PRO TRUMP" : "OFÍCIO URGENTE", sx2, ey - 2, 9, "#9aa0b4"); c.fillStyle = "rgba(255,255,255,.12)"; rr(c, sx2, ey + 6, 128, 11, 5); c.fill();
   c.fillStyle = g.sp >= 100 ? (Math.floor(g.anim * 6) % 2 ? "#ffab40" : "#ff7043") : "#ffa726"; rr(c, sx2, ey + 6, Math.max(6, 128 * g.sp / 100), 11, 5); c.fill();
 }
-function drawVoice(c) {
+function drawVoice(c) {   // balão de fala: pequeno, na borda esquerda (sob o HUD), some depois de ~2,4 s mesmo com a fala ainda tocando
   var v = voice.cur; if (!v) return;
-  var now = voice.clock, age = (now - v.start) / 1000, a = clamp(age * 6, 0, 1) * clamp((v.end - now) / 300, 0, 1);
-  c.save(); c.globalAlpha = a; c.font = "bold 14px 'Trebuchet MS', Arial, sans-serif";
-  var lines = wrap(c, "“" + v.tx + "”", 270), w = 0, i; for (i = 0; i < lines.length; i++) w = Math.max(w, c.measureText(lines[i]).width);
-  w = Math.max(w + 22, 150); var h = lines.length * 18 + 14, x = 80, y = 118 + (1 - a) * 6, vk = WHOKIND[v.who];
-  if (vk) { portraitCard(c, vk, 10, y - 14, 62, 62, { r: 12, lw: 2.5, talk: age < (v.end - v.start) / 1000 - .4 ? Math.abs(Math.sin(age * 13)) : 0 }); }
-  c.fillStyle = "#ffdf00"; rr(c, x, y - 16, Math.min(w, 260), 18, 6); c.fill(); txt(c, (muted ? "🔇 " : "🔊 ") + v.who, x + 8, y - 6, 11, "#1a1a1a");
-  c.fillStyle = "#fff"; c.strokeStyle = "#111"; c.lineWidth = 2.5; rr(c, x, y + 4, w, h, 10); c.fill(); c.stroke();
-  c.fillStyle = "#111"; c.textAlign = "left"; c.textBaseline = "middle"; for (i = 0; i < lines.length; i++) c.fillText(lines[i], x + 11, y + 4 + 7 + 9 + i * 18);
+  var now = voice.clock, age = (now - v.start) / 1000, show = Math.min(2.4, (v.end - v.start) / 1000);
+  if (age > show) return;
+  var a = clamp(age * 8, 0, 1) * clamp((show - age) * 5, 0, 1), tx = v.tx.length > 60 ? v.tx.slice(0, 57).replace(/\s+\S*$/, "") + "…" : v.tx, i, w = 0;
+  c.save(); c.globalAlpha = a; c.font = "bold 11px 'Trebuchet MS', Arial, sans-serif";
+  var lines = wrap(c, "“" + tx + "”", 150).slice(0, 3), vk = WHOKIND[v.who];
+  for (i = 0; i < lines.length; i++) w = Math.max(w, c.measureText(lines[i]).width);
+  w = Math.max(w + 14, 96); var h = lines.length * 14 + 8, x = 8, y = 70;
+  c.fillStyle = "#ffdf00"; rr(c, x, y, w, 15, 5); c.fill(); txt(c, v.who, x + 6, y + 8, 10, "#1a1a1a");
+  c.fillStyle = "#fff"; c.strokeStyle = "#111"; c.lineWidth = 2; rr(c, x, y + 17, w, h, 8); c.fill(); c.stroke();
+  c.fillStyle = "#111"; c.textAlign = "left"; c.textBaseline = "middle"; for (i = 0; i < lines.length; i++) c.fillText(lines[i], x + 7, y + 17 + 4 + 7 + i * 14);
   c.restore();
 }
 function drawHUD(c) {

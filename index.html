@@ -141,6 +141,11 @@
   .pb[data-k=J] { left: 0; bottom: 0; } .pb[data-k=K] { left: 4.6em; bottom: 0; }
   .pb[data-k=L] { left: 1.2em; bottom: 4.8em; } .pb[data-k=I] { left: 6em; bottom: 4.8em; }
   .pb.sp { left: auto; right: 0; bottom: 3.2em; }
+  #abtns { display: none; position: absolute; right: 1.5%; bottom: 14%; width: 11em; height: 6.4em; pointer-events: none; }
+  #touch.arc #pbtns { display: none; } #touch.arc #abtns { display: block; }
+  .ab { position: absolute; width: 3.2em; height: 3.2em; border-radius: 50%; pointer-events: auto; touch-action: none; font-size: 1.6em; line-height: 1; padding: 0;
+    background: rgba(12,20,50,.62); border: .1em solid #ffdf00; color: #fff; }
+  #ab-a { right: 0; bottom: 0; background: rgba(0,150,70,.55); } #ab-b { right: 4em; bottom: .1em; width: 2.7em; height: 2.7em; border-color: #ff7043; }
 
 
   /* ---- mapa ---- */
@@ -307,7 +312,8 @@
         <button type="button" class="pb" data-k="L"><i class="cd"></i><b>🪧</b><u>L</u></button>
         <button type="button" class="pb" data-k="I"><i class="cd"></i><b>🧢</b><u>I</u></button>
         <button type="button" class="pb sp" data-k="S"><i class="cd"></i><b>★</b><u>ESP</u></button>
-      </div></div>
+      </div>
+      <div id="abtns"><button type="button" class="ab" id="ab-b" aria-label="Poder">⭐</button><button type="button" class="ab" id="ab-a" aria-label="Ação">🎤</button></div></div>
     <button id="pause" type="button" aria-label="Pausar">⏸</button>
     <button id="mute" type="button" aria-label="Som">🔊</button>
   </div>

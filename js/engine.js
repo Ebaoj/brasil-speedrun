@@ -129,7 +129,7 @@ function applyVoiceManifest(list) {
     if (!c) c = CLIPS[e.id] = { id: e.id, f: e.id, who: e.character, tx: e.transcript, d: e.duration || 3 };
     if (!leg) { c.who = e.character; c.tx = e.transcript; }
     if (e.duration) c.d = e.duration;
-    c.side = e.tags.side || "any"; c.phase = e.tags.phase || []; c.events = e.tags.events || ["idle"];
+    c.key = e.charKey || ""; c.side = e.tags.side || "any"; c.phase = e.tags.phase || []; c.events = e.tags.events || ["idle"];
   });
   voice.loaded = true;
 }
@@ -204,6 +204,15 @@ function vox(ev, o) {
   if (prio < 3 && now - voice.lastEnd < 2500) return false;
   var cid = pickClip(ev); if (!cid) return false;
   return playClip(cid, ev, prio);
+}
+// fala de personagens específicos (charKey do manifest) para um evento; cai no vox() normal se não houver
+function voxWho(ev, who, o) {
+  o = o || {}; var prio = o.prio || 0, now = voice.clock, pool = [], k;
+  if (o.p != null && Math.random() > o.p) return false;
+  if (prio < 3 && now - voice.lastEnd < 2500) return false;
+  for (k in CLIPS) if (who.indexOf(CLIPS[k].key) >= 0 && voice.recent.indexOf(k) < 0 && (CLIPS[k].events.indexOf(ev) >= 0 || o.any)) pool.push(k);
+  if (!pool.length) return vox(ev, o);
+  return playClip(pool[Math.floor(Math.random() * pool.length)], ev, prio);
 }
 var VOX_SFX = { hit: ["hit", .6], boom: ["hit", .5], stamp: ["hit", .35], pow: ["powerup", .75], boost: ["powerup", .6], shield: ["near-miss", .6], medal: ["combo", .65], coin: ["pickup", .1] };
 function voxSfx(k) { var m = VOX_SFX[k]; if (m) vox(m[0], { p: m[1] }); }

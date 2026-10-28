@@ -1,123 +1,96 @@
 "use strict";
 /* ================= Fase 6 — Governar é pior =================
-   Esteira de carimbo (3 pistas). Lula: Planalto, projetos e emendas jabuti, REGULAÇÃO DAS REDES (o jogo é censurado).
-   Flávio: imigração em Miami, passaportes com/sem visto, "visto carimbado", cameo do Eduardo.
-   Chefe: Plenário do Centrão. Final compartilhado: o Congresso bloqueia TUDO. Final secreto: quem zerou os dois lados. */
+   Arcade de pratos giratórios: corra entre 5 estações (Saúde, Economia, Segurança, Educação, Redes) e segure A perto de cada uma
+   para manter a estabilidade; crises surgem (emendas jabuti / vistos), o prato que cai custa uma chance. No fim, o Plenário do Centrão
+   joga emendas (bata nelas!). Lula: REGULAÇÃO DAS REDES (jogo censurado). Flávio: Miami, cameo do Eduardo.
+   Final compartilhado: o Congresso bloqueia TUDO. Final secreto: quem zerou os dois lados. */
 
-var P6_LY = [165, 255, 345];
-var P6_ZL = 130, P6_ZR = 470, P6_IW = 132;
+var P6_PX = [150, 315, 480, 645, 810], P6_PY = 350, P6_ORDER = [2, 1, 3, 0, 4];
 var P6_TXT = {
   lula: {
-    good: ["PL da Picanha Popular", "Reforma Tributária 2.0", "Passe Livre do Busão", "Bolsa Cafezinho", "Lei do Pão de Queijo", "Mais Médicos do Zap", "PEC da Fila do Pix", "Auxílio Marmita", "Imposto do Churrasco: ZERO", "Feriado Prolongado Nacional"],
-    bad: ["Emenda Jabuti: +1 Ministério", "Jabuti: Piscina no Gabinete", "Jabuti: Verba pro Pedalinho", "Emenda: Cargo pro Primo", "Jabuti: Jetski Institucional"],
-    badIc: "🐢", goodIc: "📜", special: "REGULAÇÃO DAS REDES", rush: "CANETA DE OURO", smooth: "CAFEZINHO DO PLANALTO", smIc: "☕", rushIc: "🖊",
-    stampOk: "APROVADO", stampBad: "JABUTI!", where: "Palácio do Planalto · Mesa da Presidência"
+    plates: ["Saúde", "Economia", "Segurança", "Educação", "Redes"],
+    crises: ["Emenda Jabuti: +1 Ministério", "Jabuti: Piscina no Gabinete", "Centrão quer cargo pro primo", "Boato no zap: fila do SUS", "Jabuti: Jetski Institucional"],
+    pk: { rush: "CANETA DE OURO", smooth: "CAFEZINHO DO PLANALTO", special: "REGULAÇÃO DAS REDES" }, smIc: "☕", rushIc: "🖊", spIc: "📢",
+    where: "Palácio do Planalto · Mesa da Presidência", keyHelp: "Caneta de Ouro"
   },
   flavio: {
-    good: ["Passaporte COM visto ✓", "Turista: visto OK ✓", "Visto B1/B2 válido ✓", "Passaporte + visto + sorriso", "Visto carimbado ✓ (de verdade)", "Mochila, chinelo e visto ✓"],
-    bad: ["Passaporte SEM visto ✗", "Visto vencido ✗", "Passaporte do Wally ✗", "Esqueceu o visto em casa ✗", "Visto de outra pessoa ✗"],
-    badIc: "🚫", goodIc: "🛂", special: "GREEN CARD (EDUARDO MANDOU)", rush: "VISTO CARIMBADO", smooth: "SMOOTHIE DE MIAMI", smIc: "🥤", rushIc: "🛂",
-    stampOk: "VISTO OK", stampBad: "SEM VISTO!", where: "Aeroporto de Miami · Imigração"
+    plates: ["Fila", "Câmbio", "Segurança", "Escola", "Wi-Fi"],
+    crises: ["Passaporte SEM visto ✗", "Visto vencido ✗", "Visto de outra pessoa ✗", "Esqueceu o visto em casa ✗", "Fila de 3 horas no balcão"],
+    pk: { rush: "VISTO CARIMBADO", smooth: "SMOOTHIE DE MIAMI", special: "GREEN CARD (EDUARDO MANDOU)" }, smIc: "🥤", rushIc: "🛂", spIc: "💳",
+    where: "Aeroporto de Miami · Imigração", keyHelp: "Visto Carimbado"
   }
 };
-var P6_FOEPOW = { lula: "Centrão", flavio: "Centrão" };
 
 SCEN[6] = function (S) {
   var camp = S.camp, T = P6_TXT[camp], fl = camp === "flavio";
-  var P = { ph: "play", items: [], sp: .6, bossSp: 0, evI: 0, lastLane: -1, rush: 0, slow: 0, boss: null, bossInit: false,
-    stampT: [0, 0, 0], whiff: [0, 0, 0], ok: 0, wrong: 0, missed: 0, missRun: 0, winHits: 0, nextWin: 14, cameo: null, bossWin: false,
-    page: 0, pt: 0, secret: false, pageFlags: {}, specialDone: false, bannerT: 0, tt: 0, ended: false, blockMsg: 0 };
-  S.lives = 3; S.maxLives = 3; S.time = 140; S.timeMax = 140;
+  var P = { ph: "play", items: [], em: [], pk: [], pl: [], px: 480, py: 430, spec: 0, inv: 0, slow: 0, boss: null, evI: 0, cT: 3.5, swatCd: 0, shownN: 0, firstCr: true,
+    ok: 0, wrong: 0, missed: 0, winHits: 0, nextWin: 14, cameo: null, bossWin: false, rush: 0, hold: false, saved: 0, stabSum: 0, stabN: 0,
+    page: 0, pt: 0, secret: false, pageFlags: {}, tt: 0, ended: false, botA: false, botMv: { x: 0, y: 0 }, bt: 0, bIdle: 0, tgt: null };
+  S.lives = 3; S.maxLives = 3; S.livesLabel = "CHANCES"; S.time = 140; S.timeMax = 140;
   var EV = fl ? [[16, "rush"], [30, "special"], [47, "cameo"], [70, "rush"], [88, "rush"]] : [[16, "rush"], [30, "special"], [50, "smooth"], [68, "rush"], [88, "rush"]];
+  var SIDEK = fl ? ["jair", "tarcisio", "nikolas", "renan"] : ["dilma", "haddad", "boulos", "lula"];
+  var i0;
+  for (i0 = 0; i0 < 5; i0++) P.pl.push({ i: i0, x: P6_PX[i0], v: 70, act: P6_ORDER.indexOf(i0) < 3, cr: null, crP: 0, blk: 0 });
 
-  function speed() { var pr = clamp(S.t / 140, 0, 1); return lerp(150, 275, pr) * (P.slow > 0 ? .6 : 1); }
-  function laneBlocked(l) { var b = P.boss; return !!(b && b.blockLeft > 0 && b.blockLane === l); }
-  function mk(lane, kind, label) { var it = { lane: lane, x: 1010, y: P6_LY[lane], kind: kind, label: label, done: 0, stamped: false, w: P6_IW, bm: RNG() < .04, bw: RNG() < .012, rt: rnd(0, 130), a: 1 };
-    P.items.push(it); return it; }
-  function freeLane() {
-    var order = [0, 1, 2].sort(function () { return RNG() - .5; });
-    for (var k = 0; k < 3; k++) { var l = order[k], ok = true; for (var i = 0; i < P.items.length; i++) if (P.items[i].lane === l && P.items[i].x > 1010 - 230) ok = false; if (ok && l !== P.lastLane) { P.lastLane = l; return l; } }
-    return -1;
-  }
-  function spawnNormal() {
-    var l = freeLane(); if (l < 0) return;
-    if (RNG() < .3) mk(l, "bad", pick(T.bad)); else mk(l, "good", pick(T.good));
-  }
-  function spawnKind(kind) {
-    var l = freeLane(); if (l < 0) { l = (RNG() * 3) | 0; }
-    var lab = kind === "special" ? T.special : kind === "rush" ? T.rush : kind === "smooth" ? T.smooth : "EMENDA DE PLENÁRIO";
-    mk(l, kind, lab);
-  }
+  function nAct() { return S.t < 22 ? 3 : S.t < 45 ? 4 : 5; }
+  function prog() { return clamp(S.t / 100, 0, 1); }
+  function mv() { return S.bot ? P.botMv : arcMove(); }
+  function held() { return S.bot ? P.botA : arcHeld("a"); }
+  function near(pl) { return Math.abs(P.px - pl.x) < 62 && Math.abs(P.py - P6_PY) < 62; }
+  function nearestPlate() { var b = null, d = 1e9; P.pl.forEach(function (p) { if (!p.act) return; var dd = Math.hypot(P.px - p.x, P.py - P6_PY); if (dd < d && near(p)) { d = dd; b = p; } }); return b; }
+
   function lifeLoss(why) {
-    S.lives--; S.hit(); P.winHits++; shake(7); flashScr("255,40,40", .45); sfx("nope");
+    S.lives--; S.hit(); P.winHits++; P.inv = 1.2; shake(8); flashScr("255,40,40", .45); sfx("nope");
+    voxWho("hit", SIDEK, { p: .6 });
     if (S.lives <= 0 && P.ph !== "over") {
       P.ph = "over"; S.hudHide = false;
-      S.end(false, clamp(.15 + .3 * (S.t / 140), 0, .45), fl ? "Sem visto, sem paciência: a imigração de Miami te barrou. (Em Brasília, o Centrão também ia barrar.)" : "Carimbou jabuti demais: o Centrão agradeceu e te deixou sem pauta.", { failTitle: fl ? "Barrado em Miami" : "Refém do Centrão", voiceLose: fl ? "sistema" : "hoje" });
+      S.end(false, clamp(.15 + .3 * (S.t / 140), 0, .45), fl ? "Sem visto, sem paciência: a imigração de Miami te barrou. (Em Brasília, o Centrão também ia barrar.)" : "Deixou prato demais cair: o Centrão agradeceu e te deixou sem pauta.", { failTitle: fl ? "Barrado em Miami" : "Refém do Centrão", voiceLose: fl ? "sistema" : "hoje" });
     }
   }
-  function stampItem(it, auto) {
-    if (it.stamped || it.done > 0) return false;
-    if (laneBlocked(it.lane)) { popup("BLOQUEADO!", it.x, it.y - 40, "#ff6b6b", 16); sfx("nope"); return false; }
-    it.stamped = true; it.done = .5; P.stampT[it.lane] = .25;
-    var k = P.rush > 0 ? 2 : 1, x = clamp(it.x, 140, 900), y = it.y;
-    sfx("stamp");
-    if (it.kind === "good") {
-      S.up(x, y - 40); S.add(25 * k, x, y - 30, "#69f0ae"); P.ok++; P.missRun = 0; burst(x, y, "#69f0ae", 10, 120); it.mark = T.stampOk;
-    } else if (it.kind === "bad") {
-      it.mark = T.stampBad; it.badMark = true; popup(T.stampBad, x, y - 36, "#ff6b6b", 22); burst(x, y, "#ff6b6b", 14, 150); P.wrong++; lifeLoss("bad");
-      if (P.ph === "over") return true;
-    } else if (it.kind === "special") {
-      S.add(200 * k, x, y - 30, "#ffd54f"); S.up(x, y); it.mark = "APROVADO!"; ring(x, y, "#ffd54f", 10); P.ok++;
-      if (!fl) {
-        S.censor = 6; say("regular", "regulacao", 6); say("crimeDig", "regulacao", 5);
-        S.toast("REGULAÇÃO APROVADA… e o jogo foi [CENSURADO]!", "#ffcc80", 3.2); flashScr("0,0,0", .6); shake(8);
-      } else { S.toast("Green card! (o Eduardo mandou)", "#ffcc80", 2.6); }
-      P.specialDone = true;
-    } else if (it.kind === "emenda") {
-      var b = P.boss; it.mark = "EMENDA!";
-      if (b && !b.dead) { b.hp = Math.max(0, b.hp - 9); b.hit = .4; shake(9); S.add(80 * k, x, y - 30, "#ffd54f"); S.up(x, y); P.ok++; popup("-9 CENTRÃO", 900, 372, "#ff8a65", 20); burst(780, 440, "#ffd54f", 14, 160);
-        if (b.hp <= 0) { b.dead = true; P.bossWin = true; startEnding(); } }
-    } else if (it.kind === "rush") {
-      P.rush = 8; S.add(50, x, y - 30); it.mark = "CARIMBADO!"; ring(x, y, "#ffdf00", 12); S.toast(fl ? "VISTO CARIMBADO! carimbo automático por 8s" : "CANETA DE OURO! carimbo automático por 8s", "#ffdf00", 2.6); sfx("pow");
-    } else if (it.kind === "smooth") {
-      P.slow = 6; if (S.lives < S.maxLives) { S.lives++; popup("+1 CHANCE", x, y - 40, "#ff8a80", 20); } else S.add(50, x, y - 30);
-      it.mark = "GLUP!"; S.toast("Esteira mais lenta por 6s!", "#80d8ff", 2.2); sfx("pop");
+  function addSpec(v) { P.spec = Math.min(100, P.spec + v); }
+  function startCrisis(pl) {
+    pl.cr = { t: 7, label: T.crises[rint(0, 4)] }; pl.crP = 0; pl.v = Math.max(1, pl.v - 18); sfx("alarm");
+    if (P.firstCr) { P.firstCr = false; say(fl ? "tarcisio_acorda_cedo_dorme_tarde" : "boulos_fingir_que_ta_tudo_bem", "crise", 1); }
+  }
+  function clearCrisis(pl) {
+    pl.cr = null; pl.crP = 0; P.ok++; S.up(pl.x, 230); S.add(30, pl.x, 220, "#69f0ae"); addSpec(12); sfx("coin"); burst(pl.x, 250, "#69f0ae", 12, 140, 100);
+  }
+  function spawnPick(kind) {
+    P.pk.push({ kind: kind, x: rnd(110, 850), y: rnd(220, 440), t: 11 });
+  }
+  function startBoss() {
+    P.boss = { hp: 100, intro: 2.8, hit: 0, dead: false, emT: 1.5, blkT: 6, t: 0, dead2: 0 };
+    S.toast("PLENÁRIO DO CENTRÃO! Bata nas 🔨 EMENDAS (segure A)!", "#ff8a65", 3);
+    spawnPick("rush"); say(fl ? "jair_promessas_estamos_cheios" : "haddad_se_vira_consciencia", "chefe", 4); sfx("alarm"); shake(8);
+  }
+  function swat(em) {
+    var B = P.boss; P.em.splice(P.em.indexOf(em), 1); P.swatCd = .3; P.ok++; S.up(em.x, em.y); S.add(40, em.x, em.y, "#ffd54f"); addSpec(8); sfx("stamp"); burst(em.x, em.y, "#ffd54f", 12, 150, 120);
+    if (B && !B.dead) { B.hp = Math.max(0, B.hp - 12); B.hit = .4; popup("-12 CENTRÃO", 780, 100, "#ff8a65", 18); if (B.hp <= 0) { B.dead = true; P.bossWin = true; S.add(300, 700, 120, "#ffdf00"); flashScr("255,223,0", .4); startEnding(); } }
+  }
+  function useSpec() {
+    if (P.spec < 100 || P.ph !== "play") return false;
+    P.spec = 0; P.pl.forEach(function (p) { p.v = 100; p.cr = null; p.blk = 0; });
+    P.em.slice().forEach(function (e) { swat(e); });
+    ring(P.px, P.py - 20, "#ffdf00", 12); flashScr("255,223,0", .4); shake(6); sfx("pow"); S.toast(T.keyHelp.toUpperCase() + "! Tudo estabilizado!", "#ffdf00", 2);
+    voxWho("powerup", SIDEK, { p: .8 }); return true;
+  }
+  function collect(pk) {
+    P.pk.splice(P.pk.indexOf(pk), 1); var x = pk.x, y = pk.y;
+    if (pk.kind === "rush") { P.spec = 100; S.add(50, x, y - 20); ring(x, y, "#ffdf00", 12); S.toast(T.pk.rush + "! Especial carregado (K)", "#ffdf00", 2.4); sfx("pow"); voxWho("powerup", SIDEK, { p: .7 }); }
+    else if (pk.kind === "smooth") { P.slow = 8; if (S.lives < S.maxLives) { S.lives++; popup("+1 CHANCE", x, y - 30, "#ff8a80", 20); } else S.add(50, x, y - 20); S.toast("Estabilidade cai mais devagar por 8s!", "#80d8ff", 2.2); sfx("pop"); }
+    else {
+      S.add(200, x, y - 20, "#ffd54f"); S.up(x, y); P.pl.forEach(function (p) { if (p.act) p.v = Math.max(p.v, 85); p.cr = null; }); ring(x, y, "#ffd54f", 10); P.ok++;
+      if (!fl) { S.censor = 6; say("regular", "regulacao", 6); say("crimeDig", "regulacao", 5); S.toast("REGULAÇÃO APROVADA… e o jogo foi [CENSURADO]!", "#ffcc80", 3.2); flashScr("0,0,0", .6); shake(8); }
+      else S.toast("Green card! (o Eduardo mandou)", "#ffcc80", 2.6);
     }
-    return true;
-  }
-  function eligible(l) {
-    var best = null;
-    for (var i = 0; i < P.items.length; i++) { var it = P.items[i]; if (it.lane === l && !it.stamped && it.x >= P6_ZL && it.x <= P6_ZR && (!best || it.x < best.x)) best = it; }
-    return best;
-  }
-  function stampLane(l) {
-    if (P.ph === "ending" || P.ph === "over") return;
-    if (P.whiff[l] > 0) return;
-    var it = eligible(l);
-    if (it) stampItem(it, false);
-    else { P.whiff[l] = .22; P.stampT[l] = .2; if (laneBlocked(l)) popup("BLOQUEADO!", 300, P6_LY[l] - 36, "#ff6b6b", 16); }
-  }
-  function tapAt(x, y) {
-    var i, best = null, bd = 1e9;
-    for (i = 0; i < P.items.length; i++) { var it = P.items[i]; if (it.stamped || it.x > 940 || it.x < 60) continue; var dx = Math.abs(x - it.x), dy = Math.abs(y - it.y);
-      if (dx < it.w / 2 + 14 && dy < 46 && dx + dy < bd) { bd = dx + dy; best = it; } }
-    if (best) { stampItem(best, false); return; }
-    var l = -1; for (i = 0; i < 3; i++) if (Math.abs(y - P6_LY[i]) < 46) l = i;
-    if (l >= 0 && x < 700) stampLane(l);
   }
 
-  /* ---------- chefe e fim ---------- */
-  function startBoss() {
-    P.boss = { hp: 100, intro: 2.8, blockT: 4, blockLane: 0, blockLeft: 0, hit: 0, dead: false, empT: 1 };
-    S.toast("PLENÁRIO DO CENTRÃO! Carimbe as 🔨 EMENDAS!", "#ff8a65", 3);
-    say(fl ? "desistir" : "pedirDesc", "chefe", 4); sfx("alarm"); shake(8);
-  }
   function startEnding() {
     if (P.ph === "ending") return;
     var s2 = { lula: META.done.lula || camp === "lula", flavio: META.done.flavio || camp === "flavio" };
     P.secret = !!(s2.lula && s2.flavio);
     P.ph = "ending"; P.page = 0; P.pt = 0; P.pageFlags = {}; S.time = null; S.hudHide = true; S.censor = 0;
-    P.items = []; sfx("alarm"); S.grid.push(P.bossWin ? "g" : "y");
+    P.items = []; P.em = []; P.pk = []; $("touch").classList.remove("on", "arc"); sfx("alarm"); S.grid.push(P.bossWin ? "g" : "y");
     say(fl ? "nunca" : "bola", "fim", 2);
   }
   function pagesCount() { return P.secret ? 4 : 3; }
@@ -137,75 +110,99 @@ SCEN[6] = function (S) {
     if (P.page >= pagesCount()) finishAll();
   }
 
+
   /* ---------- update ---------- */
   function update(dt) {
     if (P.ph === "over") return;
     P.tt += dt;
     if (P.ph === "ending") { P.pt += dt; if (S.bot && P.pt > 1.2) nextPage(); updEndingFx(); return; }
-    var i, it, sp = speed();
-    if (P.rush > 0) P.rush -= dt; if (P.slow > 0) P.slow -= dt; if (S.censor > 0) S.censor -= dt;
-    for (i = 0; i < 3; i++) { if (P.stampT[i] > 0) P.stampT[i] -= dt; if (P.whiff[i] > 0) P.whiff[i] -= dt; }
+    var i, pl, pr = prog(), B = P.boss, m = mv(), h = held(), np;
+    if (P.slow > 0) P.slow -= dt; if (S.censor > 0) S.censor -= dt; if (P.inv > 0) P.inv -= dt; if (P.swatCd > 0) P.swatCd -= dt; if (P.rush > 0) P.rush -= dt;
+    P.px = clamp(P.px + m.x * (S.bot ? 340 : 270) * dt, 40, 920); P.py = clamp(P.py + m.y * (S.bot ? 340 : 270) * dt, 190, 480); P.hold = h;
+    np = nAct();
+    for (i = 0; i < 5; i++) { pl = P.pl[i]; if (!pl.act && P6_ORDER.indexOf(i) < np) { pl.act = true; pl.v = 70; S.toast("Nova frente: " + T.plates[i] + "!", "#9fe8ff", 1.8); sfx("pop"); } }
     // eventos agendados
     while (P.evI < EV.length && S.t >= EV[P.evI][0]) {
       var ev = EV[P.evI++][1];
       if (ev === "cameo") { P.cameo = { t: 0, dur: 7, dropped: false }; S.toast("Cameo: Eduardo (cameo) chegou em Miami!", "#ffcc80", 2.6); say("hoje", "cameo", 1); }
-      else spawnKind(ev);
+      else spawnPick(ev);
     }
-    if (P.cameo) { P.cameo.t += dt; if (!P.cameo.dropped && P.cameo.t > 2.2) { P.cameo.dropped = true; spawnKind("smooth"); } if (P.cameo.t > P.cameo.dur) P.cameo = null; }
-    // chefe
-    if (!P.boss && S.t >= 100) startBoss();
-    var B = P.boss;
+    if (P.cameo) { P.cameo.t += dt; if (!P.cameo.dropped && P.cameo.t > 2.2) { P.cameo.dropped = true; spawnPick("smooth"); } if (P.cameo.t > P.cameo.dur) P.cameo = null; }
+    if (!B && S.t >= 95) startBoss();
+    B = P.boss;
+    // crises
+    P.cT -= dt;
+    if (P.cT <= 0) { P.cT = lerp(5, 2.4, pr) * (B ? 2.2 : 1); var cand = P.pl.filter(function (p) { return p.act && !p.cr; }); if (cand.length && (!B || B.intro <= 0)) startCrisis(pick(cand)); }
     if (B) {
+      B.t += dt; if (B.hit > 0) B.hit -= dt;
       if (B.intro > 0) B.intro -= dt;
-      if (B.hit > 0) B.hit -= dt;
-      if (B.intro <= 0 && !B.dead) {
-        B.blockT -= dt; if (B.blockLeft > 0) B.blockLeft -= dt;
-        if (B.blockT <= 0) { B.blockT = 7; B.blockLeft = 3; B.blockLane = (RNG() * 3) | 0; sfx("alarm"); S.toast("BLOQUEIO! pista " + (B.blockLane + 1) + " fechada", "#ff6b6b", 1.8); }
-        B.empT -= dt; if (B.empT <= 0) { B.empT = 1.5; var l2 = freeLane(); if (l2 >= 0 && l2 === B.blockLane && B.blockLeft > 0) l2 = (l2 + 1) % 3; if (l2 >= 0) mk(l2, "emenda", "EMENDA DE PLENÁRIO"); }
+      else if (!B.dead) {
+        B.emT -= dt; if (B.emT <= 0) { B.emT = 2.6; var ap = P.pl.filter(function (p) { return p.act; }), tp = pick(ap); P.em.push({ x: tp.x + rnd(-14, 14), y: 80, vy: rnd(72, 92), pi: tp.i }); }
+        B.blkT -= dt; if (B.blkT <= 0) { B.blkT = 9; var bp = pick(P.pl.filter(function (p) { return p.act; })); bp.blk = 3; sfx("alarm"); S.toast("BLOQUEIO! " + T.plates[bp.i] + " travada", "#ff6b6b", 1.8); }
       }
     }
-    // spawn normal
-    P.sp -= dt;
-    if (P.sp <= 0) { P.sp = lerp(1.15, .62, clamp(S.t / 140, 0, 1)) * (B ? 1.35 : 1); spawnNormal(); }
-    // mover
-    for (i = P.items.length - 1; i >= 0; i--) {
-      it = P.items[i];
-      if (it.done > 0) { it.done -= dt; it.y -= 90 * dt; it.a = clamp(it.done * 2.4, 0, 1); it.x -= 40 * dt; if (it.done <= 0) P.items.splice(i, 1); continue; }
-      it.x -= sp * dt;
-      if (P.rush > 0 && it.x < P6_ZR - 30 && it.x > P6_ZL && it.kind !== "bad" && !laneBlocked(it.lane)) { stampItem(it, true); continue; }
-      if (it.x < 100) {
-        P.items.splice(i, 1);
-        if (!laneBlocked(it.lane) && (it.kind === "good" || it.kind === "special")) {
-          P.missed++; S.hit(); P.winHits++; P.missRun++; popup("PERDEU!", 120, it.y - 30, "#ff8a65", 16);
-          if (P.missRun >= 3) { P.missRun = 0; S.toast("3 perdidos seguidos! −1 chance", "#ff8a65", 1.8); lifeLoss("miss"); }
-        }
-      }
+    // emendas caindo
+    for (i = P.em.length - 1; i >= 0; i--) {
+      var e = P.em[i]; e.y += e.vy * dt;
+      if (e.y >= 300) { pl = P.pl[e.pi]; P.em.splice(i, 1); pl.v = Math.max(1, pl.v - 30); S.hit(); P.winHits++; shake(6); burst(e.x, 300, "#ff8a65", 12, 150, 120); popup("EMENDA!", e.x, 280, "#ff6b6b", 18); sfx("hit"); }
     }
+    // segurar A: estabilizar prato / bater em emenda
+    if (h) {
+      var pn = nearestPlate();
+      if (pn && pn.blk <= 0) { pn.v = Math.min(100, pn.v + (S.bot ? 130 : 80) * dt); if (pn.cr) { pn.crP += dt; if (pn.crP >= 1) clearCrisis(pn); } if (Math.random() < .3) parts.push({ x: pn.x + rnd(-20, 20), y: 255, vx: 0, vy: -40, life: .4, max: .4, col: "#9fe8ff", r: 3, k: "dot", gr: 0 }); }
+      if (P.swatCd <= 0) for (i = 0; i < P.em.length; i++) if (Math.hypot(P.em[i].x - P.px, P.em[i].y - P.py) < 78) { swat(P.em[i]); break; }
+    }
+    // decaimento e quedas
+    var dec = lerp(3.4, 5.6, pr) * (P.slow > 0 ? .5 : 1) * (B ? .6 : 1) * (S.bot ? .6 : 1);
+    for (i = 0; i < 5; i++) {
+      pl = P.pl[i]; if (!pl.act) continue;
+      if (pl.blk > 0) pl.blk -= dt;
+      pl.v -= dec * (pl.cr ? 2.2 : 1) * dt; P.stabSum += pl.v / 100 * dt; P.stabN += dt;
+      if (pl.cr) { pl.cr.t -= dt; if (pl.cr.t <= 0) { pl.cr = null; pl.crP = 0; pl.v = Math.max(1, pl.v - 25); P.missed++; S.hit(); P.winHits++; popup("CRISE ESTOUROU!", pl.x, 230, "#ff8a65", 16); } }
+      if (pl.v <= 0) { pl.v = 0; if (P.inv <= 0) { popup("CAIU!", pl.x, 250, "#ff6b6b", 26); burst(pl.x, 260, "#fff", 16, 170, 200); pl.v = 60; pl.cr = null; lifeLoss("prato"); if (P.ph === "over") return; } }
+    }
+    for (i = P.pk.length - 1; i >= 0; i--) { P.pk[i].t -= dt; if (P.pk[i].t <= 0) P.pk.splice(i, 1); else if (Math.hypot(P.pk[i].x - P.px, P.pk[i].y - P.py) < 38) collect(P.pk[i]); }
+    S.score += Math.round(dt * P.pl.filter(function (p) { return p.act; }).length * 3 * S.mult * 10) / 10;
     // janelas do grid diário
     if (S.t >= P.nextWin && S.grid.length < 9) { S.grid.push(P.winHits === 0 ? "g" : P.winHits === 1 ? "y" : "r"); P.winHits = 0; P.nextWin += 14; }
     state.progress = clamp(S.t / 140, 0, 1);
   }
-  S.o_timeUp = null;
-  function updEndingFx() {
-    var f = P.pageFlags;
-    if (P.page === 0) { for (var i = 0; i < 6; i++) { var key = "s" + i; if (!f[key] && P.pt > i * .5 + .45) { f[key] = 1; sfx("stamp"); shake(4); } } }
-    if (P.page === 1 && !f.big && P.pt > 1.4) { f.big = 1; sfx("boom"); shake(10); flashScr("255,40,40", .4); }
+  function actBtn(b) {
+    if (P.ph !== "play") return;
+    if (b === "b") { useSpec(); return; }
+    var i, pn = nearestPlate();
+    for (i = 0; i < P.em.length; i++) if (Math.hypot(P.em[i].x - P.px, P.em[i].y - P.py) < 78) { swat(P.em[i]); return; }
+    if (pn && pn.blk <= 0) pn.v = Math.min(100, pn.v + 12);
   }
 
   /* ---------- bot ---------- */
   function bot(dt) {
-    if (P.ph === "over") return;
-    if (P.ph === "ending") return;
-    for (var i = 0; i < P.items.length; i++) {
-      var it = P.items[i]; if (it.stamped || it.done > 0) continue;
-      if (it.x > P6_ZR - 40 + 0 || it.x < P6_ZL + 10) continue;
-      if (it.x > P6_ZR - 40 - it.rt) continue;
-      if (laneBlocked(it.lane)) continue;
-      var wantBad = it.kind === "bad";
-      if (wantBad) { if (it.bw && S.lives > 1) { it.bw = false; stampItem(it, false); } continue; }
-      if (it.bm && it.kind === "good" && S.lives > 1) continue;
-      stampItem(it, false);
+    if (P.ph !== "play") { P.botA = false; P.botMv = { x: 0, y: 0 }; return; }
+    P.bt -= dt;
+    if (P.bIdle > 0) { P.bIdle -= dt; P.botMv = { x: 0, y: 0 }; P.botA = false; return; }
+    if (P.bt <= 0) {
+      P.bt = .18; 
+      var low = P.pl.filter(function (p) { return p.act && p.v < 30; }).length;
+      if (P.spec >= 100 && (low >= 2 || P.em.length >= 3)) useSpec();
+      var best = null, bs = -1e9, cur = P.tgt && P.tgt.kind === "plate" ? P.tgt.o : null, anyLow = P.pl.some(function (p) { return p.act && p.v < 30 && p !== cur; });
+      var emT = null; P.em.forEach(function (e) { if (e.y > 110 && (!emT || e.y > emT.y)) emT = e; });
+      var minv0 = 100; P.pl.forEach(function (p) { if (p.act) minv0 = Math.min(minv0, p.v); });
+      if (emT && minv0 > 20) best = { kind: "em", o: emT };
+      else if (cur && cur.act && cur.v < 88 && !anyLow && cur.blk <= 0) best = { kind: "plate", o: cur };
+      else {
+        P.pl.forEach(function (p) { if (!p.act || p.blk > 0) return; var s = (100 - p.v) + (p.cr ? 22 : 0) - Math.abs(P.px - p.x) * .03; if (s > bs) { bs = s; best = { kind: "plate", o: p }; } });
+        var minv = 100; P.pl.forEach(function (p) { if (p.act) minv = Math.min(minv, p.v); });
+        P.em.forEach(function (e) { if (e.y > 150 && minv > 18) { var s2 = 70 + e.y * .2; if (s2 > bs) { bs = s2; best = { kind: "em", o: e }; } } });
+        if (P.pk.length && minv > 42) best = { kind: "pk", o: P.pk[0] };
+      }
+      P.tgt = best;
     }
+    var t = P.tgt; if (!t) { P.botA = false; P.botMv = { x: 0, y: 0 }; return; }
+    var tx, ty;
+    if (t.kind === "plate") { tx = t.o.x; ty = P6_PY; } else if (t.kind === "em") { tx = t.o.x; ty = 290; } else { tx = t.o.x; ty = t.o.y; }
+    var dx = tx - P.px, dy = ty - P.py, d = Math.hypot(dx, dy), k = d > 8 ? 1 : 0;
+    P.botMv = { x: k * dx / (d || 1), y: k * dy / (d || 1) };
+    P.botA = t.kind !== "pk" && d < 48;
   }
 
   /* ---------- desenho ---------- */
@@ -230,80 +227,30 @@ SCEN[6] = function (S) {
       c.fillStyle = "#ffd54f"; c.fillRect(900, 20, 3, 3);
     }
   }
-  function drawBelts(c) {
-    var i, l, y, off = (P.tt * speed()) % 40, zx = P6_ZL;
-    for (l = 0; l < 3; l++) {
-      y = P6_LY[l];
-      c.fillStyle = "#14161c"; rr(c, 96, y - 40, 864, 80, 10); c.fill();
-      c.strokeStyle = "rgba(255,255,255,.08)"; c.lineWidth = 2; c.stroke();
-      c.fillStyle = "rgba(255,255,255,.07)"; for (i = -1; i < 24; i++) c.fillRect(100 + i * 40 - off + 40, y + 34, 18, 3), c.fillRect(100 + i * 40 - off + 40, y - 37, 18, 3);
-      // zona do carimbo
-      c.fillStyle = P.rush > 0 ? "rgba(255,223,0,.16)" : "rgba(105,240,174,.08)"; rr(c, zx, y - 40, P6_ZR - zx, 80, 8); c.fill();
-      c.strokeStyle = P.rush > 0 ? "#ffdf00" : "rgba(105,240,174,.5)"; c.lineWidth = 2; c.setLineDash([8, 6]); c.stroke(); c.setLineDash([]);
-      // carimbo
-      var st = P.stampT[l] > 0 ? clamp(P.stampT[l] / .25, 0, 1) : 0, sy = y - 40 - 28 + (1 - st) * 6 - st * 4;
-      c.save(); c.translate(300, y - 6 - (st > 0 ? -2 : 18) * 0); c.globalAlpha = .95;
-      var dy = st > .5 ? 14 : -14 + (P.whiff[l] > 0 ? 8 : 0);
-      c.fillStyle = "#7a5230"; rr(c, -9, -40 + dy, 18, 16, 4); c.fill(); c.fillStyle = "#b0794a"; c.fillRect(-4, -26 + dy, 8, 12);
-      c.fillStyle = P.rush > 0 ? "#ffdf00" : "#c62828"; rr(c, -24, -16 + dy, 48, 10, 3); c.fill(); c.restore();
-      // etiqueta da pista
-      c.fillStyle = "#ffdf00"; c.beginPath(); c.arc(60, y, 17, 0, TAU); c.fill(); txt(c, String(l + 1), 60, y + 1, 18, "#1a1a1a", "center");
-      txt(c, "JKL"[l], 60, y + 28, 10, "#ffdf00", "center", "rgba(0,0,0,.7)");
-      if (laneBlocked(l)) {
-        c.fillStyle = "rgba(180,20,20,.55)"; rr(c, 96, y - 40, 864, 80, 10); c.fill();
-        c.save(); c.translate(560, y); c.rotate(-.04); txt(c, "BLOQUEADO", 0, 0, 40, "#fff", "center", "#8e0000"); c.restore();
-      }
-    }
-  }
-  function drawItem(c, it) {
-    var x = it.x, y = it.y, w = it.w, cen = S.censor > 0, lab = it.label, i;
-    c.save(); c.globalAlpha = it.a == null ? 1 : it.a; c.translate(x, y);
-    if (it.kind === "rush" || it.kind === "smooth") {
-      var gold = it.kind === "rush";
-      c.fillStyle = gold ? "#ffdf00" : "#80d8ff"; c.shadowColor = gold ? "#ffdf00" : "#80d8ff"; c.shadowBlur = 16; c.beginPath(); c.arc(0, 0, 32, 0, TAU); c.fill(); c.shadowBlur = 0;
-      c.strokeStyle = "#fff"; c.lineWidth = 3; c.stroke();
-      txt(c, gold ? T.rushIc : T.smIc, 0, 1, 32, "#000", "center");
-      if (!cen) txt(c, gold ? "POWER" : "VIDA", 0, 44, 11, "#fff", "center", "rgba(0,0,0,.8)");
-    } else {
-      var pass = fl && (it.kind === "good" || it.kind === "bad");
-      var stripe = it.kind === "good" ? "#43a047" : it.kind === "bad" ? "#e65100" : it.kind === "special" ? "#ffd54f" : "#ffb300";
-      if (it.kind === "special" || it.kind === "emenda") { c.shadowColor = "#ffd54f"; c.shadowBlur = 14; }
-      c.fillStyle = pass ? "#14337a" : "#fbfaf4"; rr(c, -w / 2, -30, w, 60, 7); c.fill(); c.shadowBlur = 0;
-      c.strokeStyle = it.kind === "special" || it.kind === "emenda" ? "#ffd54f" : "#111"; c.lineWidth = it.kind === "special" || it.kind === "emenda" ? 3 : 2; c.stroke();
-      c.fillStyle = stripe; c.fillRect(-w / 2 + 3, -27, 7, 54);
-      var ic = it.kind === "special" ? (fl ? "💳" : "📢") : it.kind === "emenda" ? "🔨" : it.kind === "bad" ? T.badIc : T.goodIc;
-      txt(c, ic, -w / 2 + 25, 0, 24, "#000", "center");
-      var tc = pass ? "#fff" : "#1b1b1b";
-      if (cen) { c.fillStyle = "#000"; c.fillRect(-w / 2 + 40, -16, w - 48, 9); c.fillRect(-w / 2 + 40, 2, w - 66, 9); }
-      else {
-        c.font = "bold 11px 'Trebuchet MS', Arial, sans-serif"; var ls = wrap(c, lab, w - 50);
-        c.fillStyle = tc; c.textAlign = "left"; c.textBaseline = "middle"; for (i = 0; i < Math.min(3, ls.length); i++) c.fillText(ls[i], -w / 2 + 40, (i - (Math.min(3, ls.length) - 1) / 2) * 13);
-      }
-      if (it.kind === "bad") { c.fillStyle = "rgba(230,81,0,.9)"; c.beginPath(); c.arc(w / 2 - 6, -26, 9, 0, TAU); c.fill(); txt(c, "!", w / 2 - 6, -25, 12, "#fff", "center"); }
-    }
-    if (it.stamped && it.mark) {
-      c.save(); c.rotate(-.2); var bad = it.badMark; c.globalAlpha = (it.a == null ? 1 : it.a) * .95;
-      c.strokeStyle = bad ? "#e53935" : "#2e7d32"; c.lineWidth = 3; rr(c, -56, -15, 112, 30, 5); c.stroke();
-      txt(c, it.mark, 0, 1, 16, bad ? "#e53935" : "#2e7d32", "center"); c.restore();
-    }
-    c.restore();
-  }
-  function drawPlayerDesk(c) {
-    var t = P.tt;
+  function drawStations(c) {
+    var i, p, t = P.tt, x, w, col, wob;
     c.fillStyle = fl ? "#2b4a73" : "#5a3a22"; c.fillRect(0, 392, W, H - 392);
     c.fillStyle = fl ? "#3a6196" : "#7a5230"; c.fillRect(0, 392, W, 7);
-    c.fillStyle = "rgba(0,0,0,.25)"; c.fillRect(0, 399, W, 10);
-    portraitCard(c, fl ? "flavio" : "lula", 28, 410, 108, 118, { r: 12, lw: 3, cy: .46, talk: 0 });
-    txt(c, fl ? "VOCÊ: FLÁVIO" : "VOCÊ: LULA", 82, 534, 10, "#ffdf00", "center", "rgba(0,0,0,.7)");
-    // dicas
-    var tip = fl ? "Carimbe passaportes COM visto · deixe passar os SEM visto" : "Carimbe os projetos · NÃO carimbe 🐢 Emenda Jabuti";
-    txt(c, tip, 160, 420, 13, "#fff", "left", "rgba(0,0,0,.7)");
-    txt(c, "1 2 3 / J K L ou toque no item · 🔨 emenda fura o Centrão", 160, 440, 11, "#cfd6f0", "left", "rgba(0,0,0,.7)");
-    txt(c, T.where, 160, 462, 11, "#9aa0b4", "left");
-    // barra de progresso da legislatura
-    uiBar(c, 160, 484, 260, 10, clamp(S.t / 100, 0, 1), "#ffdf00");
-    txt(c, P.boss ? "CHEFE: Plenário do Centrão" : "até o plenário…", 160, 506, 11, "#e8e6dc", "left");
-    if (P.rush > 0) { uiBar(c, 160, 518, 260, 8, P.rush / 8, "#ffdf00"); txt(c, "CARIMBO AUTOMÁTICO", 428, 522, 10, "#ffdf00", "left"); }
+    for (i = 0; i < 5; i++) {
+      p = P.pl[i]; x = p.x;
+      c.fillStyle = p.act ? "rgba(105,240,174,.10)" : "rgba(255,255,255,.04)"; c.beginPath(); c.ellipse(x, P6_PY + 6, 62, 22, 0, 0, TAU); c.fill();
+      c.strokeStyle = p.act ? (near(p) && P.hold ? "#ffdf00" : "rgba(105,240,174,.5)") : "rgba(255,255,255,.15)"; c.lineWidth = 2; c.setLineDash([6, 5]); c.stroke(); c.setLineDash([]);
+      c.fillStyle = p.act ? "#cfd6f0" : "#555"; c.fillRect(x - 2, 262, 4, 88);
+      if (!p.act) { txt(c, "🔒 " + T.plates[i], x, 400, 12, "#667", "center"); continue; }
+      wob = Math.sin(t * 22 + i) * (1 - p.v / 100) * 9;
+      col = p.v > 60 ? "#43a047" : p.v > 30 ? "#f9a825" : "#e53935";
+      c.save(); c.translate(x + wob, 258); c.rotate(wob * .02); c.fillStyle = "rgba(0,0,0,.3)"; c.beginPath(); c.ellipse(0, 4, 44, 11, 0, 0, TAU); c.fill();
+      c.fillStyle = "#fbfaf4"; c.beginPath(); c.ellipse(0, 0, 44, 11, 0, 0, TAU); c.fill(); c.strokeStyle = col; c.lineWidth = 4; c.stroke();
+      c.fillStyle = col; c.beginPath(); c.ellipse(0, 0, 18, 4.5, 0, 0, TAU); c.fill(); c.restore();
+      txt(c, T.plates[i].toUpperCase(), x, 392, 12, "#fff", "center", "rgba(0,0,0,.7)");
+      uiBar(c, x - 46, 366 - 0, 92, 9, p.v / 100, col);
+      if (p.blk > 0) { c.fillStyle = "rgba(180,20,20,.6)"; c.beginPath(); c.ellipse(x, P6_PY + 6, 62, 22, 0, 0, TAU); c.fill(); txt(c, "BLOQUEADO", x, 296, 13, "#fff", "center", "#8e0000"); }
+      if (p.cr) {
+        c.save(); var a = p.cr.t < 2 ? .6 + .4 * Math.sin(t * 20) : 1; c.globalAlpha = a; c.fillStyle = "#fff"; c.strokeStyle = "#e53935"; c.lineWidth = 2.5; rr(c, x - 62, 196, 124, 40, 8); c.fill(); c.stroke();
+        c.font = "bold 10px 'Trebuchet MS', Arial"; var ls = wrap(c, p.cr.label, 112); c.fillStyle = "#222"; c.textAlign = "center"; c.textBaseline = "middle"; for (var j = 0; j < Math.min(2, ls.length); j++) c.fillText(ls[j], x, 210 + j * 12 - (ls.length > 1 ? 4 : 0));
+        uiBar(c, x - 56, 229, 112, 4, p.crP, "#43a047", "rgba(0,0,0,.2)"); c.restore();
+      }
+    }
   }
   function drawCrowd(c, big) {
     var B = P.boss, i, bx = 560, by = 522, sc = big ? 1.55 : 1.2, t = P.tt;
@@ -318,10 +265,10 @@ SCEN[6] = function (S) {
     c.fillStyle = "#3a2a1c"; rr(c, bx - 40, by - 24, n * (big ? 70 : 52) + 20, 40, 6); c.fill();
     c.fillStyle = "#ffdf00"; txt(c, "CENTRÃO", bx + (n - 1) * (big ? 35 : 26), by - 6, 13, "#ffdf00", "center");
     if (big && B) {
-      var hx = 560, hw = 340; uiBar(c, hx, 400, hw, 12, B.hp / 100, "#e53935");
-      txt(c, "PLENÁRIO DO CENTRÃO  " + Math.ceil(B.hp) + "%", hx, 394, 11, "#fff", "left", "rgba(0,0,0,.7)");
-      if (B.dead) txt(c, "CAIU... por enquanto", hx + hw / 2, 440, 18, "#69f0ae", "center", "#000");
-    } else txt(c, "Centrão (observando, com fome de ministério)", 600, 400, 11, "#cfd6f0", "left");
+      var hx = 560, hw = 340; uiBar(c, hx, 76, hw, 12, B.hp / 100, "#e53935");
+      txt(c, "PLENÁRIO DO CENTRÃO  " + Math.ceil(B.hp) + "%", hx, 70, 11, "#fff", "left", "rgba(0,0,0,.7)");
+      if (B.dead) txt(c, "CAIU... por enquanto", hx + hw / 2, 100, 18, "#69f0ae", "center", "#000");
+    }
   }
   function drawCameo(c) {
     var cm = P.cameo; if (!cm) return;
@@ -333,26 +280,53 @@ SCEN[6] = function (S) {
     if (cm.t > .8 && cm.t < 5.5) balloon(c, "Aqui em Miami o smoothie é de graça. O Wi-Fi é que não pega!", x - 20, y - 124, { size: 12, maxW: 190, alpha: a });
     c.restore();
   }
+  function drawThings(c) {
+    var i, k, x, y, a, gold, col;
+    for (i = 0; i < P.em.length; i++) { var e = P.em[i]; c.save(); c.translate(e.x, e.y); c.rotate(Math.sin(P.tt * 6 + i) * .15); c.fillStyle = "#fbfaf4"; rr(c, -34, -18, 68, 36, 6); c.fill(); c.strokeStyle = "#ffb300"; c.lineWidth = 3; c.stroke(); txt(c, "🔨", -16, 1, 18, "#000", "center"); txt(c, "EMENDA", 12, 1, 10, "#333", "center"); c.restore(); }
+    for (i = 0; i < P.pk.length; i++) {
+      k = P.pk[i]; a = k.t < 2 ? .5 + .5 * Math.sin(P.tt * 16) : 1; gold = k.kind !== "smooth"; col = k.kind === "smooth" ? "#80d8ff" : "#ffdf00";
+      c.save(); c.globalAlpha = a; c.fillStyle = col; c.shadowColor = col; c.shadowBlur = 14; c.beginPath(); c.arc(k.x, k.y, 24, 0, TAU); c.fill(); c.shadowBlur = 0; c.strokeStyle = "#fff"; c.lineWidth = 3; c.stroke();
+      txt(c, k.kind === "rush" ? T.rushIc : k.kind === "smooth" ? T.smIc : T.spIc, k.x, k.y + 1, 24, "#000", "center");
+      if (S.censor <= 0 || k.kind !== "special") txt(c, k.kind === "rush" ? "ESPECIAL" : k.kind === "smooth" ? "VIDA" : "TUDO ESTÁVEL", k.x, k.y + 36, 10, "#fff", "center", "rgba(0,0,0,.8)"); c.restore();
+    }
+    // jogador
+    var blink = P.inv > 0 && Math.floor(P.tt * 20) % 2 === 0;
+    if (!blink) {
+      var mvg = mv(), moving = Math.abs(mvg.x) + Math.abs(mvg.y) > .1;
+      if (P.hold) { c.strokeStyle = "rgba(255,223,0,.7)"; c.lineWidth = 3; c.beginPath(); c.arc(P.px, P.py - 24, 36 + Math.sin(P.tt * 18) * 3, 0, TAU); c.stroke(); }
+      drawChar(c, "npc", P.px, P.py, 1.05, { t: P.tt, moving: moving, shirt: fl ? "#f2c230" : "#d32f2f", skin: "#e0ac84", hair: "#3a2a1a", pants: "#222" });
+      c.save(); c.translate(P.px, P.py - 56); c.scale(.3, .3); head(c, S.C.kind, {}); c.restore();
+      if (S.t < 7) txt(c, "▼ você", P.px, P.py - 98, 11, "#fff", "center", "rgba(0,0,0,.7)");
+    }
+    // especial
+    uiBar(c, W / 2 - 100, 508, 200, 10, P.spec / 100, P.spec >= 100 ? "#ffdf00" : "#ffa726");
+    txt(c, P.spec >= 100 ? "K / ⭐ " + T.keyHelp.toUpperCase() + " PRONTA!" : "ESPECIAL: " + T.keyHelp, W / 2, 498, 10, P.spec >= 100 ? "#ffdf00" : "#9aa0b4", "center", "rgba(0,0,0,.6)");
+  }
   function drawBossBanner(c) {
     var B = P.boss; if (!B || B.intro <= 0) return;
     var a = clamp(Math.min((2.8 - B.intro) / .3, B.intro / .4), 0, 1);
     c.save(); c.globalAlpha = a; c.fillStyle = "rgba(0,0,0,.6)"; c.fillRect(0, 205, W, 100);
     txt(c, "CHEFE: PLENÁRIO DO CENTRÃO", W / 2, 238, 34, "#ff8a65", "center", "#000");
-    txt(c, "Carimbe as 🔨 EMENDAS para furar o bloqueio · evite os jabutis", W / 2, 278, 16, "#fff", "center", "#000"); c.restore();
+    txt(c, "Segure A perto das 🔨 EMENDAS para rebater · mantenha os pratos no ar", W / 2, 278, 16, "#fff", "center", "#000"); c.restore();
   }
   function draw(c) {
     if (P.ph === "ending") { drawEnding(c); return; }
-    bg(c); drawBelts(c); drawPlayerDesk(c); drawCrowd(c, !!P.boss); drawCameo(c);
-    var i; for (i = 0; i < P.items.length; i++) drawItem(c, P.items[i]);
-    if (P.rush > 0) { c.fillStyle = "rgba(255,223,0," + (.06 + .04 * Math.sin(P.tt * 12)) + ")"; c.fillRect(0, 0, W, H); txt(c, "CARIMBO AUTOMÁTICO x2", W / 2, 118, 18, "#ffdf00", "center", "rgba(0,0,0,.8)"); }
-    if (P.slow > 0) txt(c, "ESTEIRA LENTA", W / 2, 136, 14, "#80d8ff", "center", "rgba(0,0,0,.8)");
-    if (fl) { c.fillStyle = "rgba(160,220,255,.5)"; for (i = 0; i < 4; i++) { var sx = 940 - ((P.tt * 20 + i * 70) % 60); c.beginPath(); c.arc(sx, 128 + i * 2, 1.5, 0, TAU); c.fill(); } }
+    bg(c); drawStations(c); drawCrowd(c, !!P.boss); drawCameo(c); drawThings(c);
+    if (P.slow > 0) txt(c, "ESTABILIDADE LENTA", W / 2, 118, 14, "#80d8ff", "center", "rgba(0,0,0,.8)");
     drawBossBanner(c);
-    if (S.censor > 0) {   // glitch na cena
-      c.fillStyle = "rgba(0,0,0,.35)"; for (i = 0; i < 6; i++) c.fillRect(0, ((P.tt * 400 + i * 97) % H), W, 2 + (i % 3) * 3);
+    txt(c, T.where, 20, 424, 11, "#9aa0b4", "left");
+    if (S.censor > 0) {
+      c.fillStyle = "rgba(0,0,0,.35)"; for (var i = 0; i < 6; i++) c.fillRect(0, ((P.tt * 400 + i * 97) % H), W, 2 + (i % 3) * 3);
       c.fillStyle = "rgba(255,255,255,.07)"; c.fillRect(0, 0, W, H);
     }
   }
+
+  function updEndingFx() {
+    var f = P.pageFlags;
+    if (P.page === 0) { for (var i = 0; i < 6; i++) { var key = "s" + i; if (!f[key] && P.pt > i * .5 + .45) { f[key] = 1; sfx("stamp"); shake(4); } } }
+    if (P.page === 1 && !f.big && P.pt > 1.4) { f.big = 1; sfx("boom"); shake(10); flashScr("255,40,40", .4); }
+  }
+
   function overlay(c) {   // desenhado DEPOIS do HUD: a censura cobre o placar
     if (P.ph === "ending" || S.censor <= 0) return;
     var a = clamp(S.censor * 3, 0, 1), blink = Math.floor(P.tt * 8) % 2;
@@ -434,23 +408,23 @@ SCEN[6] = function (S) {
     if (t > .7 && Math.floor(P.tt * 2.4) % 2) txt(c, (pg === pagesCount() - 1 ? "Toque para concluir ▶" : "Toque para continuar ▶"), W - 24, H - 74, 15, "#fff", "right", "#000");
   }
 
+
   /* ---------- entrada ---------- */
   function key(code) {
     if (P.ph === "ending") { if (code === "Enter" || code === "Space" || code === "NumpadEnter") nextPage(); return; }
-    var m = { Digit1: 0, Digit2: 1, Digit3: 2, Numpad1: 0, Numpad2: 1, Numpad3: 2, KeyJ: 0, KeyK: 1, KeyL: 2 };
-    if (code in m) stampLane(m[code]);
   }
-  function tap(x, y) { if (P.ph === "ending") { nextPage(); return; } tapAt(x, y); }
+  function tap(x, y) { if (P.ph === "ending") nextPage(); }
   function info() {
     return { ending: P.ph === "ending", secret: P.secret, censored: S.censor > 0, phase: P.ph, page: P.page, boss: P.boss ? Math.round(P.boss.hp) : null, bossDead: !!(P.boss && P.boss.dead),
-      ok: P.ok, wrong: P.wrong, missed: P.missed, rush: P.rush > 0 };
+      ok: P.ok, wrong: P.wrong, missed: P.missed, spec: Math.round(P.spec), plates: P.pl.map(function (p) { return Math.round(p.v); }), active: P.pl.filter(function (p) { return p.act; }).length };
   }
   return {
     intro: { sub: T.where, foeLabel: "OPOSIÇÃO + CENTRÃO", lines: fl
-      ? ["Você chegou em Miami. Carimbe passaportes COM visto!", "Deixe passar quem está SEM visto · 🛂 visto carimbado = carimbo automático", "No fim, o Plenário do Centrão bloqueia tudo."]
-      : ["Mesa da Presidência: carimbe os projetos bons!", "NÃO carimbe a Emenda Jabuti 🐢 · 1 2 3 / J K L ou toque no item", "No fim, o Plenário do Centrão bloqueia tudo."] },
-    update: update, draw: draw, overlay: overlay, key: key, tap: tap, bot: bot, info: info,
+      ? ["Miami: mantenha os pratos (filas, câmbio, segurança...) no ar!", "Setas/WASD mover · segure Espaço/J perto do prato para estabilizar", "K = Visto Carimbado (especial) · toque: joystick + botões", "No fim, o Plenário do Centrão joga emendas. Bata nelas!"]
+      : ["Planalto: mantenha os pratos (Saúde, Economia, Segurança...) no ar!", "Setas/WASD mover · segure Espaço/J perto do prato para estabilizar", "K = Caneta de Ouro (especial) · toque: joystick + botões", "No fim, o Plenário do Centrão joga emendas. Bata nelas!"] },
+    arcade: { a: "🤲", b: "🖊" },
+    update: update, draw: draw, overlay: overlay, key: key, tap: tap, act: actBtn, bot: bot, info: info,
     timeUp: function () { if (P.ph === "play") startEnding(); },
-    begin: function () { say(fl ? "nunca" : "pedirDesc", "inicio", 1); }
+    begin: function () { say(fl ? "nunca" : "dilma_meta_aberta", "inicio", 1); }
   };
 };

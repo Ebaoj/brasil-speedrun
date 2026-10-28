@@ -131,7 +131,7 @@ window.__test = {
   setBest: function (camp, n, v) { META.best[camp][n] = v; metaSave(); return true; },
   lbState: function () { return { online: LB.online, nick: PROFILE.nick, status: ($("lb-status").textContent || $("map-lbstatus").textContent || "") }; },
   openLB: function (tab, phase) { showLB(tab, phase); return true; },
-  engage: function () { var r = lastResult; return r ? { won: r.won, sc: r.sc, record: r.engage.record, rankUp: r.engage.rankUp, near: r.engage.near, peak: r.engage.peak, career: r.career && r.career.t, lb: r.lb ? { position: r.lb.position, total: r.lb.total, top: r.lb.top, gap: r.lb.gap, next: r.lb.next, online: r.lb.online } : null, shareUrl: challengeURL(r), shareText: shareText(r) } : null; },
+  engage: function () { var r = lastResult; return r ? { won: r.won, sc: r.sc, record: r.engage.record, first: r.engage.first, rankUp: r.engage.rankUp, near: r.engage.near, peak: r.engage.peak, career: r.career && r.career.t, lb: r.lb ? { position: r.lb.position, total: r.lb.total, top: r.lb.top, gap: r.lb.gap, next: r.lb.next, online: r.lb.online } : null, shareUrl: challengeURL(r), shareText: shareText(r) } : null; },
   shareCard: function () { return { len: state.cardURL ? state.cardURL.length : 0, w: 1080, h: 1080 }; },
   selectSide: function (camp) { pickCamp(camp === "lula" || camp === "esquerda" ? "lula" : "flavio"); return snapshot(); },
   openMap: function () { showMap(); return this.map(); },
@@ -154,6 +154,7 @@ window.__test = {
   scene: function () { return snapshot().scene; },
   tap: function (x, y) { sceneTap(x, y); return snapshot(); },
   key: function (code) { if (SCN) sceneKey(code); else keys[code] = true; return snapshot(); },
+  hold: function (code, on) { keys[code] = on !== false; return true; },
   skipIntro: function () { if (SCN && SCN.st === "intro") startPlaying(SCN); return snapshot(); },
   /* ---- fase 5 (v2) ---- */
   gallery: function (on) { var el = $("gallery"); if (on === false) { el.classList.add("hidden"); return false; } drawGallery(); el.classList.remove("hidden"); return CARI_ORDER.slice(); },

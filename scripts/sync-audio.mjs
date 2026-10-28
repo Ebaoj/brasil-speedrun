@@ -13,10 +13,19 @@ const BANNED = /miliciano/i;
 const strip = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const slug = f => path.basename(f).replace(/\.mp3$/i, "");
 
+// esquerda: Dilma, Haddad, Boulos, Janja, Lula, Erika, Moraes · direita: Jair, Renan Santos, Tarcísio, Flávio, Nikolas, Pavanato, Campopiano
+// (Jair vem antes de Flávio/Bolsonaro; "renan" só casa Renan Santos)
 const CHARS = [
+  { re: /dilma/, key: "dilma", name: "Dilma Rousseff", side: "esquerda" },
+  { re: /haddad/, key: "haddad", name: "Fernando Haddad", side: "esquerda" },
+  { re: /boulos/, key: "boulos", name: "Guilherme Boulos", side: "esquerda" },
+  { re: /janja/, key: "janja", name: "Janja", side: "esquerda" },
   { re: /lula/, key: "lula", name: "Lula", side: "esquerda" },
   { re: /erika/, key: "erika", name: "Erika Hilton", side: "esquerda" },
   { re: /moraes/, key: "moraes", name: "Alexandre de Moraes", side: "esquerda" },
+  { re: /\bjair\b/, key: "jair", name: "Jair Bolsonaro", side: "direita" },
+  { re: /renan/, key: "renan", name: "Renan Santos", side: "direita" },
+  { re: /tarcisio/, key: "tarcisio", name: "Tarcísio de Freitas", side: "direita" },
   { re: /flavio/, key: "flavio", name: "Flávio Bolsonaro", side: "direita" },
   { re: /nikolas/, key: "nikolas", name: "Nikolas Ferreira", side: "direita" },
   { re: /pavanato/, key: "pavanato", name: "Lucas Pavanato", side: "direita" },
@@ -27,11 +36,11 @@ const charOf = s => CHARS.find(c => c.re.test(strip(s))) || { key: "outro", name
 // palavras-chave (sem acento) -> eventos normalizados que o jogo dispara
 const EVENT_RULES = [
   [/game over|derrota|humilhante|perder|perde|sistema que ganhou/, ["gameover"]],
-  [/vitoria|viva|ganhou o time/, ["victory"]],
-  [/dano|ataque|golpe baixo|penalidade|reacao|vaia|desculpa|ele me chamou/, ["hit"]],
+  [/vitoria|victory|viva|ganhou o time/, ["victory"]],
+  [/dano|ataque|golpe baixo|penalidade|reacao|vaia|desculpa|ele me chamou|\bhit\b/, ["hit"]],
   [/power-?up|respawn|bonus|coleta|voto|calar/, ["powerup"]],
-  [/combo|bola ate agora/, ["combo"]],
-  [/chefao|chefe|entrada do|medo da pf|regular|banimento|crime digital/, ["boss-intro"]],
+  [/combo|bola ate agora|meme classico/, ["combo"]],
+  [/chefao|chefe|boss|entrada do|medo da pf|regular|banimento|crime digital/, ["boss-intro"]],
   [/inicio de|proximo nivel|abertura|intro|primeira de muitas|mudar o brasil|todos nao existem|debate inflamado/, ["phase-start"]],
   [/esquiva|bloqueio|contra-?ataque|hoje nao|nao vou permitir/, ["near-miss"]],
   [/pause|parou|erro do jogador|tudo errado/, ["pause", "idle"]],
@@ -39,9 +48,9 @@ const EVENT_RULES = [
   [/easter|fuga|aviso|cameo|marisa|nunca pensei|passaporte/, ["cameo", "idle"]]
 ];
 const PHASE_RULES = [
-  [/debate|nove dedos|round/, [1]], [/familia|zap|whatsapp/, [2]], [/eleicao|urna|apuracao/, [3]],
-  [/camara|banheiro|comemoracao/, [4]], [/stf|moraes|flavio saindo|fuga|aeroporto|passaporte/, [5]],
-  [/final|regulacao|banimento|chefao.*redes/, [6]]
+  [/fase 1|debate|nove dedos|round/, [1]], [/fase 2|familia|zap|whatsapp|fake news/, [2]], [/fase 3|eleicao|urna|apuracao/, [3]],
+  [/fase 4|camara|banheiro|comemoracao/, [4]], [/fase 5|stf|flavio saindo|fuga|aeroporto|passaporte|cade o flavio/, [5]],
+  [/fase 6|governar|final|regulacao|banimento|chefao.*redes/, [6]]
 ];
 
 function infer(text, extra) {

@@ -31,6 +31,26 @@ function mini(c, kind, x, y, s, o) {   // cabeça de caricatura pequena com mold
   c.save(); c.translate(x, y); c.scale(s, s); head(c, kind, o || {}); c.restore();
 }
 
+/* ---- entrada arcade (fases 1, 2, 3, 6): setas/WASD/joystick = arcMove(); Espaço/J = botão A; K/L/Shift = botão B ---- */
+var ARC = { a: false, b: false };
+function arcMove() { return injected || readInput(); }
+function arcHeld(k) { return k === "a" ? !!(ARC.a || keys.Space || keys.KeyJ) : !!(ARC.b || keys.KeyK || keys.KeyL || keys.ShiftLeft); }
+function arcTouchSetup(S) {
+  var A = S.o.arcade; if (!A) return;
+  ARC.a = ARC.b = false;
+  $("ab-a").textContent = A.a || "🎤"; $("ab-b").textContent = A.b || ""; $("ab-b").style.display = A.b ? "" : "none";
+  if (coarseMQ.matches) { $("touch").classList.add("on", "arc"); joyReset(); }
+}
+["a", "b"].forEach(function (k) {
+  var el = $("ab-" + k);
+  el.addEventListener("pointerdown", function (e) {
+    e.preventDefault(); e.stopPropagation(); ARC[k] = true; try { el.setPointerCapture(e.pointerId); } catch (err) {}
+    if (SCN && SCN.st === "play" && !state.paused && SCN.o.act) SCN.o.act(k);
+  });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (t) { el.addEventListener(t, function () { ARC[k] = false; }); });
+  el.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+});
+
 /* ---- ciclo de vida ---- */
 function scoreMult(S) { return S.mult || 1; }
 function startScene(n, o) {
@@ -54,15 +74,15 @@ function startScene(n, o) {
   state.screen = "play"; state.running = true; state.over = false; state.won = null; state.paused = false; state.side = null; state.meme = S.meme;
   state.phase = n; state.score = 0; state.progress = 0;
   $("menu").classList.add("hidden"); $("map").classList.add("hidden"); $("result").classList.add("hidden");
-  $("pause").textContent = "⏸"; $("pause").classList.add("on"); $("touch").classList.remove("on");
+  $("pause").textContent = "⏸"; $("pause").classList.add("on"); $("touch").classList.remove("on", "arc"); ARC.a = ARC.b = false;
   state.runT = 0; chalHide(); sfx("select"); vox("phase-start", { prio: 3 });
   return S;
 }
-function leaveScene() { SCN = null; g = null; parts = []; pops = []; state.phase = 0; stopVoices(); $("pause").classList.remove("on"); }
+function leaveScene() { SCN = null; g = null; parts = []; pops = []; state.phase = 0; stopVoices(); $("touch").classList.remove("on", "arc"); $("pause").classList.remove("on"); }
 
 function startPlaying(S) {
   if (S.st !== "intro") return;
-  S.st = "play"; S.introT = 99; sfx("go");
+  S.st = "play"; S.introT = 99; sfx("go"); arcTouchSetup(S);
   if (S.o.begin) S.o.begin();
 }
 function sceneUpdate(dt) {
@@ -152,6 +172,7 @@ function sceneDraw(c) {
 function sceneKey(code) {
   var S = SCN; if (!S || state.paused) return;
   if (S.st === "intro") { if (code === "Enter" || code === "Space" || code === "NumpadEnter") startPlaying(S); return; }
+  if (S.st === "play" && S.o.act) { if (code === "Space" || code === "KeyJ") S.o.act("a"); else if (code === "KeyK" || code === "KeyL" || code === "ShiftLeft") S.o.act("b"); }
   if (S.st === "play" && S.o.key) S.o.key(code);
 }
 function sceneTap(x, y) {
@@ -197,7 +218,7 @@ function showResult(r) {
   $("r-title").textContent = (r.won ? r.title : r.title).toUpperCase();
   $("r-line").textContent = r.line;
   $("r-meme").textContent = (r.daily ? "📅 Desafio diário " + dateKey() + " · " : "") + "Fase " + r.n + " · " + P.name + (r.meme ? " — “" + r.meme + "”" : "");
-  $("r-score").innerHTML = "<b>" + fmt(r.sc) + "</b> pontos · " + (r.won ? "<b>RANK " + r.letter + "</b>" + (r.medal ? " · medalha de " + r.medal : "") : "<b>tente de novo</b>") + "<br>TOTAL " + fmt(r.total) + " · " + rank.t;
+  $("r-score").innerHTML = "<b>" + fmt(r.sc) + "</b> pontos · " + (r.won ? "<b>RANK " + r.letter + "</b>" + (r.medal ? " · medalha de " + r.medal : "") : "<b>tente de novo</b>") + "<br>TOTAL " + fmt(r.total) + " pts";   // título de carreira aparece uma vez só (linha "Cargo:" abaixo)
   $("r-medals").innerHTML = "Medalhas por fase: " + medalsHTML(r.camp);
   $("r-new").style.display = r.isNew && r.won ? "block" : "none";
   $("r-hint").textContent = "";
@@ -206,7 +227,7 @@ function showResult(r) {
   var hasNext = r.won && r.n < 6 && !r.daily;
   $("b-next").style.display = hasNext ? "" : "none";
   engageRun(r);   // placar, cargo, sequência, desafio; também monta o cartão
-  $("touch").classList.remove("on"); $("pause").classList.remove("on");
+  $("touch").classList.remove("on", "arc"); $("pause").classList.remove("on");
   setTimeout(function () {
     if (state.screen === "over") { $("result").classList.remove("hidden"); if (hasNext) $("b-next").focus && $("b-next").focus({ preventScroll: true }); else $("b-again").focus && $("b-again").focus({ preventScroll: true }); }
   }, 1100);
@@ -230,7 +251,7 @@ function buildShareCard(r) {
   // 6 medalhas
   var m = META.medal[r.camp] || {};
   for (i = 0; i < 6; i++) { var mx = 540 + (i - 2.5) * 100; if (m[i + 1]) { drawMedalDot(x, mx, 730, 34, m[i + 1]); txt(x, String(i + 1), mx, 731, 28, "#1a1a1a", "center"); } else { x.strokeStyle = "rgba(255,255,255,.28)"; x.lineWidth = 3; x.beginPath(); x.arc(mx, 730, 34, 0, TAU); x.stroke(); txt(x, String(i + 1), mx, 731, 26, "rgba(255,255,255,.35)", "center"); } }
-  txt(x, "TOTAL " + fmt(r.total) + "  ·  " + (r.finalRank ? r.finalRank.t : finalRank(r.total).t).toUpperCase(), 540, 818, 36, "#69f0ae", "center");
+  txt(x, "TOTAL " + fmt(r.total) + " PONTOS", 540, 818, 36, "#69f0ae", "center");
   if (r.daily && r.grid && r.grid.length) {
     var gs = r.grid.slice(0, 10), gw = 44, gx0 = 540 - gs.length * gw / 2;
     txt(x, "📅 DESAFIO DIÁRIO " + dateKey(), 540, 884, 26, "#fff", "center");

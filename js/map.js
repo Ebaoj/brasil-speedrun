@@ -39,7 +39,7 @@ function showMap() {
   });
   var total = campTotal(camp), rk = finalRank(total);
   $("map-camp").textContent = C.name + " (" + C.side + ") · fase 5 como " + (p5Role() === "flavio" ? "Flávio (fuga)" : "Moraes (perseguição)");
-  $("map-total").innerHTML = "TOTAL <b>" + fmt(total) + "</b><br>" + rk.t + (rk.l !== "-" ? " · rank " + rk.l : "") + "<br>medalhas " + campMedals(camp) + "/6" + (META.done.lula && META.done.flavio ? "<br>⭐ final secreto liberado" : "");
+  $("map-total").innerHTML = "TOTAL <b>" + fmt(total) + "</b><br>medalhas " + campMedals(camp) + "/6" + (META.done.lula && META.done.flavio ? "<br>⭐ final secreto liberado" : "");
   $("b-p5role").textContent = "Fase 5: " + (p5Role() === "flavio" ? "Flávio ⇄ Moraes" : "Moraes ⇄ Flávio");
   var dk = dateKey(), dd = META.daily[dk], dp = dailyPhase();
   $("b-daily").textContent = "📅 Desafio diário: fase " + dp + (dd ? " ✓ " + fmt(dd.sc) : "");

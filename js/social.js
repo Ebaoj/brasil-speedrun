@@ -136,10 +136,11 @@ function setShareLinks(r) {
 }
 function engageRun(r) {
   var box = $("r-eng"), lines = [], prevCar = careerOf(PROFILE.cum), side = campSide(r.camp);
-  r.engage = { rankUp: false, record: false, near: false, peak: false, lb: null };
+  r.engage = { rankUp: false, record: false, first: false, near: false, peak: false, lb: null };
   profTouch(r.sc);
   var car = careerOf(PROFILE.cum), E = r.engage; E.rankUp = car.i > prevCar.i; r.career = car; r.side = side;
   E.record = !!(r.won && r.isNew && r.prev > 0);
+  E.first = !!(r.won && !r.prev);   // primeira vez que zera a fase: já é motivo pra compartilhar
   $("r-share2").classList.add("hidden"); $("b-share").classList.remove("pulse"); $("r-peak").textContent = "";
   function paint() {
     box.innerHTML = lines.map(function (l) { return "<div class='" + l[0] + "'>" + l[1] + "</div>"; }).join("");
@@ -178,11 +179,11 @@ function engageRun(r) {
     peak(r);
   });
 }
-// só convida a compartilhar em momentos de pico: recorde, cargo novo, ou quase passando alguém
+// só convida a compartilhar em momentos de pico: primeira conclusão da fase, recorde, cargo novo, ou quase passando alguém
 function peak(r) {
-  var E = r.engage; E.peak = !!(E.record || E.rankUp || E.near);
+  var E = r.engage; E.peak = !!(E.first || E.record || E.rankUp || E.near);
   if (!E.peak) return;
-  $("r-peak").textContent = E.rankUp ? "🚀 Cargo novo! Mostra pra galera:" : E.record ? "🔥 Recorde! Manda pro grupo:" : "😬 Tá colado em " + (r.lb.next ? r.lb.next.nick : "alguém") + "! Desafie alguém a passar:";
+  $("r-peak").textContent = E.rankUp ? "🚀 Cargo novo! Mostra pra galera:" : E.record ? "🔥 Recorde! Manda pro grupo:" : E.first ? "🎉 Fase concluída pela primeira vez! Manda pro grupo:" : "😬 Tá colado em " + (r.lb.next ? r.lb.next.nick : "alguém") + "! Desafie alguém a passar:";
   $("r-share2").classList.remove("hidden"); $("b-share").classList.add("pulse");
 }
 $("sh-dl").addEventListener("click", function () {

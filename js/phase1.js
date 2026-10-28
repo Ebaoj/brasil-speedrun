@@ -1,296 +1,409 @@
 "use strict";
-/* ================= FASE 1 — Debate da Globo (23/10/2026) ================= */
-/* quiz-ação: ataque do adversário → 3 réplicas (1-2-3 ou toque) antes do tempo acabar. Armadilhas por lado. */
+/* ================= FASE 1 — Debate da Globo (23/10/2026) =================
+   Arcade em tempo real: desvie de 📰 fake news (adversário) e ❓ perguntas difíceis (mediador), rebata com memes de resposta,
+   encha a LACRAÇÃO, fuja das zonas de microfone cortado e derrube o adversário gigante na rodada relâmpago. Mesmo humor dos dois lados. */
 
-var P1_GOODQ = ["Mandou bem!", "Aplausos no auditório!", "Resposta de manual!", "A plateia de pé!", "Réplica na veia!"];
-var P1_OKQ = ["Passou raspando.", "Meio morno...", "Dava pra caprichar!", "O mediador bocejou."];
-var P1_BADQ = ["O auditório vaiou!", "Gafe ao vivo!", "Direito de resposta pro outro!", "Mediador: 'sem comentários'."];
-
-/* texto: q = ataque; g = réplica boa; o = mais ou menos; b = ruim; tr = tentação (armadilha 'nove dedos') */
-var P1_LULA = [   // jogador = Lula; adversário = Flávio
-  { q: "O senhor fala em picanha desde 2022. Cadê a picanha, presidente?", g: "Estamos entregando emprego e renda; a picanha vem junto com o churrasco da família.", o: "Picanha? Eu prefiro uma linguiça de domingo.", b: "Picanha é coisa de elite, não me pergunte." },
-  { q: "Seu governo vive viajando! Já deu a volta ao mundo?", g: "Viagem que abre mercado vira emprego em casa. E o seu plano de voo, qual é?", o: "Já visitei tanto lugar que perdi a conta.", b: "Avião é pra quem tem pressa; eu sou calmo." },
-  { name: true },
-  { q: "Sua turma só sabe dizer que a culpa é do passado!", g: "Reconheço o que herdei e mostro resultado. O senhor tem plano pro futuro?", o: "A culpa é de quem veio antes, claro.", b: "Passado? Nunca ouvi falar." },
-  { q: "O seu governo só grava vídeo pra rede social!", g: "Vídeo é meio; o fim é obra entregue. Quer ver o canteiro?", o: "Meu vídeo tem mais curtida que o seu.", b: "Não sei mexer no celular." },
-  { q: "Reforma, reforma, reforma... e entrega só reunião!", g: "Reforma se faz votando; reunião é onde eu convenço o Congresso.", o: "Reunião com café é meu forte.", b: "Reunião? Só vou se tiver bolo." },
-  { q: "'Paz e amor', mas a conta do mercado é guerra!", g: "Priorizamos renda e preço de comida: emprego e crédito resolvem a conta.", o: "Mercado é caro mesmo, né?", b: "Vai comprar fiado." },
-  { name: true },
-  { q: "Sua turma só fala de 'democracia' o tempo todo!", g: "Democracia é o que permite o senhor me perguntar isso ao vivo.", o: "Falo de democracia e de futebol.", b: "Democracia? Tenho horror a esse assunto." },
-  { q: "O senhor vai tocar mais quatro anos nesse ritmo?", g: "Ritmo de quem trabalha: olhe a agenda e os resultados, não o relógio.", o: "Tô de pé, né?", b: "Preciso de uma soneca antes." },
-  { q: "E o povo? O que muda na vida de quem acorda às cinco?", g: "Salário, emprego e remédio mais perto de casa. É isso que eu apresento.", o: "Muda o ônibus, talvez.", b: "Eu acordo às dez, não sei." }
-];
-var P1_FLAVIO = [   // jogador = Flávio; adversário = Lula
-  { q: "Vocês só falam em 'Brasil acima de tudo' e esquecem a feira!", g: "Brasil acima de tudo inclui a feira, o mercado e o bolso do trabalhador.", o: "Feira? Eu gosto de pastel.", b: "Feira é coisa de esquerdista." },
-  { q: "O senhor não tem plano, só tem meme!", g: "Meme é tempero; o prato é corte de imposto e emprego. Posso detalhar.", o: "Meme bom é meme com bandeira.", b: "Plano? O plano é secreto." },
-  { q: "Chega de baixaria, vamos falar de propostas!", g: "Concordo: segurança e economia, ponto a ponto.", o: "Propostas? Primeiro um café.", tr: "Rebater soltando o apelido 'nove dedos' (a tentação da baixaria)" },
-  { q: "Pra vocês tudo é perseguição: imprensa, juiz, o vizinho!", g: "Quem cumpre a lei não teme a Justiça; o que importa é discutir ideias.", o: "Perseguição? Pergunta pro vizinho.", b: "Foi tudo culpa da Argentina." },
-  { q: "Sua campanha vive de corrente de zap e vídeo cortado!", g: "Campanha boa explica a proposta de frente pro eleitor, sem corte e sem corrente.", o: "Meu zap só tem 'bom dia'.", b: "Corrente é a minha especialidade." },
-  { q: "Quem vai pagar a conta das suas promessas?", g: "Corte de desperdício e crescimento. Eu mostro as contas.", o: "Quem paga é o mercado.", tr: "Fazer piada com 'nove dedos' pra ganhar aplauso" },
-  { q: "O senhor fala em liberdade, mas e o preço da carne?", g: "Liberdade pra produzir baixa preço: menos burocracia, mais oferta.", o: "Carne? Eu sou mais de frango.", b: "Quem manda no preço é o boi." },
-  { q: "Sua turma briga com todo mundo: imprensa, juiz, sogra!", g: "Discordar não é brigar; a gente debate ideias e respeita a regra do jogo.", o: "A sogra começou.", b: "Briga é meu esporte." },
-  { q: "Vamos subir o nível? Qual a sua proposta pra escola?", g: "Escola em tempo integral e professor valorizado.", o: "Escola boa é a que tem bandeira.", tr: "Mandar um 'nove dedos' pra provocar e levar ovação" },
-  { q: "O senhor ainda depende do sobrenome pra ganhar voto?", g: "Voto se conquista com proposta; o sobrenome abre a porta, a conversa é comigo.", o: "Meu sobrenome é marca registrada.", b: "Meu pai resolve." },
-  { q: "Fale pro povo: o que o senhor muda no primeiro dia?", g: "Primeiro dia: preço, segurança e emprego, com meta e prazo.", o: "No primeiro dia eu tomo café.", b: "No primeiro dia, descanso." }
-];
-var P1_BOSS = [
-  { q: "MEDIADOR: ECONOMIA! Direito de resposta, 4 segundos!", g: "Número, fonte e prazo.", o: "Prometo e pronto.", b: "Mudar de assunto e acusar o outro.", T: 4 },
-  { q: "MEDIADOR: SEGURANÇA! Você tem 3,5 segundos!", g: "Plano com meta e fiscalização.", o: "Falo com o delegado depois.", b: "Gritar em caixa alta.", T: 3.5 },
-  { q: "MEDIADOR: ÚLTIMA! Saúde! 3 segundos!", g: "Fila menor e remédio na prateleira.", o: "Saúde! (e brindar)", b: "Pedir a palavra e ficar mudo.", T: 3, last: true }
-];
-
-function p1_shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(RNG() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-function p1_items(flav) {
-  var src = flav ? P1_FLAVIO : P1_LULA, out = [], i, r, o;
-  for (i = 0; i < src.length; i++) {
-    r = src[i];
-    if (r.name) { out.push({ name: true, q: "RÁPIDO! Cite o nome da primeira-dama atual!", T: 3.6, opts: [{ t: "Janja", k: "good" }, { t: "Marisa", k: "bad" }] }); continue; }
-    o = [{ t: r.g, k: "good" }, { t: r.o, k: "ok" }, r.tr ? { t: r.tr, k: "trap" } : { t: r.b, k: "bad" }];
-    out.push({ q: r.q, T: Math.max(5.2, 9.6 - i * 0.42), opts: o });
-  }
-  for (i = 0; i < P1_BOSS.length; i++) {
-    r = P1_BOSS[i];
-    var bo = [{ t: r.g, k: "good" }, { t: r.o, k: "ok" }, { t: r.b, k: "bad" }];
-    if (!flav && r.last) { out.push({ name: true, boss: true, q: "MEDIADOR: ÚLTIMA! Nome da primeira-dama, 3 segundos!", T: 3, opts: [{ t: "Janja", k: "good" }, { t: "Marisa", k: "bad" }] }); continue; }
-    if (flav && r.last) bo[2] = { t: "Disparar 'nove dedos' e esperar o aplauso", k: "trap" };
-    out.push({ q: r.q, T: r.T, boss: true, opts: bo });
-  }
-  return out;
-}
+var P1_FAKE = {   // projéteis do adversário: o que o OUTRO lado joga em você (exagero de campanha, nada factual)
+  lula: ["CADÊ A PICANHA?", "FAKE: PIX TAXADO!", "AVIÃO DE NOVO?", "É CULPA DO PASSADO!", "SÓ TEM VÍDEO!", "BOLSA-CAFEZINHO!"],
+  flavio: ["TEM PLANO OU SÓ POST?", "É SÓ MEME!", "CORRENTE DE ZAP!", "BRASIL ACIMA DE QUÊ?", "CORTE DE VÍDEO!", "SOBRENOME NÃO VOTA!"]
+};
+var P1_HARD = ["PLANO PRA ECONOMIA?", "E A SAÚDE?", "QUEM PAGA A CONTA?", "PROPOSTA PRA ESCOLA?", "QUAL A FONTE?", "PRAZO E META?"];
+var P1_REPLY = {   // seus memes de resposta (o projétil)
+  lula: ["EMPREGO!", "OBRA!", "RESULTADO!", "PICANHA!", "RENDA!"],
+  flavio: ["MENOS IMPOSTO!", "SEGURANÇA!", "EMPREGO!", "LIBERDADE!", "PRODUZIR!"]
+};
+var P1_TAUNT = { lula: ["Tá nervoso, candidato?", "Resposta de manual!", "Lacrou na lata!"], flavio: ["Tá nervoso, presidente?", "Resposta de manual!", "Lacrou na lata!"] };
+var P1_AX0 = 56, P1_AX1 = 640, P1_AY0 = 156, P1_AY1 = 424;
 
 SCEN[1] = function (S) {
-  var flav = S.camp === "flavio", items = p1_items(flav);
-  S.lives = 3; S.maxLives = 3; S.livesLabel = "TEMPO DE FALA";
-  var d = { i: 0, ph: "ask", tm: 0, T: 8, it: null, order: [0, 1, 2], sel: -1, res: "", fbT: 0, quip: "", meter: 0, good: 0, ok: 0, bad: 0, cameoT: 0, cameoDone: false,
-    swapT: 0, rects: [], botT: 0, botWait: null, talk: 0, flashN: 0, trapHit: 0, gaffes: 0 };
-  var foeKind = S.C.foe, meKind = S.C.kind;
+  var flav = S.camp === "flavio", foeKind = S.C.foe, meKind = S.C.kind, side = flav ? "flavio" : "lula";
+  S.time = 125; S.timeMax = 125;
+  var o = { px: 190, py: 290, cred: 100, lac: 0, cd: 0, inv: 0, shield: 0, rapid: 0, slow: 0, mute: 0, shots: [], foes: [], picks: [], zones: [],
+    fx: { y: 280, dir: 1, t: 0, atk: 1.6, tk: 0, flinch: 0 }, med: { x: 480, dir: 1, ask: 7, tk: 0, cut: 14, cutT: 0 }, pickT: 8, round: 0, banner: 0, bannerS: "",
+    boss: null, kills: 0, fired: 0, landed: 0, taken: 0, grazes: 0, cuts: 0, specials: 0, trap: 0, winDmg: 0, winN: 1, anim: 0, ended: false, first: { cut: 1, ask: 1, trap: 1, spec: 1 }, bmove: { x: 0, y: 0 }, bfire: false, bwait: 0, bnoise: 0 };
+  var BOSS_T = 68, FOEX = 846;
+  var ROUND_AT = [0, 23, 46];
 
-  function layout() {
-    var it = d.it, rs = [], k;
-    if (it.name) { rs.push({ x: 150, y: 285, w: 275, h: 120 }, { x: 445, y: 285, w: 275, h: 120 }); }
-    else for (k = 0; k < 3; k++) rs.push({ x: 150, y: 262 + k * 66, w: 570, h: 58 });
-    d.rects = rs;
+  function diff() { return clamp(S.t / BOSS_T, 0, 1); }
+  function foeSpeed() { return lerp(150, 245, diff()) * (o.slow > 0 ? .55 : 1) * (o.boss ? 1.08 : 1); }
+  function fakeText() { return pick(P1_FAKE[side]); }
+  function foeMouth() { return { x: FOEX - 44, y: o.fx.y + 6 }; }
+  function mk(kind, x, y, vx, vy, txt) {
+    var n = (txt || "").length, p = { k: kind, x: x, y: y, vx: vx, vy: vy, t: txt, hw: Math.max(36, n * 3.3 + 10), hh: 12, hp: 1, a: 0, graze: false, age: 0 };
+    if (kind === "hard") { p.hw = Math.max(50, n * 3.3 + 26); p.hh = 18; }
+    return p;
   }
-  function load() {
-    var it = items[d.i]; d.it = it; d.T = it.T; d.tm = it.T; d.ph = "ask"; d.sel = -1; d.res = ""; d.botWait = null; d.botT = 0; d.swapT = .85;
-    d.order = it.name ? p1_shuffle([0, 1]) : p1_shuffle([0, 1, 2]);
-    d.talk = 2.2; layout();
-    if (it.boss && !it.last && d.i === items.length - 3) { S.toast("RODADA RELÂMPAGO: o mediador cobra!", "#ffcc80", 2.6); sfx("alarm"); }
+  /* ---- spawns ---- */
+  function aimed(spd, off) {
+    var m = foeMouth(), dx = o.px - m.x, dy = (o.py + (off || 0)) - m.y, l = Math.hypot(dx, dy) || 1, p = mk("fake", m.x, m.y, dx / l * spd, dy / l * spd, fakeText());
+    o.foes.push(p); return p;
   }
-  function loseLife(why) {
-    S.lives--; S.hit(); shake(9); flashScr("229,57,53", .5); sfx("hit");
-    if (S.lives <= 0) {
-      var rd = d.i + 1;
-      S.end(false, d.good / Math.max(1, d.good + d.ok + d.bad) * .6, "O mediador cortou o seu microfone na rodada " + rd + "/" + items.length + (why === "trap" ? " (a baixaria custou caro)" : "") + ". Respire e tente de novo!",
-        { failTitle: "Microfone Cortado", voiceLose: flav ? "sistema" : "humilha" });
-      return true;
+  function fan(n, spd, spread) {
+    var m = foeMouth(), base = Math.atan2(o.py - m.y, o.px - m.x), i, a;
+    for (i = 0; i < n; i++) { a = base + (i - (n - 1) / 2) * spread; o.foes.push(mk("fake", m.x, m.y, Math.cos(a) * spd, Math.sin(a) * spd, fakeText())); }
+  }
+  function volley(spd) {   // parede de fake news com uma brecha
+    var n = 6, gap = rint(0, n - 1), i, m = foeMouth();
+    for (i = 0; i < n; i++) if (i !== gap && i !== gap + 1) o.foes.push(mk("fake", m.x, P1_AY0 + 8 + i * ((P1_AY1 - P1_AY0 - 16) / (n - 1)), -spd, 0, fakeText()));
+  }
+  function homing(spd) { var m = foeMouth(), p = mk("chain", m.x, m.y, -spd * .7, 0, "CORRENTE!"); p.hp = 2; p.hh = 13; p.life = 3.4; p.spd = spd * .72; o.foes.push(p); }
+  function ask(cols) {
+    var i, xs = [];
+    for (i = 0; i < cols; i++) xs.push(clamp(o.px + (i - (cols - 1) / 2) * 120 + rnd(-30, 30), P1_AX0 + 30, P1_AX1 - 10));
+    xs.forEach(function (x) { o.med.tk = .7; o.zones.push({ k: "ask", x: x, t: .95, txt: pick(P1_HARD) }); });
+    o.med.tk = .8;
+    if (o.first.ask) { o.first.ask = 0; say("campopiano_sabe_o_que_voce_podia_fazer", "pergunta", 2); S.toast("O mediador fez uma PERGUNTA DIFÍCIL! Rebata (2 acertos).", "#ffcc80", 2.4); }
+  }
+  function micCut(n) {
+    for (var i = 0; i < n; i++) {
+      var w = 150, h = 130, x = rnd(P1_AX0 + 10, P1_AX1 - w - 10), y = rnd(P1_AY0, P1_AY1 - h);
+      o.zones.push({ k: "mic", x: x, y: y, w: w, h: h, warn: 1.3, live: 2.8 });
     }
-    return false;
+    sfx("alarm"); o.med.cutT = 1.3;
+    if (o.first.cut) { o.first.cut = 0; S.toast("MICROFONE CORTADO: saia da zona vermelha ou fica mudo!", "#ff8a80", 2.6); }
   }
-  function meterAdd(v) {
-    if (flav) return false;
-    d.meter = clamp(d.meter + v, 0, 100);
-    if (d.meter >= 100) {
-      d.meter = 40; d.gaffes++; popup("CONFUSÃO DE NOMES!", W / 2, 240, "#ffab91", 24); say("marisa", "gaffe", 3); S.toast("Janja ou Marisa? A boca se confundiu!", "#ffab91", 2.4);
-      return loseLife("nome");
+  function pickup(kind, x, y) { o.picks.push({ k: kind, x: x, y: y, t: 8.5, ph: rnd(0, TAU) }); }
+  function randPick() {
+    var r = RNG(), k = r < .26 ? "agua" : r < .5 ? "plateia" : r < .72 ? "resposta" : r < .9 ? "relogio" : "trap";
+    if (k === "trap" && (S.t < 20 || o.cred < 50)) k = "agua";
+    if (o.cred < 55 && RNG() < .5) k = "agua";
+    pickup(k, rnd(P1_AX0 + 40, P1_AX1 - 40), rnd(P1_AY0 + 20, P1_AY1 - 20));
+  }
+
+  /* ---- dano e efeitos ---- */
+  function lacAdd(v) { o.lac = clamp(o.lac + v, 0, 100); if (o.lac >= 100 && o.first.spec) { o.first.spec = 0; S.toast("LACRAÇÃO PRONTA! Aperte K / ⭐", "#ffdf00", 2.6); sfx("medal"); } }
+  function hurt(dmg, why) {
+    if (o.inv > 0 || S.over) return;
+    if (o.shield > 0) { o.shield = 0; o.inv = 1; sfx("shield"); ring(o.px, o.py, "#80d8ff", 14); popup("PLATEIA BLOQUEOU!", o.px, o.py - 40, "#80d8ff", 15); return; }
+    o.cred -= dmg; o.inv = 1.05; o.taken++; o.winDmg++; S.hit(); lacAdd(-18); shake(7); flashScr("229,57,53", .35); sfx("hit"); burst(o.px, o.py, "#ff8a80", 12, 150);
+    popup(why || "VAIADO!", o.px, o.py - 38, "#ff6b6b", 17);
+    if (o.cred <= 0) {
+      o.cred = 0; o.ended = true;
+      S.end(false, clamp(.12 + .3 * diff() + (o.boss ? .1 : 0), 0, .45), "O mediador cortou o seu microfone na rodada " + Math.max(1, o.round) + (o.boss ? " (relâmpago)" : "") + ". Respire e tente de novo!", { failTitle: "Microfone Cortado", voiceLose: flav ? "sistema" : "humilha" });
     }
-    return false;
   }
-  function resolve(pos, timeout) {
-    if (d.ph !== "ask") return;
-    var it = d.it, opt = timeout ? null : it.opts[d.order[pos]], k = timeout ? "time" : opt.k, frac = timeout ? 0 : d.tm / d.T, mult = it.boss ? 1.5 : 1, cx = 440, dead = false;
-    d.ph = "fb"; d.sel = pos; d.res = k; d.fbT = 1.3; d.talk = 1.2;
-    if (k === "good") {
-      d.good++; S.grid.push(frac > .25 ? "g" : "y");
-      var pts = Math.round((100 + frac * 100) * mult); S.up(cx, 230); S.add(pts, cx, 215, "#69f0ae");
-      d.quip = pick(P1_GOODQ); sfx("coin"); burst(cx, 250, "#69f0ae", 14, 160, 120);
-      if (it.name) meterAdd(-25); else if (frac < .3) meterAdd(12); else meterAdd(-4);
-      if (S.combo > 0 && S.combo % 5 === 0 && S.lives < S.maxLives) { S.lives++; S.toast("Sequência! Ganhou mais tempo de fala.", "#69f0ae"); }
-      if (!flav && it.name) say("pedirDesc", "acertou", 1);
-    } else if (k === "ok") {
-      d.ok++; S.grid.push("y"); S.add(Math.round(40 * mult), cx, 215, "#ffe082"); S.hit(); d.quip = pick(P1_OKQ); sfx("pop"); meterAdd(6);
-    } else {
-      d.bad++; S.grid.push("r");
-      if (k === "trap") {
-        d.trapHit++; d.quip = "Baixaria! No debate, ele pediu desculpa ao vivo.";
-        say("desculpaF", "nove-dedos", 4); say("ninedL", "nove-dedos", 3);
-        popup("NOVE DEDOS? 🙈", W / 2, 240, "#ff8a80", 26); S.toast("Baixaria não rende voto: tempo de fala cortado!", "#ff8a80", 2.6);
-        dead = loseLife("trap");
-      } else if (k === "time") {
-        d.quip = "Tempo esgotado! O mediador apitou."; S.toast("Tempo esgotado!", "#ff8a80"); sfx("nope");
-        dead = loseLife("tempo"); if (!dead) meterAdd(20);
-      } else {
-        d.quip = it.name ? "Marisa?! Hoje a primeira-dama é outra!" : pick(P1_BADQ);
-        if (it.name) { say("marisa", "gaffe", 4); popup("MARISA?!", W / 2, 240, "#ffab91", 28); meterAdd(0); }
-        else say(flav ? "pedirDesc" : "pedirDesc", "vaia", 0);
-        dead = loseLife("errado"); if (!dead) meterAdd(it.name ? 30 : 15);
+  function killFoe(p, byShot) {
+    o.kills++; S.up(p.x, p.y - 20); S.add(p.k === "hard" ? 18 : 10, p.x, p.y - 8, p.k === "hard" ? "#ffcc80" : "#69f0ae");
+    lacAdd(p.k === "hard" ? 9 : 5); burst(p.x, p.y, p.k === "hard" ? "#ffb74d" : "#ef5350", 12, 150); sfx("pop");
+    if (RNG() < .1 && o.picks.length < 3) randPick();
+    o.fx.flinch = Math.max(o.fx.flinch, .1);
+  }
+  function hitFoe(dmg) {
+    o.landed++; S.add(4, FOEX - 20, o.fx.y - 30, "#fff"); lacAdd(3); o.fx.flinch = .22; burst(FOEX - 36, o.fx.y, "#fff176", 6, 110, 80);
+    if (o.boss && !o.boss.dead) {
+      o.boss.hp -= dmg; if (o.boss.hp <= 0) bossDown();
+    }
+  }
+  function bossDown() {
+    var B = o.boss; B.dead = true; o.foes = []; o.zones = []; S.add(600, FOEX - 40, o.fx.y, "#ffdf00"); burst(FOEX - 30, o.fx.y, "#ffdf00", 44, 280); ring(FOEX - 30, o.fx.y, "#ffdf00", 12); flashScr("255,223,0", .55); shake(12); sfx("win"); S.grid.push("g");
+    var acc = o.fired ? o.landed / o.fired : 0, perf = clamp(.34 + .26 * (o.cred / 100) + .2 * clamp(acc * 1.6, 0, 1) + .12 * clamp(o.kills / 55, 0, 1) + .08 * (S.time / 125), 0, 1);
+    S.end(true, perf, "Você lacrou o debate! " + o.kills + " fake news derrubadas, " + o.specials + " lacração" + (o.specials === 1 ? "" : "ões") + " e " + o.landed + " memes no alvo." + (o.trap ? "" : " E sem baixaria!"),
+      { titles: ["Calouro do Estúdio", "Estagiário da Mediação", "Debatedor Raiz", "Mestre da Réplica", "Rei do Debate"], voiceWin: flav ? "desistir" : "viva" });
+  }
+  function special() {
+    if (o.lac < 100 || o.ended || S.over) return;
+    o.lac = 0; o.specials++; o.inv = Math.max(o.inv, 1.4); S.add(120, o.px, o.py - 40, "#ffdf00");
+    popup("LACRAÇÃO!", o.px, o.py - 60, "#ffdf00", 30); ring(o.px, o.py, "#ffdf00", 10); ring(o.px, o.py, "#fff", 30); flashScr("255,223,0", .5); shake(10); sfx("boom"); slowmo(.55);
+    var n = 0; o.foes.forEach(function (p) { n++; S.up(p.x, p.y); S.add(8, p.x, p.y, "#ffdf00"); burst(p.x, p.y, "#ffdf00", 8, 140); }); o.foes = [];
+    o.zones = o.zones.filter(function (z) { return z.k === "mic" && z.live === undefined; });
+    o.mute = 0; hitFoe(1); if (o.boss && !o.boss.dead) { o.boss.hp -= 7; if (o.boss.hp <= 0) bossDown(); }
+    voxWho("combo", flav ? ["jair", "flavio", "nikolas", "campopiano"] : ["lula", "dilma", "haddad", "erika"], { prio: 3 });
+    if (o.first.spec === 0) o.first.spec = -1;
+  }
+  function fire() {
+    var spd = 560, r = o.rapid > 0, m = o.mute > 0;
+    if (o.cd > 0 || m) return;
+    o.cd = r ? .1 : .21; o.fired += r ? 3 : 1; sfx("shot");
+    var txt = pick(P1_REPLY[side]);
+    o.shots.push({ x: o.px + 26, y: o.py - 6, vx: spd, vy: 0, t: txt });
+    if (r) { o.shots.push({ x: o.px + 24, y: o.py - 6, vx: spd, vy: -90, t: "" }); o.shots.push({ x: o.px + 24, y: o.py - 6, vx: spd, vy: 90, t: "" }); }
+  }
+  function startBoss() {
+    o.boss = { hp: 34, max: 34, intro: 2.6, t: 0, pat: 0, pt: 1.2, dead: false };
+    o.banner = 3; o.bannerS = "RODADA RELÂMPAGO!"; o.med.cut = 6; o.foes = o.foes.filter(function (p) { return p.k !== "hard"; });
+    S.toast("O MEDIADOR chamou a RODADA RELÂMPAGO: o adversário ficou GIGANTE!", "#ffcc80", 3); sfx("alarm"); shake(8);
+    say("campopiano_debate_inflamado", "boss-intro", 4); S.grid.push(o.winDmg === 0 ? "g" : o.winDmg === 1 ? "y" : "r"); o.winDmg = 0;
+  }
+
+  /* ---- atualização ---- */
+  function bossAttack(dt) {
+    var B = o.boss; if (B.intro > 0) { B.intro -= dt; return; }
+    B.t += dt; B.pt -= dt;
+    if (B.pt > 0) return;
+    var sp = foeSpeed() + 25;
+    B.pat = (B.pat + 1) % 5;
+    if (B.pat === 0) { fan(3, sp, .26); B.pt = 1.25; }
+    else if (B.pat === 1) { volley(sp * .9); B.pt = 1.9; }
+    else if (B.pat === 2) { ask(3); B.pt = 2.3; }
+    else if (B.pat === 3) { homing(sp); fan(5, sp * .9, .3); B.pt = 1.8; }
+    else { aimed(sp * 1.1); aimed(sp * 1.1, -70); aimed(sp * 1.1, 70); B.pt = 1.3; }
+    if (B.t > 8 && !o.zones.some(function (z) { return z.k === "mic"; }) && RNG() < .45) micCut(1);
+  }
+  function normalAttack(dt) {
+    var d = diff(), f = o.fx; f.atk -= dt;
+    if (f.atk > 0) return;
+    var sp = foeSpeed(), r = RNG();
+    f.atk = lerp(1.55, .62, d) * (o.slow > 0 ? 1.3 : 1) + rnd(0, .3);
+    if (S.t > 44 && r < .16) volley(sp * .85);
+    else if (S.t > 36 && r < .3) homing(sp);
+    else if (S.t > 10 && r < .5) fan(3, sp, .3);
+    else if (S.t > 26 && r < .64) { ask(S.t > 50 ? 2 : 1); f.atk += .5; }
+    else aimed(sp);
+  }
+  function update(dt) {
+    if (o.ended) return;
+    var i, p, d = diff();
+    o.anim += dt;
+    o.fx.t += dt;
+    if (o.cd > 0) o.cd -= dt; if (o.inv > 0) o.inv -= dt; if (o.shield > 0) o.shield -= dt; if (o.rapid > 0) o.rapid -= dt; if (o.slow > 0) o.slow -= dt;
+    if (o.banner > 0) o.banner -= dt; if (o.fx.flinch > 0) o.fx.flinch -= dt; if (o.med.tk > 0) o.med.tk -= dt; if (o.med.cutT > 0) o.med.cutT -= dt;
+    // rodadas
+    for (i = ROUND_AT.length - 1; i >= 0; i--) if (S.t >= ROUND_AT[i] && !o.boss) { if (o.round !== i + 1) { o.round = i + 1; o.banner = 2.2; o.bannerS = "RODADA " + (i + 1) + "/3"; if (i > 0) { S.grid.push(o.winDmg === 0 ? "g" : o.winDmg === 1 ? "y" : "r"); o.winDmg = 0; S.toast(pick(P1_TAUNT[side]), "#ffe082", 1.8); sfx("alarm"); } } break; }
+    if (!o.boss && S.t >= BOSS_T) startBoss();
+    // adversário se move ao longo da borda direita
+    var B = o.boss, fs = (B ? 60 : 40 + 55 * d) * (o.slow > 0 ? .6 : 1), f = o.fx;
+    f.y += f.dir * fs * dt; if (f.y > P1_AY1 - 20) { f.y = P1_AY1 - 20; f.dir = -1; } if (f.y < P1_AY0 + 26) { f.y = P1_AY0 + 26; f.dir = 1; }
+    if (RNG() < dt * .35) f.dir = -f.dir;
+    // mediador passeia
+    o.med.x += o.med.dir * 36 * dt; if (o.med.x > 700) o.med.dir = -1; if (o.med.x < 300) o.med.dir = 1;
+    // movimento do jogador
+    var mv = S.bot ? o.bmove : arcMove(), spd = 245 * (o.mute > 0 ? .85 : 1);
+    o.px = clamp(o.px + mv.x * spd * dt, P1_AX0, P1_AX1); o.py = clamp(o.py + mv.y * spd * dt, P1_AY0, P1_AY1);
+    if (S.bot ? o.bfire : arcHeld("a")) fire();
+    // ataques
+    if (o.boss) { if (!o.boss.dead) bossAttack(dt); } else {
+      normalAttack(dt);
+      if (S.t > 20) { o.med.ask -= dt; o.med.cut -= dt; }
+      if (S.t > 22 && o.med.cut <= 0) { micCut(S.t > 46 ? 2 : 1); o.med.cut = lerp(13, 8, d); }
+    }
+    o.pickT -= dt; if (o.pickT <= 0 && o.picks.length < 3) { randPick(); o.pickT = rnd(8, 12); } else if (o.pickT <= 0) o.pickT = 3;
+    // zonas
+    var inMic = false;
+    for (i = o.zones.length - 1; i >= 0; i--) {
+      var z = o.zones[i];
+      if (z.k === "ask") { z.t -= dt; if (z.t <= 0) { var q = mk("hard", z.x, 134, 0, 175 + 70 * d + (o.boss ? 25 : 0), z.txt); q.hp = 2; o.foes.push(q); sfx("whoosh"); o.zones.splice(i, 1); } }
+      else if (z.k === "mic") {
+        if (z.warn > 0) z.warn -= dt; else { z.live -= dt; if (z.live <= 0) { o.zones.splice(i, 1); continue; }
+          if (o.px > z.x - 8 && o.px < z.x + z.w + 8 && o.py > z.y - 8 && o.py < z.y + z.h + 8) inMic = true; }
       }
     }
-  }
-  function next() {
-    d.i++;
-    if (d.i >= items.length) {
-      var tot = d.good + d.ok + d.bad, perf = clamp(d.good / Math.max(1, tot) * .72 + S.lives / S.maxLives * .28 - d.trapHit * .03, 0, 1);
-      var line = "Você sobreviveu ao debate com " + d.good + " réplicas de ouro em " + tot + "." + (flav ? " E sem apelidos ofensivos ao final!" : " E acertou o nome da primeira-dama!");
-      S.end(true, perf, line, { titles: ["Calouro do Estúdio", "Estagiário da Mediação", "Debatedor Raiz", "Mestre da Réplica", "Rei do Debate"], voiceWin: flav ? "desistir" : "viva" });
-      return;
+    if (inMic) { if (o.mute <= 0) { o.cuts++; sfx("nope"); popup("MUDO!", o.px, o.py - 40, "#ff8a80", 18); if (o.cuts === 1 || RNG() < .5) say(flav ? "nikolas_medo_de_opiniao" : "boulos_e_triste", "mic", 2); } o.mute = .25; lacAdd(-dt * 9); }
+    else if (o.mute > 0) o.mute -= dt;
+    // seus tiros
+    for (i = o.shots.length - 1; i >= 0; i--) {
+      p = o.shots[i]; p.x += p.vx * dt; p.y += p.vy * dt; var gone = p.x > W + 30 || p.y < 60 || p.y > H;
+      if (!gone) for (var j = o.foes.length - 1; j >= 0; j--) {
+        var q2 = o.foes[j];
+        if (Math.abs(p.x - q2.x) < q2.hw + 6 && Math.abs(p.y - q2.y) < q2.hh + 8) { q2.hp--; gone = true; if (q2.hp <= 0) { killFoe(q2, true); o.foes.splice(j, 1); } else { burst(q2.x, q2.y, "#fff", 5, 90); sfx("tick"); } break; }
+      }
+      if (!gone && p.x > FOEX - 52 && Math.abs(p.y - o.fx.y) < 58 && (!o.boss || !o.boss.dead)) { gone = true; hitFoe(1); sfx("coin"); }
+      if (gone) o.shots.splice(i, 1);
     }
-    if (d.i === 6 && !d.cameoDone) { d.cameoDone = true; d.ph = "cameo"; d.cameoT = 2.1; say("camp", "cameo", 2); sfx("alarm"); return; }
-    load();
-  }
-  function choose(pos) {
-    if (d.ph !== "ask" || pos < 0 || pos >= d.rects.length) return;
-    resolve(pos, false);
+    // projéteis inimigos
+    var sf = o.slow > 0 ? .55 : 1;
+    for (i = o.foes.length - 1; i >= 0; i--) {
+      p = o.foes[i]; p.age += dt; p.a = Math.min(1, p.age * 6);
+      if (p.k === "chain") { p.life -= dt; var ang = Math.atan2(o.py - p.y, o.px - p.x), cur = Math.atan2(p.vy, p.vx), da = ang - cur; da = Math.atan2(Math.sin(da), Math.cos(da)); cur += clamp(da, -1.7 * dt, 1.7 * dt); p.vx = Math.cos(cur) * p.spd; p.vy = Math.sin(cur) * p.spd; if (p.life <= 0) { burst(p.x, p.y, "#ce93d8", 6, 90); o.foes.splice(i, 1); continue; } }
+      p.x += p.vx * dt * sf; p.y += p.vy * dt * sf;
+      if (p.x < -90 || p.y > H + 40 || p.y < 40 || p.x > W + 60) { o.foes.splice(i, 1); continue; }
+      // colisão: círculo do jogador x retângulo do projétil
+      var cx = clamp(o.px, p.x - p.hw, p.x + p.hw), cy = clamp(o.py, p.y - p.hh, p.y + p.hh), dd = Math.hypot(o.px - cx, o.py - cy);
+      if (dd < 15) { hurt(p.k === "hard" ? 17 : p.k === "chain" ? 12 : 9, p.k === "hard" ? "PERGUNTA DIFÍCIL!" : "FAKE NEWS!"); burst(p.x, p.y, "#ef5350", 8, 120); o.foes.splice(i, 1); continue; }
+      if (!p.graze && dd < 34 && o.inv <= 0) { p.graze = 1; o.grazes++; lacAdd(3); S.add(3, o.px, o.py - 30, "#80d8ff"); if (o.grazes % 5 === 0) { popup("QUASE!", o.px, o.py - 44, "#80d8ff", 16); vox("near-miss", { p: .5 }); } }
+    }
+    // pickups
+    for (i = o.picks.length - 1; i >= 0; i--) {
+      p = o.picks[i]; p.t -= dt; if (p.t <= 0) { o.picks.splice(i, 1); continue; }
+      if (Math.hypot(o.px - p.x, o.py - p.y) < 28) {
+        o.picks.splice(i, 1); S.add(20, p.x, p.y - 20, "#69f0ae"); burst(p.x, p.y, "#fff", 10, 130);
+        if (p.k === "agua") { o.cred = Math.min(100, o.cred + 30); popup("+CREDIBILIDADE", p.x, p.y - 30, "#69f0ae", 16); sfx("pow"); }
+        else if (p.k === "plateia") { o.shield = 8; popup("PLATEIA NA SUA!", p.x, p.y - 30, "#80d8ff", 16); sfx("shield"); }
+        else if (p.k === "resposta") { o.rapid = 8; popup("DIREITO DE RESPOSTA!", p.x, p.y - 30, "#ffd54f", 16); sfx("pow"); }
+        else if (p.k === "relogio") { o.slow = 6; popup("TEMPO DILATADO", p.x, p.y - 30, "#b39ddb", 16); sfx("slow"); }
+        else { o.trap++; lacAdd(-35); o.cred = Math.max(1, o.cred - 8); popup("BAIXARIA! A plateia vaiou", p.x, p.y - 30, "#ff8a80", 17); sfx("nope"); shake(5); flashScr("229,57,53", .25); say(flav ? "flavio_desculpa_nove_dedos" : "pedirDesc", "baixaria", 4); if (o.first.trap) { o.first.trap = 0; S.toast("Baixaria não rende voto: -lacração!", "#ff8a80", 2.2); } }
+      }
+    }
+    state.progress = clamp(S.t / (BOSS_T + 40), 0, 1);
   }
 
   /* ---------------- desenho ---------------- */
   function bg(c) {
-    var t = S.anim, i, x, y;
+    var t = o.anim, i, x, y;
     var gr = c.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, "#070d28"); gr.addColorStop(.55, "#14246a"); gr.addColorStop(1, "#050818"); c.fillStyle = gr; c.fillRect(0, 0, W, H);
-    // painel de LED
-    for (i = 0; i < 16; i++) for (y = 0; y < 5; y++) {
+    for (i = 0; i < 16; i++) for (y = 0; y < 3; y++) {
       c.fillStyle = "rgba(" + (80 + (i * 9 + y * 20) % 80) + "," + (120 + (i * 13) % 80) + ",255," + (.05 + .06 * Math.abs(Math.sin(t * .8 + i * .6 + y))) + ")";
-      c.fillRect(i * 60 + 3, 66 + y * 48, 54, 44);
+      c.fillRect(i * 60 + 3, 66 + y * 26, 54, 22);
     }
-    // holofotes
     c.save(); c.globalCompositeOperation = "lighter";
     for (i = 0; i < 3; i++) {
       x = 160 + i * 320 + Math.sin(t * .7 + i * 2) * 70;
-      var sg = c.createLinearGradient(x, 0, x, 440); sg.addColorStop(0, "rgba(255,240,190,.2)"); sg.addColorStop(1, "rgba(255,240,190,0)");
+      var sg = c.createLinearGradient(x, 0, x, 440); sg.addColorStop(0, "rgba(255,240,190,.16)"); sg.addColorStop(1, "rgba(255,240,190,0)");
       c.fillStyle = sg; c.beginPath(); c.moveTo(x - 8, 0); c.lineTo(x + 8, 0); c.lineTo(x + 130 + Math.sin(t + i) * 30, 440); c.lineTo(x - 130 + Math.sin(t + i) * 30, 440); c.closePath(); c.fill();
     }
     c.restore();
-    // piso
-    var fg = c.createLinearGradient(0, 440, 0, 480); fg.addColorStop(0, "#1a2150"); fg.addColorStop(1, "#0b0f2a"); c.fillStyle = fg; c.fillRect(0, 440, W, 100);
+    // palco
+    var fg = c.createLinearGradient(0, 140, 0, 440); fg.addColorStop(0, "#1a2150"); fg.addColorStop(1, "#0f1538"); c.fillStyle = fg; c.fillRect(0, 140, W, 300);
+    c.strokeStyle = "rgba(120,160,255,.12)"; c.lineWidth = 1; for (i = 0; i < 9; i++) { c.beginPath(); c.moveTo(0, 150 + i * 34); c.lineTo(W, 150 + i * 34); c.stroke(); }
     c.fillStyle = "rgba(255,223,0,.5)"; c.fillRect(0, 440, W, 3);
-    // plateia
+    c.strokeStyle = "rgba(255,255,255,.1)"; c.setLineDash([10, 8]); c.strokeRect(P1_AX0 - 14, P1_AY0 - 22, P1_AX1 - P1_AX0 + 28, P1_AY1 - P1_AY0 + 44); c.setLineDash([]);
     for (var row = 0; row < 2; row++) for (i = 0; i < 36; i++) {
-      x = i * 27 + row * 13 + hash(i + row * 40) * 6; y = 458 + row * 12;
+      x = i * 27 + row * 13 + hash(i + row * 40) * 6; y = 458 + row * 12 + (o.lac >= 100 ? Math.abs(Math.sin(t * 8 + i)) * -4 : 0);
       c.fillStyle = row ? "#0a0d22" : "#12183a"; c.beginPath(); c.arc(x, y, 9, 0, TAU); c.fill(); c.fillRect(x - 11, y + 6, 22, 20);
       if (hash(i * 3 + row) > .93 && Math.floor(t * 3 + i) % 4 === 0) { c.fillStyle = "rgba(255,255,255,.9)"; c.fillRect(x - 3, y - 2, 6, 4); }
     }
   }
-  function podiums(c) {
-    var t = S.anim, boss = d.it && d.it.boss, bossBase = boss && d.it.q.indexOf("MEDIADOR") === 0;
-    // pódio do jogador
-    c.fillStyle = S.camp === "lula" ? "#7a1c28" : "#0f6b36"; rr(c, 16, 322, 124, 120, 8); c.fill();
-    c.fillStyle = "rgba(255,255,255,.18)"; c.fillRect(16, 322, 124, 6);
-    portraitCard(c, meKind, 22, 205, 112, 118, { r: 12, lw: 3, cy: .46, talk: d.ph === "fb" ? Math.abs(Math.sin(t * 12)) * (d.res === "good" ? 1 : 0) : 0 });
-    txt(c, "VOCÊ", 78, 346, 13, "#fff", "center"); txt(c, S.C.short.toUpperCase(), 78, 364, 12, "#ffdf00", "center");
-    // pódio do adversário
-    c.fillStyle = S.camp === "lula" ? "#0f6b36" : "#7a1c28"; rr(c, 738, 258, 190, 184, 8); c.fill();
-    c.fillStyle = "rgba(255,255,255,.18)"; c.fillRect(738, 258, 190, 6);
-    if (bossBase) {
-      c.fillStyle = "#1a2150"; rr(c, 738, 258, 190, 184, 8); c.fill();
-      drawChar(c, "npc", 833, 268, 2.1, { t: t, shirt: "#222a55", pants: "#222", skin: "#d9a67c", hair: "#666", moving: false });
-      txt(c, "MEDIADOR", 833, 410, 15, "#ffdf00", "center"); txt(c, "'tempo, tempo!'", 833, 428, 11, "#cfd6f0", "center");
+  function drawZones(c) {
+    for (var i = 0; i < o.zones.length; i++) {
+      var z = o.zones[i];
+      if (z.k === "ask") { c.save(); c.strokeStyle = "rgba(255,171,64," + (.35 + .3 * Math.sin(o.anim * 20)) + ")"; c.lineWidth = 3; c.setLineDash([6, 8]); c.beginPath(); c.moveTo(z.x, 150); c.lineTo(z.x, P1_AY1 + 24); c.stroke(); c.restore(); txt(c, "❓", z.x, 150, 20, "#fff", "center"); continue; }
+      var live = z.warn <= 0;
+      c.save(); c.globalAlpha = live ? .38 : .15 + .12 * Math.abs(Math.sin(o.anim * 14)); c.fillStyle = "#e53935"; rr(c, z.x, z.y, z.w, z.h, 14); c.fill(); c.restore();
+      c.strokeStyle = live ? "#ff5252" : "rgba(255,120,120,.8)"; c.lineWidth = live ? 3 : 2; c.setLineDash(live ? [] : [8, 6]); rr(c, z.x, z.y, z.w, z.h, 14); c.stroke(); c.setLineDash([]);
+      txt(c, "🎙✖", z.x + z.w / 2, z.y + z.h / 2 - 8, 30, "#fff", "center");
+      txt(c, live ? "MICROFONE CORTADO" : "ATENÇÃO...", z.x + z.w / 2, z.y + z.h / 2 + 26, 11, "#fff", "center", "rgba(0,0,0,.6)");
+    }
+  }
+  function drawFoe(c, p) {
+    c.save(); c.globalAlpha = p.a; c.translate(p.x, p.y);
+    if (p.k === "hard") {
+      c.fillStyle = "#ff9800"; rr(c, -p.hw, -p.hh, p.hw * 2, p.hh * 2, 8); c.fill(); c.strokeStyle = "#fff"; c.lineWidth = 2; c.stroke();
+      c.fillStyle = "#e65100"; c.beginPath(); c.arc(-p.hw + 3, -p.hh + 3, 11, 0, TAU); c.fill(); txt(c, "❓", -p.hw + 3, -p.hh + 4, 12, "#fff", "center");
+      txt(c, p.t, 6, 0, 10, "#1a1a1a", "center");
+      if (p.hp > 1) { c.fillStyle = "#fff"; c.fillRect(-p.hw + 4, p.hh - 5, 2 * p.hw - 8, 3); c.fillStyle = "#e65100"; c.fillRect(-p.hw + 4, p.hh - 5, (2 * p.hw - 8) * p.hp / 2, 3); }
     } else {
-      var tk = d.talk > 0 && d.ph === "ask" ? Math.abs(Math.sin(t * 13)) : 0;
-      portraitCard(c, foeKind, 748, 76, 172, 182, { r: 12, lw: 3, cy: .46, talk: tk });
-      txt(c, CARI[foeKind].nome.toUpperCase(), 833, 290, 14, "#fff", "center"); txt(c, "ADVERSÁRIO", 833, 310, 11, "#cfd6f0", "center");
+      var chain = p.k === "chain";
+      c.fillStyle = chain ? "#8e24aa" : "#d32f2f"; rr(c, -p.hw, -p.hh, p.hw * 2, p.hh * 2, 7); c.fill(); c.strokeStyle = "#fff"; c.lineWidth = 1.6; c.stroke();
+      c.fillStyle = chain ? "#8e24aa" : "#d32f2f"; c.beginPath(); c.moveTo(p.hw - 8, -p.hh + 2); c.lineTo(p.hw + 7, 0); c.lineTo(p.hw - 8, p.hh - 2); c.fill();
+      txt(c, p.t, 0, 1, 10, "#fff", "center");
+      txt(c, chain ? "↪" : "FAKE", -p.hw + 9, -p.hh - 4, 8, "#ffeb3b", "left");
     }
-  }
-  function attack(c) {
-    var it = d.it, x = 360, y = 76, w = 360, h = 124, i, lines;
-    c.save();
-    c.fillStyle = it.boss ? "#fff3c4" : "#fff"; c.strokeStyle = "#111"; c.lineWidth = 3; rr(c, x, y, w, h, 12); c.fill(); c.stroke();
-    c.beginPath(); c.moveTo(x + w - 2, y + 52); c.lineTo(x + w + 26, y + 70); c.lineTo(x + w - 2, y + 84); c.closePath(); c.fill(); c.stroke();
-    c.fillStyle = it.boss ? "#fff3c4" : "#fff"; c.fillRect(x + w - 6, y + 55, 8, 26);
-    c.font = "bold 17px 'Trebuchet MS', Arial, sans-serif"; lines = wrap(c, it.q, w - 28);
-    var lh = 22, y0 = y + h / 2 - (lines.length - 1) * lh / 2 + 4;
-    c.fillStyle = "#111"; c.textAlign = "center"; c.textBaseline = "middle";
-    for (i = 0; i < lines.length; i++) c.fillText(lines[i], x + w / 2, y0 + i * lh);
     c.restore();
-    // barra de tempo
-    var fr = d.ph === "ask" ? d.tm / d.T : (d.ph === "fb" ? d.tm / d.T : 0);
-    uiBar(c, x, y + h + 10, w, 12, fr, fr < .3 ? "#ff5252" : fr < .6 ? "#ffca28" : "#66bb6a");
-    txt(c, d.i + 1 <= items.length ? "RODADA " + Math.min(d.i + 1, items.length) + "/" + items.length : "", x, y + h + 34, 11, "#9aa0b4", "left");
-    if (it.boss) txt(c, "RELÂMPAGO", x + w, y + h + 34, 11, "#ffcc80", "right");
   }
-  function buttons(c) {
-    var it = d.it, i, r, opt, o;
-    if (it.name) txt(c, "Os nomes trocam de lugar! Toque rápido ou use 1 / 2.", 435, 262, 14, "#ffe082", "center", "rgba(0,0,0,.6)");
-    for (i = 0; i < d.rects.length; i++) {
-      r = d.rects[i]; opt = it.opts[d.order[i]];
-      o = { key: String(i + 1), size: it.name ? 30 : 15 };
-      if (it.name) { o.size = 30; }
-      if (d.ph === "fb") {
-        if (i === d.sel) { o.bg = d.res === "good" ? "#2e7d32" : d.res === "ok" ? "#8d6e00" : "#b71c1c"; o.bd = "#fff"; }
-        else if (opt.k === "good") { o.bd = "#69f0ae"; }
-        else o.dis = true;
-      } else if (d.ph === "cameo") o.dis = true;
-      uiButton(c, r, opt.t, o);
+  function drawPicks(c) {
+    for (var i = 0; i < o.picks.length; i++) {
+      var p = o.picks[i], bob = Math.sin(o.anim * 4 + p.ph) * 3, bad = p.k === "trap", ic = { agua: "💧", plateia: "👏", resposta: "📝", relogio: "⏱", trap: "🙈" }[p.k], lb = { agua: "ÁGUA", plateia: "PLATEIA", resposta: "RESPOSTA", relogio: "TEMPO", trap: "BAIXARIA" }[p.k];
+      c.save(); c.globalAlpha = p.t < 2 ? .45 + .4 * Math.sin(o.anim * 14) : 1; c.translate(p.x, p.y + bob);
+      c.fillStyle = bad ? "#b71c1c" : "#1565c0"; c.shadowColor = bad ? "#ff5252" : "#69f0ae"; c.shadowBlur = 14; c.beginPath(); c.arc(0, 0, 21, 0, TAU); c.fill(); c.shadowBlur = 0;
+      c.strokeStyle = "#fff"; c.lineWidth = 2.5; c.stroke(); txt(c, ic, 0, 1, 22, "#fff", "center"); txt(c, lb, 0, 32, 9, bad ? "#ff8a80" : "#fff", "center", "rgba(0,0,0,.8)");
+      c.restore();
     }
   }
-  function lowerThird(c) {
-    var y = 478, t = S.anim;
-    c.fillStyle = "#c62828"; rr(c, 14, y, 86, 38, 6); c.fill();
-    c.fillStyle = "#fff"; c.beginPath(); c.arc(30, y + 19, 5 + Math.sin(t * 6) * 1.2, 0, TAU); c.fill();
-    txt(c, "AO VIVO", 40, y + 20, 13, "#fff", "left");
-    c.fillStyle = "rgba(10,20,80,.94)"; rr(c, 104, y, flav ? 700 : 430, 38, 6); c.fill();
-    c.fillStyle = "#ffdf00"; c.fillRect(104, y + 34, flav ? 700 : 430, 4);
-    var cap = d.ph === "fb" || d.ph === "cameo" ? d.quip : "DEBATE · 23/10/2026 · " + (S.C.short + " x " + CARI[foeKind].nome.split(" ")[0]);
-    if (d.ph === "cameo") cap = "Esse debate está inflamado! — Campopiano, plateia";
-    txt(c, cap, 116, y + 18, 15, d.ph === "fb" ? (d.res === "good" ? "#69f0ae" : d.res === "ok" ? "#ffe082" : "#ff8a80") : "#fff", "left");
-    if (!flav) {
-      var m = d.meter / 100;
-      uiPanel(c, 544, y - 2, 272, 42, "rgba(40,10,16,.92)", m > .7 ? "#ff5252" : "rgba(255,255,255,.2)");
-      txt(c, "CONFUSÃO DE NOMES: Janja ou Marisa?", 554, y + 8, 10, "#ffab91", "left");
-      uiBar(c, 554, y + 19, 252, 12, m, m > .7 ? "#ff5252" : m > .4 ? "#ffa726" : "#66bb6a");
+  function drawShots(c) {
+    for (var i = 0; i < o.shots.length; i++) {
+      var p = o.shots[i];
+      if (p.t) { var sw = p.t.length * 5.2 + 16; c.fillStyle = "#ffeb3b"; rr(c, p.x - 6, p.y - 9, sw, 18, 8); c.fill(); c.strokeStyle = "#111"; c.lineWidth = 1.5; c.stroke(); txt(c, p.t, p.x - 6 + sw / 2, p.y + 1, 9, "#1a1a1a", "center"); }
+      else { c.fillStyle = "#fff176"; c.beginPath(); c.arc(p.x, p.y, 5, 0, TAU); c.fill(); }
     }
   }
-  function cameo(c) {
-    var a = clamp(d.cameoT * 4, 0, 1) * clamp((2.1 - d.cameoT + .05) * 5, 0, 1);
-    c.save(); c.globalAlpha = a; c.fillStyle = "rgba(0,0,0,.55)"; c.fillRect(0, 70, W, 400);
-    portraitCard(c, "campopiano", 330, 150, 150, 170, { r: 14, lw: 4, talk: Math.abs(Math.sin(S.anim * 14)) });
-    balloon(c, "Esse debate está inflamado!", 450, 190, { size: 20, maxW: 260, bg: "#fff" });
-    txt(c, "CAMEO DA PLATEIA · Campopiano", 405, 340, 14, "#ffe082", "center");
+  function drawFoeChar(c) {
+    var f = o.fx, B = o.boss, big = B && !B.dead ? 1.28 : 1, wob = f.flinch > 0 ? Math.sin(o.anim * 70) * 4 : 0, y = f.y;
+    // pódio
+    c.fillStyle = flav ? "#7a1c28" : "#0f6b36"; rr(c, FOEX - 56 * big + wob, y + 30 * big, 112 * big, Math.max(20, 442 - (y + 30 * big)), 8); c.fill(); c.fillStyle = "rgba(255,255,255,.18)"; c.fillRect(FOEX - 56 * big + wob, y + 30 * big, 112 * big, 5);
+    var w = 112 * big, h = 118 * big, tk = f.atk < .35 || f.flinch > 0 ? Math.abs(Math.sin(o.anim * 13)) : 0;
+    portraitCard(c, foeKind, FOEX - w / 2 + wob, y - h / 2 - 6, w, h, { r: 12, lw: 3, cy: .46, talk: tk });
+    if (B && !B.dead) { c.save(); c.globalAlpha = .25 + .15 * Math.sin(o.anim * 9); c.strokeStyle = "#ff5252"; c.lineWidth = 6; rr(c, FOEX - w / 2 - 6 + wob, y - h / 2 - 12, w + 12, h + 12, 16); c.stroke(); c.restore(); }
+    txt(c, CARI[foeKind].nome.split(" ")[0].toUpperCase(), FOEX + wob, y + h / 2 + 4, 11, "#fff", "center", "rgba(0,0,0,.7)");
+  }
+  function drawMed(c) {
+    var m = o.med, x = m.x, y = 108, t = o.anim;
+    c.fillStyle = "#1a2150"; rr(c, x - 40, y + 22, 80, 24, 6); c.fill();
+    drawChar(c, "npc", x, y + 40, 1.15, { t: t, shirt: "#222a55", pants: "#222", skin: "#d9a67c", hair: "#666", moving: false });
+    txt(c, "MEDIADOR", x, y + 56, 10, "#ffdf00", "center", "rgba(0,0,0,.7)");
+    if (m.tk > 0 || m.cutT > 0) txt(c, m.cutT > 0 ? "✂ 🎙" : "❓", x + 34, y - 14, 22, "#fff", "center", "rgba(0,0,0,.6)");
+  }
+  function drawPlayer(c) {
+    var blink = o.inv > 0 && Math.floor(o.anim * 18) % 2 === 0;
+    c.save(); c.translate(o.px, o.py); if (blink) c.globalAlpha = .45;
+    c.fillStyle = "rgba(0,0,0,.3)"; c.beginPath(); c.ellipse(0, 24, 22, 7, 0, 0, TAU); c.fill();
+    c.fillStyle = flav ? "#0f6b36" : "#7a1c28"; rr(c, -17, 6, 34, 20, 5); c.fill(); c.fillStyle = "rgba(255,255,255,.2)"; c.fillRect(-17, 6, 34, 3);
+    c.save(); c.translate(0, -8); c.scale(.46, .46); var tk = (o.cd > .12 ? 1 : 0) && Math.abs(Math.sin(o.anim * 20)); bust(c, meKind, {}); head(c, meKind, { talk: o.mute > 0 ? 0 : tk }); c.restore();
+    if (o.mute > 0) txt(c, "🎙✖", 0, -50, 16, "#fff", "center", "rgba(0,0,0,.7)");
     c.restore();
+    if (o.shield > 0) { c.save(); c.globalAlpha = .35 + .15 * Math.sin(o.anim * 10); c.strokeStyle = "#80d8ff"; c.lineWidth = 3; c.fillStyle = "rgba(128,216,255,.25)"; c.beginPath(); c.arc(o.px, o.py, 32, 0, TAU); c.fill(); c.stroke(); c.restore(); }
+    if (S.t < 7) txt(c, "▼ você", o.px, o.py - 44, 11, "#fff", "center", "rgba(0,0,0,.7)");
+  }
+  function drawHud2(c) {
+    var i;
+    // credibilidade
+    uiPanel(c, W - 250, 8, 240, 54);
+    txt(c, "CREDIBILIDADE", W - 238, 21, 10, "#9aa0b4"); txt(c, Math.ceil(o.cred) + "%", W - 22, 21, 11, o.cred < 30 ? "#ff6b6b" : "#fff", "right");
+    uiBar(c, W - 238, 30, 216, 12, o.cred / 100, o.cred < 30 ? "#ff5252" : o.cred < 60 ? "#ffa726" : "#66bb6a");
+    var st = []; if (o.shield > 0) st.push("👏"); if (o.rapid > 0) st.push("📝"); if (o.slow > 0) st.push("⏱");
+    if (st.length) txt(c, st.join(" "), W - 238, 52, 12, "#fff", "left");
+    // lacração
+    var ready = o.lac >= 100, bx = W / 2 - 170;
+    uiPanel(c, bx - 8, 492, 356, 40, "rgba(4,8,24,.72)", ready ? "#ffdf00" : "rgba(255,255,255,.2)");
+    txt(c, ready ? "LACRAÇÃO PRONTA! K / ⭐" : "LACRAÇÃO", bx + 4, 502, 10, ready ? (Math.floor(o.anim * 6) % 2 ? "#ffdf00" : "#fff") : "#9aa0b4");
+    uiBar(c, bx + 4, 512, 332, 12, o.lac / 100, ready ? "#ffdf00" : "#ff8a65");
+    // rodada / chefe
+    if (o.boss && !o.boss.dead) {
+      uiPanel(c, W / 2 - 200, 70, 400, 26, "rgba(40,10,16,.85)", "#ff5252");
+      txt(c, "ADVERSÁRIO GIGANTE", W / 2 - 190, 83, 10, "#ffab91"); uiBar(c, W / 2 - 60, 77, 250, 12, o.boss.hp / o.boss.max, "#e53935");
+    } else if (o.round) txt(c, "RODADA " + Math.min(3, o.round) + "/3 · " + (S.t < BOSS_T ? Math.ceil(BOSS_T - S.t) + "s p/ relâmpago" : ""), W / 2, 84, 11, "#9aa0b4", "center");
+    if (o.banner > 0) {
+      var a = clamp(Math.min(o.banner * 2, (3 - o.banner + .01) * 4, 1), 0, 1), lg = o.bannerS.length > 12;
+      c.save(); c.globalAlpha = a; c.fillStyle = "rgba(0,0,0,.55)"; c.fillRect(0, 200, W, 74); txt(c, o.bannerS, W / 2, 236, lg ? 44 : 52, "#ffdf00", "center", "#000");
+      if (o.boss && o.banner > 1) txt(c, "mire no adversário gigante e use a LACRAÇÃO!", W / 2, 266, 14, "#fff", "center", "#000"); c.restore();
+    }
+  }
+  function draw(c) {
+    bg(c); drawZones(c); drawMed(c); drawFoeChar(c); drawPicks(c);
+    for (var i = 0; i < o.foes.length; i++) drawFoe(c, o.foes[i]);
+    drawShots(c); drawPlayer(c); drawHud2(c);
+    if (o.lac >= 100) { c.fillStyle = "rgba(255,223,0," + (.03 + .03 * Math.sin(o.anim * 10)) + ")"; c.fillRect(0, 0, W, H); }
+  }
+
+  /* ---------------- bot ---------------- */
+  function bot(dt) {
+    if (o.ended) return;
+    o.bwait -= dt; o.bnoise -= dt;
+    var tx = o.px, ty = o.py, mx = 0, my = 0, i, p, best = 1e9;
+    // alvo vertical: alinhar com o adversário (ou com uma fake próxima para derrubá-la)
+    var goalY = o.fx.y, goalX = 230;
+    for (i = 0; i < o.foes.length; i++) { p = o.foes[i]; if (p.x > o.px + 30 && Math.abs(p.y - o.py) < 90 && p.x - o.px < best) { best = p.x - o.px; goalY = p.y; } }
+    if (best > 900) goalY = o.fx.y;
+    // pickups úteis
+    for (i = 0; i < o.picks.length; i++) { p = o.picks[i]; if (p.k === "trap") continue; if (p.k === "agua" && o.cred > 70) continue; if (Math.hypot(p.x - o.px, p.y - o.py) < (p.k === "agua" && o.cred < 60 ? 330 : 190)) { goalX = p.x; goalY = p.y; break; } }
+    mx = clamp((goalX - o.px) / 60, -1, 1) * .7; my = clamp((goalY - o.py) / 28, -1, 1);
+    // desvio: acumula repulsão de projéteis que vão chegar perto
+    var rx = 0, ry = 0;
+    for (i = 0; i < o.foes.length; i++) {
+      p = o.foes[i];
+      var vx = p.vx * (o.slow > 0 ? .55 : 1), vy = p.vy * (o.slow > 0 ? .55 : 1), rel_x = o.px - p.x, rel_y = o.py - p.y, sp2 = vx * vx + vy * vy;
+      var tt = sp2 > 1 ? clamp((rel_x * vx + rel_y * vy) / sp2, 0, .9) : 0, qx = p.x + vx * tt, qy = p.y + vy * tt;
+      var cx = clamp(o.px, qx - p.hw, qx + p.hw), cy = clamp(o.py, qy - p.hh, qy + p.hh), dd = Math.hypot(o.px - cx, o.py - cy);
+      if (dd < 46) { var l = Math.hypot(o.px - qx, o.py - qy) || 1, k = (46 - dd) / 46 * (1.2 - tt * .5); rx += (o.px - qx) / l * k * 2.2; ry += (o.py - qy) / l * k * 2.2; if (Math.abs(vx) < 20) rx += (o.px >= qx ? 1 : -1) * k; }
+    }
+    if (o.bnoise > 0) { rx *= .25; ry *= .25; }   // distração ocasional
+    else if (RNG() < dt * .12) o.bnoise = rnd(.2, .4);
+    // zonas de microfone
+    for (i = 0; i < o.zones.length; i++) {
+      var z = o.zones[i]; if (z.k !== "mic") continue;
+      var zcx = z.x + z.w / 2, zcy = z.y + z.h / 2, dx = o.px - zcx, dy = o.py - zcy;
+      if (Math.abs(dx) < z.w / 2 + 34 && Math.abs(dy) < z.h / 2 + 34) { var ll = Math.hypot(dx, dy) || 1; rx += dx / ll * 1.8; ry += dy / ll * 1.8; }
+    }
+    // linha da pergunta difícil que vai cair
+    for (i = 0; i < o.zones.length; i++) { var q = o.zones[i]; if (q.k === "ask" && Math.abs(o.px - q.x) < 70) rx += (o.px >= q.x ? 1 : -1) * 1.2; }
+    mx += rx; my += ry;
+    if (o.px < P1_AX0 + 20) mx += .6; if (o.py < P1_AY0 + 14) my += .6; if (o.py > P1_AY1 - 14) my -= .6;
+    var ml = Math.hypot(mx, my); if (ml > 1) { mx /= ml; my /= ml; }
+    o.bmove = { x: mx, y: my };
+    o.bfire = o.mute <= 0 && (o.boss ? Math.abs(o.py - o.fx.y) < 70 || best < 520 : true) && RNG() > .04;
+    // lacração: quando pronta e há perigo (ou durante o chefe)
+    if (o.lac >= 100 && (o.foes.length >= 4 || (o.boss && !o.boss.dead && o.boss.intro <= 0))) special();
   }
 
   return {
-    intro: { sub: "23/10/2026 · réplica no tempo certo", foeLabel: "ADVERSÁRIO · " + CARI[foeKind].nome.toUpperCase(),
-      lines: ["Responda cada ataque antes do tempo acabar.", "Teclas 1-2-3 ou toque. Rápido vale mais!",
-        flav ? "Cuidado com a tentação do 'nove dedos'." : "Cuidado: Janja ou Marisa? Nome certo!", "3 vidas · 5 acertos seguidos devolvem uma.", "Rodada final: o mediador relâmpago."] },
-    begin: function () { load(); },
-    info: function () { return { round: d.i + 1, total: items.length, good: d.good, ok: d.ok, bad: d.bad, meter: Math.round(d.meter), phase: d.ph, trap: d.trapHit, gaffes: d.gaffes }; },
-    update: function (dt) {
-      if (!d.it) return;
-      if (d.talk > 0) d.talk -= dt;
-      if (d.ph === "ask") {
-        d.tm -= dt;
-        if (d.it.name) { d.swapT -= dt; if (d.swapT <= 0) { d.swapT = rnd(.55, 1.0); d.order.reverse(); sfx("tick"); } }
-        if (d.tm <= 0) { d.tm = 0; resolve(-1, true); }
-      } else if (d.ph === "fb") {
-        d.fbT -= dt; if (d.fbT <= 0) next();
-      } else if (d.ph === "cameo") {
-        d.cameoT -= dt; if (d.cameoT <= 0) load();
-      }
-    },
-    draw: function (c) {
-      bg(c);
-      if (!d.it) { return; }
-      podiums(c); attack(c); buttons(c); lowerThird(c);
-      if (d.ph === "cameo") cameo(c);
-    },
-    key: function (code) {
-      var m = /^(?:Digit|Numpad)([1-3])$/.exec(code);
-      if (m) choose(+m[1] - 1);
-    },
-    tap: function (x, y) {
-      for (var i = 0; i < d.rects.length; i++) if (inRect(x, y, d.rects[i])) { choose(i); return; }
-    },
-    bot: function (dt) {
-      if (d.ph !== "ask") return;
-      d.botT += dt;
-      if (d.botWait == null) d.botWait = d.it.name || d.it.boss ? rnd(.9, 1.6) : rnd(1.5, 3);
-      if (d.botT < d.botWait) return;
-      var want = "good", r = RNG();
-      if (S.lives >= 2 && r < .07) want = "bad"; else if (r < .16) want = "ok";
-      var pos = -1, gp = 0;
-      for (var i = 0; i < d.rects.length; i++) { var k = d.it.opts[d.order[i]].k; if (k === "good") gp = i; if (pos < 0 && (k === want || (want === "bad" && k === "trap"))) pos = i; }
-      if (pos < 0) pos = gp;
-      d.botWait = null; d.botT = 0; choose(pos);
+    intro: { sub: "23/10/2026 · esquive, rebata e lacre", foeLabel: "ADVERSÁRIO · " + CARI[foeKind].nome.toUpperCase(),
+      lines: ["Desvie de 📰 fake news e ❓ perguntas difíceis (mediador) · rebata com memes.", "Mover: setas/WASD (ou joystick) · atirar: Espaço/J (ou botão 🎤) · LACRAÇÃO: K/⭐",
+        "Cuidado com a zona 🎙✖ de microfone cortado e com a 🙈 baixaria.", "Rodada relâmpago: o adversário fica GIGANTE. Derrube-o antes do tempo acabar."] },
+    arcade: { a: "🎤", b: "⭐" },
+    info: function () { return { round: o.round, boss: o.boss ? Math.round(o.boss.hp) : null, bossDead: !!(o.boss && o.boss.dead), cred: Math.round(o.cred), lac: Math.round(o.lac), kills: o.kills, fired: o.fired, landed: o.landed, taken: o.taken, grazes: o.grazes, cuts: o.cuts, specials: o.specials, trap: o.trap, foes: o.foes.length, px: Math.round(o.px), py: Math.round(o.py) }; },
+    update: update, draw: draw, bot: bot,
+    act: function (k) { if (k === "b") special(); else if (k === "a" && !S.bot) fire(); },
+    timeUp: function () {
+      if (o.ended || S.over) return; o.ended = true;
+      S.end(false, clamp(.2 + (o.boss ? .25 * (1 - o.boss.hp / o.boss.max) : 0), 0, .45), "Acabou o tempo de fala" + (o.boss ? " com o adversário ainda de pé" : "") + ". Mire no adversário na rodada relâmpago!", { failTitle: "Tempo Esgotado", voiceLose: flav ? "sistema" : "humilha" });
     }
   };
 };

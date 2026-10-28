@@ -191,6 +191,69 @@ async function runV3(label, ctxOpts, primary) {
   await browser.close();
 }
 
+/* ================= v4: fases 1, 2, 3 e 6 viraram arcade (entrada real: setas/WASD/joystick + Espaço/K ou botões de toque) ================= */
+async function runV4(label, ctxOpts, primary) {
+  const browser = await chromium.launch({ args: ["--autoplay-policy=no-user-gesture-required"] });
+  const ctx = await browser.newContext(ctxOpts); await mockAPI(ctx);
+  const page = await ctx.newPage(), tag = `${label} v4`, touch = !!ctxOpts.hasTouch;
+  page.on("console", m => { if (m.type() === "error") errors.push(`[${tag}] console: ${m.text()}`); });
+  page.on("pageerror", e => errors.push(`[${tag}] pageerror: ${e.message}`));
+  const T = (fn, ...a) => page.evaluate(([f, a]) => window.__test[f](...a), [fn, a]);
+  const busy = () => page.evaluate(() => { const c = document.getElementById("c"), x = c.getContext("2d"), d = x.getImageData(0, 0, c.width, c.height).data, set = new Set(); for (let i = 0; i < d.length; i += 4 * 97) set.add((d[i] >> 4) * 256 + (d[i + 1] >> 4) * 16 + (d[i + 2] >> 4)); return set.size; });
+  const vis = sel => page.evaluate(s => { const e = document.querySelector(s); if (!e) return false; const r = e.getBoundingClientRect(); return getComputedStyle(e).display !== "none" && r.width > 0 && r.height > 0; }, sel);
+  await page.goto(PAGE); await page.waitForTimeout(500); await T("reset"); await T("selectSide", "lula");
+  const acts = { 1: "fired", 2: null, 3: null, 6: null };
+  for (const camp of ["lula", "flavio"]) for (const n of [1, 2, 3, 6]) {
+    const t = `${tag}/${camp} fase ${n}`;
+    await T("selectSide", camp); await T("startPhase", n, { camp }); await T("skipIntro");
+    let s = await T("scene"); ok(`${t} arcade inicia`, s && s.n === n && s.st === "play");
+    ok(`${t} controles de toque ${touch ? "visíveis (joystick + botão A)" : "ocultos no desktop"}`, touch ? (await vis("#joy-zone")) && (await vis("#ab-a")) && /\barc\b/.test(await page.evaluate(() => document.getElementById("touch").className)) : !(await vis("#ab-a")));
+    // entrada real: joystick (toque) ou setas (desktop), segurando o botão de ação + especial
+    const t0 = s.t;
+    if (touch) {
+      await page.evaluate(() => { const z = document.getElementById("joy-zone"), r = z.getBoundingClientRect(), ev = (ty, dx) => z.dispatchEvent(new PointerEvent(ty, { pointerId: 7, bubbles: true, clientX: r.left + 90 + dx, clientY: r.top + r.height * .6, isPrimary: true })); ev("pointerdown", 0); ev("pointermove", 70); window.__jz = ev; });
+      await page.evaluate(() => document.getElementById("ab-a").dispatchEvent(new PointerEvent("pointerdown", { pointerId: 9, bubbles: true })));
+    } else { await T("hold", "ArrowRight", true); await T("hold", "Space", true); }
+    const p0 = await T("scene");
+    for (let i = 0; i < 6; i++) {
+      if (!touch) { await T("hold", "ArrowRight", i % 2 === 0); await T("hold", "ArrowLeft", i % 2 === 1); await T("hold", "ArrowDown", i % 3 === 0); await T("hold", "ArrowUp", i % 3 === 1); }
+      else await page.evaluate(i => window.__jz("pointermove", i % 2 ? -60 : 60), i);
+      await T("step", 2.5, true);
+      if (i === 2) await T("key", "KeyK");
+    }
+    s = await T("scene");
+    ok(`${t} responde à entrada real e o tempo corre`, s.t - t0 > 10 && !s.over || s.over, `t=${s.t} score=${s.score} info=${JSON.stringify(s.info).slice(0, 90)}`);
+    if (n === 1) ok(`${t} atira memes (A) e a cena anda`, s.info.fired > 0 && (s.info.px !== p0.info.px || s.info.py !== p0.info.py), `fired=${s.info.fired} px=${s.info.px} py=${s.info.py}`);
+    if (!s.over) { await T("step", .1); ok(`${t} gameplay não está em branco`, (await busy()) > 25, "cores=" + await busy()); }
+    if (primary && camp === "lula" && !s.over) { await page.screenshot({ path: OUT + `v4-phase${n}.png` }); shots.push(`v4-phase${n}.png`); }
+    if (touch) { await page.evaluate(() => { document.getElementById("ab-a").dispatchEvent(new PointerEvent("pointerup", { pointerId: 9, bubbles: true })); document.getElementById("joy-zone").dispatchEvent(new PointerEvent("pointerup", { pointerId: 7, bubbles: true })); }); }
+    else for (const k of ["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp", "Space"]) await T("hold", k, false);
+    // sem entrada a fase termina (não trava) ou segue viva; depois o bot ainda deve conseguir vencer
+    await T("startPhase", n, { camp }); await T("skipIntro"); await T("bot", true);
+    for (let i = 0; i < 40 && !(await T("scene")).over; i++) await T("step", 5, true);
+    s = await T("scene"); ok(`${t} bot vence (após teste manual)`, s.over && s.won === true, `t=${s.t}`);
+    await page.waitForTimeout(1300);
+  }
+  // fase sem input: não pode travar nem estourar erro
+  for (const n of [1, 2, 3, 6]) {
+    await T("startPhase", n, { camp: "flavio" }); await T("skipIntro");
+    let s = await T("scene"); for (let i = 0; i < 45 && !s.over; i++) { await T("step", 4, true); s = await T("scene"); }
+    ok(`${tag} fase ${n} sem input termina de forma coerente`, s.over === true, `won=${s.won} t=${s.t}`);
+  }
+  // primeiro clear convida a compartilhar; rank aparece uma vez só
+  await T("reset"); await T("selectSide", "lula"); await T("setProfile", { nick: "Tester" });
+  await T("startPhase", 1, { camp: "lula" }); await T("skipIntro"); await T("completePhase", true); await page.waitForTimeout(1500);
+  const E = await T("engage");
+  ok(`${tag} primeira conclusão é pico de compartilhamento`, E.first === true && E.peak === true && (await vis("#r-share2")) && /primeira vez/.test(await page.evaluate(() => document.getElementById("r-peak").textContent)));
+  const rs = await page.evaluate(() => ({ score: document.getElementById("r-score").textContent, eng: document.getElementById("r-eng").textContent }));
+  ok(`${tag} rank/cargo aparece uma vez só no resultado`, !/Eleitor Indeciso|Cidadão Cansado|Assessor Parlamentar|Deputado de Primeiro Mandato|Articulador do Centrão|Presidente do Brasil/.test(rs.score) && (rs.eng.match(/Cargo:/g) || []).length === 1, rs.score.slice(0, 90));
+  await browser.close();
+}
+if (!process.env.ONLY || process.env.ONLY === "v4") {
+  await runV4("desktop", { viewport: { width: 1280, height: 720 } }, true);
+  await runV4("mobile", { viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 }, false);
+}
+
 if (!process.env.ONLY) await run("desktop", { viewport: { width: 960, height: 600 } });
 if (!process.env.ONLY) await run("mobile", { viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
 if (!process.env.ONLY) await runV3("desktop", { viewport: { width: 1280, height: 720 } }, true);
@@ -398,6 +461,8 @@ await runOffline("mobile", MOBILE, false);
 {
   const man = JSON.parse(fs.readFileSync(new URL("../audio/manifest.json", import.meta.url))), files = fs.readdirSync(new URL("../audio/", import.meta.url)).filter(f => f.endsWith(".mp3"));
   ok("audio: nenhum arquivo/entrada com 'miliciano'", !files.some(f => /miliciano/i.test(f)) && !/miliciano/i.test(JSON.stringify(man)));
+  const SIDE = { dilma: "esquerda", haddad: "esquerda", boulos: "esquerda", janja: "esquerda", lula: "esquerda", erika: "esquerda", moraes: "esquerda", jair: "direita", renan: "direita", tarcisio: "direita", flavio: "direita", nikolas: "direita", pavanato: "direita", campopiano: "direita" };
+  ok("audio: Jair, Dilma, Haddad, Boulos, Renan, Janja e Tarcísio reconhecidos, com o lado certo", ["jair", "dilma", "haddad", "boulos", "renan", "janja", "tarcisio"].every(k => man.some(c => c.charKey === k)) && man.every(c => SIDE[c.charKey] && c.tags.side === SIDE[c.charKey]), man.filter(c => !SIDE[c.charKey] || c.tags.side !== SIDE[c.charKey]).map(c => c.id).join(","));
   ok("audio: manifest ↔ mp3 consistentes, com tags side/phase/events", man.every(c => fs.existsSync(new URL("../" + c.file, import.meta.url)) && c.tags && c.tags.side && Array.isArray(c.tags.phase) && c.tags.events.length) && man.length === files.length, `${man.length} entradas / ${files.length} mp3`);
 }
 
