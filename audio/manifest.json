@@ -1,5 +1,96 @@
 [
   {
+    "file": "audio/boulos_cachorro_quente_300_reais.mp3",
+    "id": "boulos_cachorro_quente_300_reais",
+    "character": "Guilherme Boulos",
+    "charKey": "outro",
+    "transcript": "gerido por você, o cachorro quente custa uns 300 reais,",
+    "duration": 3.73,
+    "source_url": "https://www.youtube.com/watch?v=cpAk3T4bl7g&t=38s",
+    "suggested_use": "Fase 6 Governar é pior / taunt",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/boulos_e_triste.mp3",
+    "id": "boulos_e_triste",
+    "character": "Guilherme Boulos",
+    "charKey": "outro",
+    "transcript": "É triste, é triste a gente ver esse nível de desrespeito.",
+    "duration": 3.97,
+    "source_url": "https://www.youtube.com/watch?v=RvLVRpMuwzk&t=66s",
+    "suggested_use": "Hit / Fase 1 Debate",
+    "tags": {
+      "side": "any",
+      "phase": [
+        1
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/boulos_ficcao_pura.mp3",
+    "id": "boulos_ficcao_pura",
+    "character": "Guilherme Boulos",
+    "charKey": "outro",
+    "transcript": "de tão ficcional que é ficção pura, não vai convencer.",
+    "duration": 5.11,
+    "source_url": "https://www.youtube.com/watch?v=cpAk3T4bl7g&t=21s",
+    "suggested_use": "Fase 2 Grupo da família (fake news) / hit",
+    "tags": {
+      "side": "any",
+      "phase": [
+        2
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/boulos_fingir_que_ta_tudo_bem.mp3",
+    "id": "boulos_fingir_que_ta_tudo_bem",
+    "character": "Guilherme Boulos",
+    "charKey": "outro",
+    "transcript": "não dá pra gente fingir que tá tudo bem.",
+    "duration": 3.65,
+    "source_url": "https://www.youtube.com/watch?v=-1Q7fbojuMc&t=15s",
+    "suggested_use": "Fase 6 Governar é pior",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/boulos_serie_da_netflix.mp3",
+    "id": "boulos_serie_da_netflix",
+    "character": "Guilherme Boulos",
+    "charKey": "outro",
+    "transcript": "A propaganda dele na televisão poderia ser uma série da Netflix,",
+    "duration": 4.73,
+    "source_url": "https://www.youtube.com/watch?v=cpAk3T4bl7g&t=17s",
+    "suggested_use": "Fase 1 Debate: taunt",
+    "tags": {
+      "side": "any",
+      "phase": [
+        1
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
     "file": "audio/campopiano_debate_inflamado.mp3",
     "id": "campopiano_debate_inflamado",
     "character": "Eduarda Campopiano",
@@ -17,6 +108,117 @@
       "events": [
         "idle",
         "phase-start"
+      ]
+    }
+  },
+  {
+    "file": "audio/campopiano_sabe_o_que_voce_podia_fazer.mp3",
+    "id": "campopiano_sabe_o_que_voce_podia_fazer",
+    "character": "Eduarda Campopiano",
+    "charKey": "campopiano",
+    "transcript": "Sabe o que você também podia fazer?",
+    "duration": 1.73,
+    "source_url": "https://www.youtube.com/watch?v=OhOSe41Lrww&t=575s",
+    "suggested_use": "Fase 1 Debate: pergunta",
+    "tags": {
+      "side": "direita",
+      "phase": [
+        1
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/campopiano_voce_poderia_por_exemplo.mp3",
+    "id": "campopiano_voce_poderia_por_exemplo",
+    "character": "Eduarda Campopiano",
+    "charKey": "campopiano",
+    "transcript": "Você poderia, por exemplo...",
+    "duration": 2.71,
+    "source_url": "https://www.youtube.com/watch?v=OhOSe41Lrww&t=563s",
+    "suggested_use": "Combo / Fase 1 Debate",
+    "tags": {
+      "side": "direita",
+      "phase": [
+        1
+      ],
+      "events": [
+        "combo",
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/dilma_dobramos_a_meta.mp3",
+    "id": "dilma_dobramos_a_meta",
+    "character": "Dilma Rousseff",
+    "charKey": "outro",
+    "transcript": "Quando a gente atingir a meta, nós dobramos a meta.",
+    "duration": 4.73,
+    "source_url": "https://www.youtube.com/watch?v=KLSaymMstRI&t=12s",
+    "suggested_use": "Meme clássico: combo / power-up",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "combo",
+        "idle",
+        "powerup"
+      ]
+    }
+  },
+  {
+    "file": "audio/dilma_estocar_vento.mp3",
+    "id": "dilma_estocar_vento",
+    "character": "Dilma Rousseff",
+    "charKey": "outro",
+    "transcript": "O vento podia ser isso também, mas você não conseguiu ainda tecnologia para estocar vento.",
+    "duration": 5.73,
+    "source_url": "https://www.youtube.com/watch?v=GVTn3dn5bqU&t=24s",
+    "suggested_use": "Meme clássico: power-up / Fase 6 Governar é pior",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle",
+        "powerup"
+      ]
+    }
+  },
+  {
+    "file": "audio/dilma_meta_aberta.mp3",
+    "id": "dilma_meta_aberta",
+    "character": "Dilma Rousseff",
+    "charKey": "outro",
+    "transcript": "E nós não vamos colocar uma meta, nós vamos deixar uma meta aberta.",
+    "duration": 5.55,
+    "source_url": "https://www.youtube.com/watch?v=KLSaymMstRI&t=7s",
+    "suggested_use": "Meme clássico: Fase 6 Governar é pior",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/dilma_saudando_a_mandioca.mp3",
+    "id": "dilma_saudando_a_mandioca",
+    "character": "Dilma Rousseff",
+    "charKey": "outro",
+    "transcript": "Então aqui hoje eu estou saudando a mandioca.",
+    "duration": 5.05,
+    "source_url": "https://www.youtube.com/watch?v=VoC8hMKb174&t=24s",
+    "suggested_use": "Meme clássico: power-up (mandioca)",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle",
+        "powerup"
       ]
     }
   },
@@ -83,6 +285,25 @@
     }
   },
   {
+    "file": "audio/erika_noite_de_celebracao.mp3",
+    "id": "erika_noite_de_celebracao",
+    "character": "Erika Hilton",
+    "charKey": "erika",
+    "transcript": "gente celebrar porque essa noite também é uma noite de celebração",
+    "duration": 4.33,
+    "source_url": "https://www.youtube.com/watch?v=fnimQZcY8IY&t=65s",
+    "suggested_use": "Fase 4 Comemoração / victory",
+    "tags": {
+      "side": "esquerda",
+      "phase": [
+        4
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
     "file": "audio/erika_viva_classe_trabalhadora.mp3",
     "id": "erika_viva_classe_trabalhadora",
     "character": "Erika Hilton",
@@ -98,6 +319,26 @@
       "events": [
         "idle",
         "victory"
+      ]
+    }
+  },
+  {
+    "file": "audio/flavio_assunto_proibido.mp3",
+    "id": "flavio_assunto_proibido",
+    "character": "Flávio Bolsonaro",
+    "charKey": "flavio",
+    "transcript": "Esse assunto é proibido de falar. Se eu falar,",
+    "duration": 2.59,
+    "source_url": "https://www.youtube.com/watch?v=NQEHNQfZY4k&t=16s",
+    "suggested_use": "Fase 2 Grupo da família / pause",
+    "tags": {
+      "side": "direita",
+      "phase": [
+        2
+      ],
+      "events": [
+        "idle",
+        "pause"
       ]
     }
   },
@@ -223,6 +464,301 @@
     }
   },
   {
+    "file": "audio/flavio_quem_deve_explicacoes_e_o_lula.mp3",
+    "id": "flavio_quem_deve_explicacoes_e_o_lula",
+    "character": "Flávio Bolsonaro",
+    "charKey": "flavio",
+    "transcript": "Quem deve explicações é o Lula, é o governo dele, não sou eu.",
+    "duration": 3.21,
+    "source_url": "https://www.youtube.com/watch?v=NQEHNQfZY4k&t=456s",
+    "suggested_use": "Fase 1 Debate: taunt",
+    "tags": {
+      "side": "direita",
+      "phase": [
+        1
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/haddad_aposto_dinheiro.mp3",
+    "id": "haddad_aposto_dinheiro",
+    "character": "Fernando Haddad",
+    "charKey": "outro",
+    "transcript": "aposto dinheiro com quem quiser.",
+    "duration": 1.93,
+    "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=440s",
+    "suggested_use": "Fase 3 Apuração: aposta",
+    "tags": {
+      "side": "any",
+      "phase": [
+        3
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/haddad_banco_bet_bilionario.mp3",
+    "id": "haddad_banco_bet_bilionario",
+    "character": "Fernando Haddad",
+    "charKey": "outro",
+    "transcript": "Banco, bet, bilionário, eu vou taxar mesmo, porque os caras não pagam imposto.",
+    "duration": 3.83,
+    "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=372s",
+    "suggested_use": "Combo / power-up Taxad",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "combo",
+        "idle",
+        "powerup"
+      ]
+    }
+  },
+  {
+    "file": "audio/haddad_esquece_isso_ai.mp3",
+    "id": "haddad_esquece_isso_ai",
+    "character": "Fernando Haddad",
+    "charKey": "outro",
+    "transcript": "Esquece, isso aí, esquece.",
+    "duration": 2.39,
+    "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=427s",
+    "suggested_use": "Taunt / game over",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "gameover",
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/haddad_nao_gosto_de_imposto.mp3",
+    "id": "haddad_nao_gosto_de_imposto",
+    "character": "Fernando Haddad",
+    "charKey": "outro",
+    "transcript": "Eu não gosto de imposto, não gosto de imposto.",
+    "duration": 2.65,
+    "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=263s",
+    "suggested_use": "Meme Taxad: power-up / Fase 6",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle",
+        "powerup"
+      ]
+    }
+  },
+  {
+    "file": "audio/haddad_se_vira_consciencia.mp3",
+    "id": "haddad_se_vira_consciencia",
+    "character": "Fernando Haddad",
+    "charKey": "outro",
+    "transcript": "Se vira, é com sua consciência.",
+    "duration": 2.27,
+    "source_url": "https://www.youtube.com/watch?v=M3xulpYCFnI&t=36s",
+    "suggested_use": "Fase 6 Governar é pior / pause",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle",
+        "pause"
+      ]
+    }
+  },
+  {
+    "file": "audio/jair_acabou_porra.mp3",
+    "id": "jair_acabou_porra",
+    "character": "Jair Bolsonaro",
+    "charKey": "outro",
+    "transcript": "Acabou! Porra!",
+    "duration": 1.55,
+    "source_url": "https://www.youtube.com/watch?v=iYuVxdgj3JI&t=0s",
+    "suggested_use": "Game over / fim de fase (palavrão)",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "gameover",
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/jair_carrinho_vazio.mp3",
+    "id": "jair_carrinho_vazio",
+    "character": "Jair Bolsonaro",
+    "charKey": "outro",
+    "transcript": "No passado ia com o carrinho vazio.",
+    "duration": 2.71,
+    "source_url": "https://www.youtube.com/watch?v=iU-nlyEsmLA&t=231s",
+    "suggested_use": "Fase 1 Debate: hit",
+    "tags": {
+      "side": "any",
+      "phase": [
+        1
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/jair_iuuu_ta_ok_valeu.mp3",
+    "id": "jair_iuuu_ta_ok_valeu",
+    "character": "Jair Bolsonaro",
+    "charKey": "outro",
+    "transcript": "Iuuu! Tá ok? Valeu!",
+    "duration": 2.27,
+    "source_url": "https://www.youtube.com/watch?v=-9OqeMqlIFI&t=13s",
+    "suggested_use": "Power-up / pause",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle",
+        "pause",
+        "powerup"
+      ]
+    }
+  },
+  {
+    "file": "audio/jair_ja_falei_que_sou_imorrivel.mp3",
+    "id": "jair_ja_falei_que_sou_imorrivel",
+    "character": "Jair Bolsonaro",
+    "charKey": "outro",
+    "transcript": "Já falei que sou imorrível.",
+    "duration": 3.77,
+    "source_url": "https://www.youtube.com/watch?v=yWk3KzxJnck&t=9s",
+    "suggested_use": "Power-up (vida extra) / meme clássico",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle",
+        "powerup"
+      ]
+    }
+  },
+  {
+    "file": "audio/jair_obrigado_pela_missao.mp3",
+    "id": "jair_obrigado_pela_missao",
+    "character": "Jair Bolsonaro",
+    "charKey": "outro",
+    "transcript": "Obrigado pela missão.",
+    "duration": 2.17,
+    "source_url": "https://www.youtube.com/watch?v=QQCpHB7t15w&t=9s",
+    "suggested_use": "Victory / fim de fase",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/jair_promessas_estamos_cheios.mp3",
+    "id": "jair_promessas_estamos_cheios",
+    "character": "Jair Bolsonaro",
+    "charKey": "outro",
+    "transcript": "Então, promessas, estamos cheios",
+    "duration": 1.91,
+    "source_url": "https://www.youtube.com/watch?v=iU-nlyEsmLA&t=233s",
+    "suggested_use": "Fase 1 Debate: taunt",
+    "tags": {
+      "side": "any",
+      "phase": [
+        1
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/jair_segunda_vida.mp3",
+    "id": "jair_segunda_vida",
+    "character": "Jair Bolsonaro",
+    "charKey": "outro",
+    "transcript": "Obrigado, meu deus, pela minha segunda vida.",
+    "duration": 5.11,
+    "source_url": "https://www.youtube.com/watch?v=QQCpHB7t15w&t=2s",
+    "suggested_use": "Continue / vida extra",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle",
+        "retry"
+      ]
+    }
+  },
+  {
+    "file": "audio/jair_tambem_sou_incomivel.mp3",
+    "id": "jair_tambem_sou_incomivel",
+    "character": "Jair Bolsonaro",
+    "charKey": "outro",
+    "transcript": "E também sou incomível.",
+    "duration": 2.65,
+    "source_url": "https://www.youtube.com/watch?v=yWk3KzxJnck&t=22s",
+    "suggested_use": "Combo / meme clássico",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "combo",
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/janja_tinha_abrido.mp3",
+    "id": "janja_tinha_abrido",
+    "character": "Janja",
+    "charKey": "outro",
+    "transcript": "tinha abrido aquele caminho,",
+    "duration": 3.75,
+    "source_url": "https://www.youtube.com/watch?v=_PDm67HFvbg&t=87s",
+    "suggested_use": "Meme 'abrido': hit / Fase 2 Grupo da família",
+    "tags": {
+      "side": "any",
+      "phase": [
+        2
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/lula_a_gente_nasce_pra_viver_bem.mp3",
+    "id": "lula_a_gente_nasce_pra_viver_bem",
+    "character": "Lula",
+    "charKey": "lula",
+    "transcript": "A gente nasce não pra sofrer. A gente nasce pra viver bem.",
+    "duration": 5.55,
+    "source_url": "https://www.youtube.com/watch?v=jFpRMdB88s0&t=118s",
+    "suggested_use": "Fase 4 Comemoração",
+    "tags": {
+      "side": "esquerda",
+      "phase": [
+        4
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
     "file": "audio/lula_bola_ate_agora_nao_caiu.mp3",
     "id": "lula_bola_ate_agora_nao_caiu",
     "character": "Lula",
@@ -238,6 +774,25 @@
       "events": [
         "cameo",
         "combo",
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/lula_cervejada_tudo_que_a_gente_quer.mp3",
+    "id": "lula_cervejada_tudo_que_a_gente_quer",
+    "character": "Lula",
+    "charKey": "lula",
+    "transcript": "E uma cerveja gelada é tudo o que a gente quer.",
+    "duration": 3.97,
+    "source_url": "https://www.youtube.com/watch?v=jFpRMdB88s0&t=93s",
+    "suggested_use": "Fase 4 Comemoração / victory",
+    "tags": {
+      "side": "esquerda",
+      "phase": [
+        4
+      ],
+      "events": [
         "idle"
       ]
     }
@@ -286,6 +841,61 @@
     }
   },
   {
+    "file": "audio/lula_eu_prometi.mp3",
+    "id": "lula_eu_prometi",
+    "character": "Lula",
+    "charKey": "lula",
+    "transcript": "Eu prometi, eu prometi,",
+    "duration": 3.87,
+    "source_url": "https://www.youtube.com/watch?v=jFpRMdB88s0&t=75s",
+    "suggested_use": "Power-up / combo",
+    "tags": {
+      "side": "esquerda",
+      "phase": [],
+      "events": [
+        "combo",
+        "idle",
+        "powerup"
+      ]
+    }
+  },
+  {
+    "file": "audio/lula_homens_mais_importantes_planeta.mp3",
+    "id": "lula_homens_mais_importantes_planeta",
+    "character": "Lula",
+    "charKey": "lula",
+    "transcript": "eu participo de reunião todo ano com os homens mais importantes do planeta Terra.",
+    "duration": 5.27,
+    "source_url": "https://www.youtube.com/watch?v=cuiNzUtFOiI&t=96s",
+    "suggested_use": "Taunt / combo",
+    "tags": {
+      "side": "esquerda",
+      "phase": [],
+      "events": [
+        "combo",
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/lula_picanha_tudo_que_a_gente_quer.mp3",
+    "id": "lula_picanha_tudo_que_a_gente_quer",
+    "character": "Lula",
+    "charKey": "lula",
+    "transcript": "Mais uma picanha vinha no final de semana",
+    "duration": 4.57,
+    "source_url": "https://www.youtube.com/watch?v=jFpRMdB88s0&t=84s",
+    "suggested_use": "Power-up (picanha)",
+    "tags": {
+      "side": "esquerda",
+      "phase": [],
+      "events": [
+        "idle",
+        "powerup"
+      ]
+    }
+  },
+  {
     "file": "audio/lula_vai_ter_que_pedir_desculpa.mp3",
     "id": "lula_vai_ter_que_pedir_desculpa",
     "character": "Lula",
@@ -329,6 +939,26 @@
     }
   },
   {
+    "file": "audio/lula_voltar_a_comer_picanha.mp3",
+    "id": "lula_voltar_a_comer_picanha",
+    "character": "Lula",
+    "charKey": "lula",
+    "transcript": "...voltar a comer a tal da picanha que tinha desaparecido.",
+    "duration": 5.31,
+    "source_url": "https://www.youtube.com/watch?v=jFpRMdB88s0&t=68s",
+    "suggested_use": "Power-up (picanha); Comemoração",
+    "tags": {
+      "side": "esquerda",
+      "phase": [
+        4
+      ],
+      "events": [
+        "idle",
+        "powerup"
+      ]
+    }
+  },
+  {
     "file": "audio/lula_vou_com_a_marisa.mp3",
     "id": "lula_vou_com_a_marisa",
     "character": "Lula",
@@ -343,6 +973,25 @@
       "phase": [],
       "events": [
         "cameo",
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/moraes_colegiado_que_julga.mp3",
+    "id": "moraes_colegiado_que_julga",
+    "character": "Alexandre de Moraes",
+    "charKey": "moraes",
+    "transcript": "É o colegiado que julga, é o processo que legitima.",
+    "duration": 3.2,
+    "source_url": "https://www.youtube.com/watch?v=3SNkP4yOhjk&t=64s",
+    "suggested_use": "Fase 3 Apuração: veredito",
+    "tags": {
+      "side": "esquerda",
+      "phase": [
+        3
+      ],
+      "events": [
         "idle"
       ]
     }
@@ -369,6 +1018,25 @@
     }
   },
   {
+    "file": "audio/nikolas_deus_brincadeirinha_coracao.mp3",
+    "id": "nikolas_deus_brincadeirinha_coracao",
+    "character": "Nikolas Ferreira",
+    "charKey": "nikolas",
+    "transcript": "espero que Deus esteja fazendo uma brincadeirinha com o meu coração",
+    "duration": 3.99,
+    "source_url": "https://www.youtube.com/watch?v=I-C6zIl5ReI&t=90s",
+    "suggested_use": "Fase 3 Apuração: suspense",
+    "tags": {
+      "side": "direita",
+      "phase": [
+        3
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
     "file": "audio/nikolas_hoje_nao_companheiro.mp3",
     "id": "nikolas_hoje_nao_companheiro",
     "character": "Nikolas Ferreira",
@@ -385,6 +1053,25 @@
         "hit",
         "idle",
         "near-miss"
+      ]
+    }
+  },
+  {
+    "file": "audio/nikolas_medo_de_opiniao.mp3",
+    "id": "nikolas_medo_de_opiniao",
+    "character": "Nikolas Ferreira",
+    "charKey": "nikolas",
+    "transcript": "Vocês estão com medo de opinião, estão com medo de opinião.",
+    "duration": 3.73,
+    "source_url": "https://www.youtube.com/watch?v=kSSlTG6_k9U&t=52s",
+    "suggested_use": "Fase 1 Debate: taunt",
+    "tags": {
+      "side": "direita",
+      "phase": [
+        1
+      ],
+      "events": [
+        "idle"
       ]
     }
   },
@@ -429,6 +1116,42 @@
     }
   },
   {
+    "file": "audio/nikolas_nao_sou_futurologista.mp3",
+    "id": "nikolas_nao_sou_futurologista",
+    "character": "Nikolas Ferreira",
+    "charKey": "nikolas",
+    "transcript": "Não sou futurologista.",
+    "duration": 1.55,
+    "source_url": "https://www.youtube.com/watch?v=I-C6zIl5ReI&t=83s",
+    "suggested_use": "Fase 3 Apuração",
+    "tags": {
+      "side": "direita",
+      "phase": [
+        3
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/nikolas_o_choro_e_livre.mp3",
+    "id": "nikolas_o_choro_e_livre",
+    "character": "Nikolas Ferreira",
+    "charKey": "nikolas",
+    "transcript": "Quem viver verá o choro é livre.",
+    "duration": 3.29,
+    "source_url": "https://www.youtube.com/watch?v=kSSlTG6_k9U&t=143s",
+    "suggested_use": "Victory / taunt",
+    "tags": {
+      "side": "direita",
+      "phase": [],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
     "file": "audio/nikolas_parou_ta_tudo_errado.mp3",
     "id": "nikolas_parou_ta_tudo_errado",
     "character": "Nikolas Ferreira",
@@ -444,6 +1167,26 @@
       "events": [
         "idle",
         "pause"
+      ]
+    }
+  },
+  {
+    "file": "audio/nikolas_prorrogacao_time_perdendo.mp3",
+    "id": "nikolas_prorrogacao_time_perdendo",
+    "character": "Nikolas Ferreira",
+    "charKey": "nikolas",
+    "transcript": "A prorrogação só ajuda o time que está perdendo.",
+    "duration": 4.23,
+    "source_url": "https://www.youtube.com/watch?v=I-C6zIl5ReI&t=117s",
+    "suggested_use": "Fase 3 Apuração",
+    "tags": {
+      "side": "direita",
+      "phase": [
+        3
+      ],
+      "events": [
+        "gameover",
+        "idle"
       ]
     }
   },
@@ -482,6 +1225,101 @@
       "events": [
         "idle",
         "phase-start"
+      ]
+    }
+  },
+  {
+    "file": "audio/renan_nao_houve_fraude.mp3",
+    "id": "renan_nao_houve_fraude",
+    "character": "Renan Santos",
+    "charKey": "outro",
+    "transcript": "Não houve fraude. Infelizmente, ou felizmente, para quem quiser.",
+    "duration": 4.19,
+    "source_url": "https://www.youtube.com/watch?v=0eL0avz9dGM&t=80s",
+    "suggested_use": "Fase 3 Apuração: resultado confirmado",
+    "tags": {
+      "side": "any",
+      "phase": [
+        3
+      ],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/renan_nao_saia_as_ruas.mp3",
+    "id": "renan_nao_saia_as_ruas",
+    "character": "Renan Santos",
+    "charKey": "outro",
+    "transcript": "Não saia as ruas. Presta muita atenção. Não saia as ruas.",
+    "duration": 4.47,
+    "source_url": "https://www.youtube.com/watch?v=0eL0avz9dGM&t=0s",
+    "suggested_use": "Fase 3 Apuração / Fase 5 Cadê o Flávio: aviso ao jogador; pause",
+    "tags": {
+      "side": "any",
+      "phase": [
+        3
+      ],
+      "events": [
+        "cameo",
+        "idle",
+        "pause"
+      ]
+    }
+  },
+  {
+    "file": "audio/renan_pare_de_correr_risco.mp3",
+    "id": "renan_pare_de_correr_risco",
+    "character": "Renan Santos",
+    "charKey": "outro",
+    "transcript": "Pare de correr risco por malandro, malandro.",
+    "duration": 4.35,
+    "source_url": "https://www.youtube.com/watch?v=0eL0avz9dGM&t=98s",
+    "suggested_use": "Fase 5 Cadê o Flávio; hit",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/renan_qualquer_chororo.mp3",
+    "id": "renan_qualquer_chororo",
+    "character": "Renan Santos",
+    "charKey": "outro",
+    "transcript": "Qualquer chororô agora apenas vai soar tosco.",
+    "duration": 3.69,
+    "source_url": "https://www.youtube.com/watch?v=0eL0avz9dGM&t=92s",
+    "suggested_use": "Taunt / game over do adversário",
+    "tags": {
+      "side": "any",
+      "phase": [],
+      "events": [
+        "gameover",
+        "idle"
+      ]
+    }
+  },
+  {
+    "file": "audio/tarcisio_acorda_cedo_dorme_tarde.mp3",
+    "id": "tarcisio_acorda_cedo_dorme_tarde",
+    "character": "Tarcísio de Freitas",
+    "charKey": "outro",
+    "transcript": "um cara que acorda muito cedo, dorme muito tarde,",
+    "duration": 3.19,
+    "source_url": "https://www.youtube.com/watch?v=NQ8PAztq2Hc&t=112s",
+    "suggested_use": "Fase 4 Comemoração / power-up",
+    "tags": {
+      "side": "any",
+      "phase": [
+        4
+      ],
+      "events": [
+        "idle",
+        "powerup"
       ]
     }
   }
